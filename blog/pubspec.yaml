@@ -31,6 +31,6 @@ flutter:
   fonts:
     - family: DataType
       fonts:
-        - asset: assets/fonts/DataType-Regular.ttf
-        - asset: assets/fonts/DataType-Bold.ttf
+        - asset: assets/fonts/Datatype-Regular.ttf
+        - asset: assets/fonts/Datatype-Bold.ttf
           weight: 700
