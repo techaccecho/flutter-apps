@@ -1,6 +1,6 @@
-import 'package:blog/modules/chat_forum/view/chat_screen.dart';
 import 'package:blog/modules/core/application_bloc.dart';
 import 'package:blog/modules/core/application_repository.dart';
+import 'package:blog/modules/home/view/home_view.dart';
 import 'package:blog/resources/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Blog.NET',
         theme: AppTheme.light(),
-        home: const ChatForumScreen(title: 'Blog.NET'),
+        home: const HomeView(),
       ),
     );
   }

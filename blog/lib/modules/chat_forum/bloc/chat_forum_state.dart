@@ -1,4 +1,5 @@
 import 'package:blog/modules/chat_forum/model/chat_item.dart';
+import 'package:blog/modules/chat_forum/model/thread.dart';
 import 'package:blog/shared/util/abstract_bloc/base_state.dart';
 
 class ChatForumState extends BaseState {
@@ -56,3 +57,25 @@ class ChatForumErrorState extends ChatForumState {
     'error': error,
   };
 }
+
+class ChatForumThreadLoadingState extends ChatForumState {}
+
+class ChatForumThreadLoadedState extends ChatForumState {
+  final Thread thread;
+  final List<CommentItem> comments;
+
+  const ChatForumThreadLoadedState({
+    required this.thread,
+    required this.comments,
+  });
+
+
+  @override
+  List<Object?> get props => [thread, comments];
+
+  @override
+  Map<String, dynamic> get properties => {};
+
+}
+
+class ChatForumThreadErrorState extends ChatForumState {}

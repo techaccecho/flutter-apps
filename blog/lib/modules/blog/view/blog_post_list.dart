@@ -1,0 +1,53 @@
+import 'package:blog/modules/blog/bloc/blog_bloc.dart';
+import 'package:blog/modules/blog/bloc/blog_event.dart';
+import 'package:blog/modules/blog/bloc/blog_repository.dart';
+import 'package:blog/modules/blog/bloc/blog_state.dart';
+import 'package:blog/modules/blog/view/blog_post_view.dart';
+import 'package:blog/resources/resources.dart';
+import 'package:blog/modules/blog/view/blog_post_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class PostList extends StatelessWidget {
+  const PostList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => BlogBloc(repository: BlogRepository())..add(LoadBlogPostsEvent()),
+      child: BlocBuilder<BlogBloc, BlogState>(
+          builder: (context, state) {
+            if (state is BlogLoadingState) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is BlogLoadedState) {
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: state.posts.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: BlogPostCard(
+                      post: state.posts[index],
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => 
+                          BlogPostView(post: state.posts[index]),
+                        ));
+                        // context.read<BlogBloc>().add(OpenBlogPostEvent(blogId: index.toString()));
+                      },
+                    ),
+                  );
+                },
+              );
+            }
+
+            if (state is BlogPostLoadedState) {
+              return BlogPostView(post: state.blogPost,);
+            }
+
+        return const Center(child: Text("No posts"));
+      },
+    ));
+  }
+}

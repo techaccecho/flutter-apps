@@ -1,3 +1,4 @@
+import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_event.dart';
 
 abstract class ApplicationEvent extends BaseEvent {
@@ -30,4 +31,16 @@ class ApplicationRefreshEvent extends ApplicationEvent {
 
   @override
   Map<String, dynamic> get properties => {'forceError': forceError};
+}
+
+class ApplicationNavigateEvent extends ApplicationEvent {
+
+  final HomeViewState route;
+  const ApplicationNavigateEvent({required this.route});
+
+  @override
+  List<Object?> get props => [route];
+
+  @override
+  Map<String, dynamic> get properties => {"route": route};
 }

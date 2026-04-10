@@ -1,7 +1,6 @@
+import 'package:blog/modules/chat_forum/model/thread.dart';
+import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
-import 'package:blog/modules/chat_thread/model/thread.dart';
-
-import '../../../resources/resources.dart';
 
 class ChatComment extends StatelessWidget {
   final CommentItem comment;
@@ -21,7 +20,6 @@ class ChatComment extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // LEFT USER PANEL (classic forum look)
           Container(
             width: 120,
             padding: const EdgeInsets.all(AppSpacing.sm),
@@ -46,8 +44,6 @@ class ChatComment extends StatelessWidget {
               ],
             ),
           ),
-
-          // RIGHT MESSAGE
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),

@@ -1,3 +1,4 @@
+import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_state.dart';
 
 class ApplicationState extends BaseState {
@@ -32,41 +33,18 @@ class ApplicationCoreLoadedState extends ApplicationState {
 
 class ApplicationContentLoadedState extends ApplicationState {
 
-  final String title;
-  final String description;
+  final HomeViewState route;
 
   const ApplicationContentLoadedState({
-    required this.title,
-    required this.description
+    required this.route,
   });
 
   @override
-  List<Object?> get props => [title, description];
+  List<Object?> get props => [route];
 
   @override
   Map<String, dynamic> get properties => {
-    'title': title,
-    'description': description
-  };
-}
-
-class ApplicationContentFailedState extends ApplicationState {
-
-  final String title;
-  final String description;
-
-  const ApplicationContentFailedState({
-    required this.title,
-    required this.description
-  });
-
-  @override
-  List<Object?> get props => [title, description];
-
-  @override
-  Map<String, dynamic> get properties => {
-    'title': title,
-    'description': description
+    'route': route
   };
 }
 

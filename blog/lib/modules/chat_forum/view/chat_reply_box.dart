@@ -1,9 +1,8 @@
+import 'package:blog/modules/chat_forum/bloc/chat_forum_bloc.dart';
+import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
+import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:blog/modules/chat_thread/bloc/chat_thread_bloc.dart';
-import 'package:blog/modules/chat_thread/bloc/chat_thread_event.dart';
-
-import '../../../resources/resources.dart';
 
 class ChatReplyBox extends StatefulWidget {
   const ChatReplyBox({super.key});
@@ -36,9 +35,8 @@ class _ChatReplyBoxState extends State<ChatReplyBox> {
           ElevatedButton(
             onPressed: () {
               context
-                  .read<ChatThreadBloc>()
+                  .read<ChatForumBloc>()
                   .add(ChatAddCommentEvent(controller.text));
-
               controller.clear();
             },
             child: const Text("Post"),

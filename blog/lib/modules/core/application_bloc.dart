@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_bloc.dart';
 import 'package:blog/shared/util/abstract_bloc/base_emitter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +16,8 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
         super(const ApplicationInitialState()) {
     on<ApplicationStartupEvent>(_onApplicationStartup);
     on<ApplicationRefreshEvent>(_onApplicationRefresh);
-
+    on<ApplicationNavigateEvent>(_onApplicationNavigate);
+    
     _subscription = _repository.data.listen(
       (event) => add(event),
     );
@@ -23,24 +25,16 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
 
   Future<void> _onApplicationStartup(
       ApplicationStartupEvent event, Emitter<ApplicationState> emit) async {
-    emit.logCall(ApplicationLoadingState());
-    await _repository.initialiseServices();
-    await _fetchContent(emit, false);
+      emit.logCall(ApplicationContentLoadedState(route: HomeViewState.blog));
   }
 
   Future<void> _onApplicationRefresh(
       ApplicationRefreshEvent event, Emitter<ApplicationState> emit) async {
-    emit.logCall(ApplicationLoadingState());
-    await _fetchContent(emit, event.forceError);
   }
 
-  Future<void> _fetchContent(Emitter<ApplicationState> emit, bool forceError) async {
-    dynamic content = await _repository.fetchContent();
-    if (content != null && !forceError) {
-      emit.logCall(ApplicationContentLoadedState(title: content['title'], description: content['description']));
-    } else {
-      emit.logCall(ApplicationContentFailedState(title: "Example error state", description: "This is an example of an error state, you can replace this with your own error handling"));
-    }
+  Future<void> _onApplicationNavigate(
+      ApplicationNavigateEvent event, Emitter<ApplicationState> emit) async {
+      emit.logCall(ApplicationContentLoadedState(route: event.route));
   }
 
   @override
