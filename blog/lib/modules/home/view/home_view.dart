@@ -42,9 +42,9 @@ class _MobileLayout extends StatelessWidget {
           Expanded(child: BlocBuilder<ApplicationBloc, ApplicationState>(
             builder: (context, state) {
               if (state is ApplicationContentLoadedState) {
-                if (state.route == "BLOG") {
+                if (state.route == HomeViewState.blog) {
                   return PostList();
-                } else if (state.route == "CHAT_FORUM") {
+                } else if (state.route == HomeViewState.chatForum) {
                   return ChatForumView();
                 } else {
                   return CircularProgressIndicator();
@@ -102,9 +102,9 @@ class _TabletLayout extends StatelessWidget {
               Expanded(child: BlocBuilder<ApplicationBloc, ApplicationState>(
                 builder: (context, state) {
                 if (state is ApplicationContentLoadedState) {
-                  if (state.route == "BLOG") {
+                  if (state.route == HomeViewState.blog) {
                     return PostList();
-                  } else if (state.route == "CHAT_FORUM") {
+                  } else if (state.route == HomeViewState.chatForum) {
                     return ChatForumView();
                   } else {
                     return CircularProgressIndicator();
