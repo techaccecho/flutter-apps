@@ -1,5 +1,6 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:blog/shared/services/auth0_service.dart';
+import 'package:blog/shared/util/app_config.dart';
 import 'package:flutter/material.dart';
 
 class AuthenticationService extends ChangeNotifier {
@@ -12,13 +13,13 @@ class AuthenticationService extends ChangeNotifier {
 
   Future<void> login() async {
     await auth0Service.auth0Web.loginWithRedirect(
-      redirectUrl: 'http://localhost:3000',
+      redirectUrl: AppConfig.redirectUrl,
     );
   }
 
   Future<void> logout() async {
     await auth0Service.auth0Web.logout(
-      returnToUrl: 'http://localhost:3000',
+      returnToUrl: AppConfig.redirectUrl,
     );
   }
 
