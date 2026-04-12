@@ -44,3 +44,25 @@ class ApplicationNavigateEvent extends ApplicationEvent {
   @override
   Map<String, dynamic> get properties => {"route": route};
 }
+
+class ApplicationLoginEvent extends ApplicationEvent {
+
+  const ApplicationLoginEvent();
+
+  @override
+  List<Object?> get props => [];
+
+  @override
+  Map<String, dynamic> get properties => {};
+}
+
+class ApplicationLogoutEvent extends ApplicationEvent {
+
+  const ApplicationLogoutEvent();
+
+  @override
+  List<Object?> get props => [];
+  
+  @override
+  Map<String, dynamic> get properties => {};
+}

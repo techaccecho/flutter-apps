@@ -34,17 +34,23 @@ class ApplicationCoreLoadedState extends ApplicationState {
 class ApplicationContentLoadedState extends ApplicationState {
 
   final HomeViewState route;
+  final bool isLoggedIn;
+  final int timestamp;
 
   const ApplicationContentLoadedState({
     required this.route,
+    required this.isLoggedIn,
+    required this.timestamp
   });
 
   @override
-  List<Object?> get props => [route];
+  List<Object?> get props => [route, isLoggedIn, timestamp];
 
   @override
   Map<String, dynamic> get properties => {
-    'route': route
+    'route': route,
+    'isLoggedIn': isLoggedIn,
+    'timestamp': timestamp
   };
 }
 
