@@ -47,7 +47,7 @@ class _LandingScreenState extends State<LandingScreen> {
             mainAxisAlignment: .center,
             children: [
               if (state is ApplicationLoadingState) ...[
-                const CircularProgressIndicator()
+                const Text('Blog.NET is loading...'),
               ] else ...[
                 const Text('Welcome...')
               ]

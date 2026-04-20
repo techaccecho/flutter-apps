@@ -51,6 +51,12 @@ class AppTextStyles {
     decoration: TextDecoration.underline,
   );
 
+  static const button = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    color: AppColors.link,
+  );
+
   static const caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,

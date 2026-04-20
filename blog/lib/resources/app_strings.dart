@@ -11,11 +11,11 @@ class Strings {
   static const btnLogout = "Logout";
 
   // SideBar
-  static const titleAuthentication = "Authentication";
+  static const titleAccount = "Account";
   static const titleNavigation = "Navigation";
   static const titleAbout = "About";
   static const captionYouAreSignedIn = "You are signed in";
-  static const linkSignIn = "Sign in";
+  static const linkSignIn = "Sign in | Sign up";
   static const linkHome = "• Home";
   static const linkForums = "• Forums";
   static const linkProfile = "• Profile";
