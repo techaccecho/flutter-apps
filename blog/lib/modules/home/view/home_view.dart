@@ -2,6 +2,7 @@ import 'package:blog/modules/blog/view/blog_post_list.dart';
 import 'package:blog/modules/chat_forum/view/chat_forum_view.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
+import 'package:blog/resources/app_strings.dart';
 import 'package:blog/shared/view/side_bar.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
@@ -126,6 +127,7 @@ class _DesktopLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.max,
       children: [
         Expanded(
           child: Center(
@@ -134,26 +136,43 @@ class _DesktopLayout extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
-                    width: 250,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.2,
                     child: Sidebar(),
                   ),
-                  const SizedBox(width: AppSpacing.lg),
-                  Expanded(child:
-                    BlocBuilder<ApplicationBloc, ApplicationState>(
-                      builder: (context, state) {
-                        if (state is ApplicationContentLoadedState) {
-                          if (state.route == HomeViewState.blog) {
-                            return PostList();
-                          } else if (state.route == HomeViewState.chatForum) {
-                            return ChatForumView();
-                          } else {
-                            return const Text('Blog.NET is loading...');
-                          }
-                        }
-                        return const Text('Blog.NET is loading...');
-                    })
-                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    child: Column(children: [  
+                      Container(
+                        color: const Color.fromARGB(255, 214, 214, 214),
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.md),
+                        alignment: Alignment.centerLeft,
+                        child: Row(children: [
+                            Icon(Icons.warning, color: const Color.fromARGB(255, 56, 56, 56)), 
+                            SizedBox(width: AppSpacing.sm),
+                            Text(
+                              Strings.notificationContent,
+                              style: AppTextStyles.body,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(child: 
+                        BlocBuilder<ApplicationBloc, ApplicationState>(
+                          builder: (context, state) {
+                            if (state is ApplicationContentLoadedState) {
+                              if (state.route == HomeViewState.blog) {
+                                return PostList();
+                              } else if (state.route == HomeViewState.chatForum) {
+                                return ChatForumView();
+                              } else {
+                                return const Text(Strings.appLoading);
+                              }
+                            }
+                            return const Text(Strings.appLoading);
+                        })
+                      ),
+                  ],),)
                 ],
               ),
             ),
