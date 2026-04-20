@@ -1,6 +1,7 @@
 import 'package:blog/modules/chat_forum/bloc/chat_forum_bloc.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
 import 'package:blog/resources/resources.dart';
+import 'package:blog/shared/view/raised_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,6 +15,13 @@ class ChatReplyBox extends StatefulWidget {
 class _ChatReplyBoxState extends State<ChatReplyBox> {
   final controller = TextEditingController();
 
+  void postReply() {
+    context
+        .read<ChatForumBloc>()
+        .add(ChatAddCommentEvent(controller.text));
+    controller.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,6 +30,7 @@ class _ChatReplyBoxState extends State<ChatReplyBox> {
         border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
             child: TextField(
@@ -32,15 +41,7 @@ class _ChatReplyBoxState extends State<ChatReplyBox> {
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () {
-              context
-                  .read<ChatForumBloc>()
-                  .add(ChatAddCommentEvent(controller.text));
-              controller.clear();
-            },
-            child: const Text("Post"),
-          ),
+          SizedBox(width: 120, child: RaisedButton(action: postReply, title: "Post"))
         ],
       ),
     );

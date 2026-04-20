@@ -31,10 +31,7 @@ class PostList extends StatelessWidget {
                     child: BlogPostCard(
                       post: state.posts[index],
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => 
-                          BlogPostView(post: state.posts[index]),
-                        ));
-                        // context.read<BlogBloc>().add(OpenBlogPostEvent(blogId: index.toString()));
+                        context.read<BlogBloc>().add(OpenBlogPostEvent(blogId: index.toString()));
                       },
                     ),
                   );

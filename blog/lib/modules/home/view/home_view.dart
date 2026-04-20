@@ -148,10 +148,10 @@ class _DesktopLayout extends StatelessWidget {
                           } else if (state.route == HomeViewState.chatForum) {
                             return ChatForumView();
                           } else {
-                            return CircularProgressIndicator();
+                            return const Text('Blog.NET is loading...');
                           }
-                        } 
-                        return CircularProgressIndicator();
+                        }
+                        return const Text('Blog.NET is loading...');
                     })
                   ),
                 ],
