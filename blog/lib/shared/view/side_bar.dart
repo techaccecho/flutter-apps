@@ -2,6 +2,7 @@ import 'package:blog/modules/core/application.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/resources/app_strings.dart';
 import 'package:blog/resources/resources.dart';
+import 'package:blog/shared/view/nav_item.dart';
 import 'package:blog/shared/view/raised_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,17 +50,42 @@ class _SidebarState extends State<Sidebar> {
               // Navigation Section
               Text(Strings.titleNavigation, style: AppTextStyles.h2),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () => context.read<ApplicationBloc>().add(ApplicationNavigateEvent(route: HomeViewState.blog)), 
-                child: Text(Strings.linkHome, style: AppTextStyles.link)),
+              NavItem(
+                title: Strings.linkHome,
+                isSelected: state is ApplicationContentLoadedState && state.route == HomeViewState.blog,
+                onTap: () => context.read<ApplicationBloc>().add(
+                  ApplicationNavigateEvent(route: HomeViewState.blog),
+                ),
+              ),
               const SizedBox(height: 4),
-              GestureDetector(
-                onTap: () => context.read<ApplicationBloc>().add(ApplicationNavigateEvent(route: HomeViewState.chatForum)), 
-                child: Text(Strings.linkForums, style: AppTextStyles.link)),
+              NavItem(
+                title: Strings.linkForums,
+                isSelected: state is ApplicationContentLoadedState && state.route  == HomeViewState.chatForum,
+                onTap: () => context.read<ApplicationBloc>().add(
+                  ApplicationNavigateEvent(route: HomeViewState.chatForum),
+                ),
+              ),
               const SizedBox(height: 4),
-              GestureDetector(
-                onTap: () => context.read<ApplicationBloc>().add(ApplicationNavigateEvent(route: HomeViewState.profile)), 
-                child: Text(Strings.linkProfile, style: AppTextStyles.link)),
+
+              BlocBuilder<ApplicationBloc, ApplicationState>(
+                builder: (context, state) {
+                  
+                  if (state is ApplicationContentLoadedState && state.isLoggedIn) {
+                    return 
+                      NavItem(
+                        title: Strings.linkProfile,
+                        isSelected: state.route  == HomeViewState.profile,
+                        onTap: () => context.read<ApplicationBloc>().add(
+                          ApplicationNavigateEvent(route: HomeViewState.profile),
+                        ),
+                      );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+
+                }
+              ),
+              
               const SizedBox(height: 24),
 
               // About Section

@@ -1,12 +1,21 @@
-# flutter-template
-A Flutter project with some state management - used for knowledge share
+# Flutter Apps
+A collection of Flutter projects for team Project Echo.
+
+## Flutter FVM
+1. Install FVM
+https://fvm.app/documentation/getting-started/overview
+
+2. Use version 3.41.0
+```
+fvm use 3.41.0
+```
 
 ## Helpful commands
 ### Running as a web app
-`flutter run -d chrome`
+`fvm flutter run -d chrome`
 
 ### Building for web
-`flutter build web`
+`fvm flutter build web`
 
 ## Things you'll need to understand about Flutter
 

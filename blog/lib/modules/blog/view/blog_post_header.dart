@@ -6,8 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BlogPostHeader extends StatelessWidget {
   final String title;
+  final String author;
+  final String date;
 
-  const BlogPostHeader({super.key, required this.title});
+  const BlogPostHeader({super.key, required this.title, required this.author, required this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,11 @@ class BlogPostHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: AppTextStyles.h1),
+              const SizedBox(height: 8),
+              Text(
+                "by $author · $date",
+                style: AppTextStyles.bodySmall,
+              ),
           ],
       ),])
     );

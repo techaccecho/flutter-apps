@@ -11,19 +11,15 @@ class BlogPostView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        BlogPostHeader(title: post.title),
+        BlogPostHeader(title: post.title, author: post.author, date: post.date),
         Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(post.title, style: AppTextStyles.h1),
-              const SizedBox(height: 8),
-              Text(
-                "by ${post.author} · ${post.date}",
-                style: AppTextStyles.bodySmall,
-              ),
               const SizedBox(height: 16),
               Text(
                 post.excerpt, // replace with full content later
