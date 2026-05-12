@@ -5,6 +5,7 @@ class BlogPost {
   final String date;
   final String excerpt;
   final int comments;
+  final String article;
 
   BlogPost({
     required this.id,
@@ -13,5 +14,6 @@ class BlogPost {
     required this.date,
     required this.excerpt,
     required this.comments,
+    required this.article
   });
 }
