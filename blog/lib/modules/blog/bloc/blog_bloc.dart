@@ -16,6 +16,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
         super(BlogLoadingState()) {
     on<LoadBlogPostsEvent>(_loadBlogPosts);
     on<OpenBlogPostEvent>(_openBlogPost);
+    on<CreateNewBlogPostEvent>(_createNewBlogPost);
     
     _subscription = _repository.data.listen(
       (event) => add(event),
@@ -30,6 +31,11 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
   Future<void> _openBlogPost(
       OpenBlogPostEvent event, Emitter<BlogState> emit) async {
     emit.logCall(BlogPostLoadedState(blogPost: await _repository.getBlogPost(event.blogId)));
+  }
+
+  Future<void> _createNewBlogPost(
+      CreateNewBlogPostEvent event, Emitter<BlogState> emit) async {
+    emit.logCall(BlogPostCreateState(author: await _repository.getCurrentAuthor()));
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:blog/modules/blog/bloc/blog_event.dart';
 import 'package:blog/modules/blog/bloc/blog_repository.dart';
 import 'package:blog/modules/blog/bloc/blog_state.dart';
 import 'package:blog/modules/blog/view/blog_post_view.dart';
+import 'package:blog/modules/blog/view/create_post/blog_post_create.dart';
 import 'package:blog/modules/core/application_bloc.dart';
 import 'package:blog/modules/core/application_state.dart';
 import 'package:blog/resources/app_strings.dart';
@@ -33,7 +34,7 @@ class PostList extends StatelessWidget {
                   if (state is ApplicationContentLoadedState && state.isLoggedIn) {
                     return InkWell(
                       onTap: () => {
-                        // context.read<BlogBloc>().add(CreateNewBlogPostEvent()),
+                        context.read<BlogBloc>().add(CreateNewBlogPostEvent()),
                       },
                       child: Container(
                         width: double.infinity,
@@ -90,6 +91,10 @@ class PostList extends StatelessWidget {
             return Expanded(
               child: BlogPostView(post: state.blogPost),
             );
+          }
+
+          if (state is BlogPostCreateState) {
+            return BlogPostCreateView(post: null, author: state.author);
           }
 
           return const Center(child: Text(Strings.blogPostNone));

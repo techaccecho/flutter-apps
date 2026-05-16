@@ -30,4 +30,22 @@ class BlogPostLoadedState extends BlogState {
   List<Object?> get props => [blogPost];
 }
 
+class BlogPostCreateState extends BlogState {
+  final String author;
+
+  const BlogPostCreateState({required this.author});
+
+  @override
+  List<Object?> get props => [author];
+}
+
+class BlogPostEditState extends BlogState {
+  final BlogPost? blogPost;
+
+  const BlogPostEditState({required this.blogPost});
+
+  @override
+  List<Object?> get props => [blogPost];
+}
+
 class BlogErrorState extends BlogState {}

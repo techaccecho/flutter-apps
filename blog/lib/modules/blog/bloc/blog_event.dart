@@ -34,3 +34,28 @@ class OpenBlogPostEvent extends BlogEvent {
     "blogId": blogId
   };
 }
+
+class CreateNewBlogPostEvent extends BlogEvent {
+
+  const CreateNewBlogPostEvent();
+
+  @override
+  List<Object?> get props => [];
+
+  @override
+  Map<String, dynamic> get properties => {};
+}
+
+class EditBlogPostEvent extends BlogEvent {
+
+  final String blogId;
+  const EditBlogPostEvent({required this.blogId});  
+
+  @override
+  List<Object?> get props => [blogId];
+
+  @override
+  Map<String, dynamic> get properties => {
+    "blogId": blogId
+  };
+}

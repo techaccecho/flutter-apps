@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:blog/shared/services/auth0_service.dart';
 import 'package:blog/shared/util/app_config.dart';
@@ -25,5 +27,9 @@ class AuthenticationService extends ChangeNotifier {
 
   Future<bool> isLoggedIn() async {
     return await auth0Service.auth0Web.hasValidCredentials();
+  }
+
+  Future<String> getAccessToken() async {
+    return (await auth0Service.auth0Web.credentials()).accessToken;
   }
 }
