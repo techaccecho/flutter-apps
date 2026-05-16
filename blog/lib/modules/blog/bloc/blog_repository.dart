@@ -111,5 +111,10 @@ void main() {
     return blogs[int.tryParse(blogId)!];
   }
 
+  Future<String> getCurrentAuthor() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return "cedric_dev";
+  }
+
   void dispose() => _controller.close();
 }
