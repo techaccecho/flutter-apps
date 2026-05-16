@@ -10,10 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PostList extends StatelessWidget {
 
-  final Post post;
+  final List<Post> posts;
   final int postsAmount;
 
-  const PostList({super.key, required this.post, required this.postsAmount});
+  const PostList({super.key, required this.posts, required this.postsAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class PostList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: BlogPostCard(
-                post: post,
+                post: posts[index],
                 onTap: () {
                   context.read<BlogBloc>().add(
                     OpenBlogPostEvent(blogId: index.toString()),

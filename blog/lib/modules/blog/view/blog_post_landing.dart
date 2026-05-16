@@ -23,7 +23,7 @@ class PostLanding extends StatelessWidget {
           }
 
           if (state is BlogLoadedState) {
-            return PostList(post: state.posts.first, postsAmount: state.posts.length);
+            return PostList(posts: state.posts, postsAmount: state.posts.length);
           }
 
           if (state is BlogPostLoadedState) {
