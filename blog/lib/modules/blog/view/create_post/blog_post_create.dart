@@ -1,4 +1,4 @@
-import 'package:blog/modules/blog/model/blog_post.dart';
+import 'package:blog/modules/blog/model/post.dart';
 import 'package:blog/modules/blog/view/blog_post_view.dart';
 import 'package:blog/modules/blog/view/create_post/blog_post_header_create.dart';
 import 'package:blog/resources/app_spacing.dart';
@@ -9,10 +9,11 @@ import 'package:markdown/markdown.dart' as md;
 
 class BlogPostCreateView extends StatefulWidget {
 
-  final BlogPost? post;
+  final Post? post;
   final String author;
+  final bool isEditing;
 
-  const BlogPostCreateView({super.key, required this.post, required this.author});
+  const BlogPostCreateView({super.key, required this.post, required this.author, required this.isEditing});
 
   @override
   State<BlogPostCreateView> createState() => _BlogPostHeaderCreateState();
@@ -20,10 +21,21 @@ class BlogPostCreateView extends StatefulWidget {
 
 class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
 
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   bool isPreview = false;
-
 
   @override
   Widget build(BuildContext context) {

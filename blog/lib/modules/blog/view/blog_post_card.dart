@@ -1,9 +1,9 @@
-import 'package:blog/modules/blog/model/blog_post.dart';
+import 'package:blog/modules/blog/model/post.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
 
 class BlogPostCard extends StatelessWidget {
-  final BlogPost post;
+  final Post post;
   final VoidCallback onTap;
 
   const BlogPostCard({
@@ -30,14 +30,14 @@ class BlogPostCard extends StatelessWidget {
             Text(post.title, style: AppTextStyles.h2),
             const SizedBox(height: 8),
             Text(
-              "by ${post.author} · ${post.date}",
+              "by ${post.author.alias} · ${DateTime.fromMillisecondsSinceEpoch(post.createdAt.toInt()).toLocal().toString().split(" ").first}",
               style: AppTextStyles.bodySmall,
             ),
             const SizedBox(height: 12),
-            Text(post.excerpt, style: AppTextStyles.body),
+            Text(post.content.substring(0, 50), style: AppTextStyles.body),
             const SizedBox(height: 12),
             Text(
-              "${post.comments} comments",
+              "${post.comments.length} comments",
               style: AppTextStyles.link,
             ),
           ],

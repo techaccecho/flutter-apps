@@ -1,4 +1,4 @@
-import 'package:blog/modules/blog/model/blog_post.dart';
+import 'package:blog/modules/blog/model/post.dart';
 import 'package:blog/modules/blog/view/blog_post_header.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
 
 class BlogPostView extends StatelessWidget {
-  final BlogPost post;
+  final Post post;
 
   const BlogPostView({super.key, required this.post});
 
@@ -18,15 +18,15 @@ class BlogPostView extends StatelessWidget {
       children: [
         BlogPostHeader(
           title: post.title,
-          author: post.author,
-          date: post.date,
+          author: post.author.alias??"",
+          date: DateTime.fromMillisecondsSinceEpoch(post.createdAt.toInt()).toLocal().toString().split(" ").first,
         ),
 
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: MarkdownBody(
-              data: post.article, 
+              data: post.content, 
               extensionSet: md.ExtensionSet.gitHubFlavored,
               blockSyntaxes: [UrlEmbedSyntax()],
               builders: {
