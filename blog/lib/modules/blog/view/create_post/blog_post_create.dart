@@ -1,5 +1,5 @@
 import 'package:blog/modules/blog/model/post.dart';
-import 'package:blog/modules/blog/view/blog_post_view.dart';
+import 'package:blog/modules/blog/view/view_posts/blog_post_view.dart';
 import 'package:blog/modules/blog/view/create_post/blog_post_header_create.dart';
 import 'package:blog/resources/app_spacing.dart';
 import 'package:flutter/material.dart';

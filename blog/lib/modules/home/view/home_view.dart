@@ -1,4 +1,4 @@
-import 'package:blog/modules/blog/view/blog_post_list.dart';
+import 'package:blog/modules/blog/view/blog_post_landing.dart';
 import 'package:blog/modules/chat_forum/view/chat_forum_view.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
@@ -44,7 +44,7 @@ class _MobileLayout extends StatelessWidget {
             builder: (context, state) {
               if (state is ApplicationContentLoadedState) {
                 if (state.route == HomeViewState.blog) {
-                  return PostList();
+                  return PostLanding();
                 } else if (state.route == HomeViewState.chatForum) {
                   return ChatForumView();
                 } else {
@@ -104,7 +104,7 @@ class _TabletLayout extends StatelessWidget {
                 builder: (context, state) {
                 if (state is ApplicationContentLoadedState) {
                   if (state.route == HomeViewState.blog) {
-                    return PostList();
+                    return PostLanding();
                   } else if (state.route == HomeViewState.chatForum) {
                     return ChatForumView();
                   } else {
@@ -162,7 +162,7 @@ class _DesktopLayout extends StatelessWidget {
                           builder: (context, state) {
                             if (state is ApplicationContentLoadedState) {
                               if (state.route == HomeViewState.blog) {
-                                return PostList();
+                                return PostLanding();
                               } else if (state.route == HomeViewState.chatForum) {
                                 return ChatForumView();
                               } else {
