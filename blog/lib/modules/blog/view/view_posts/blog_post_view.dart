@@ -1,5 +1,5 @@
 import 'package:blog/modules/blog/model/post.dart';
-import 'package:blog/modules/blog/view/blog_post_header.dart';
+import 'package:blog/modules/blog/view/view_posts/blog_post_header.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -13,29 +13,31 @@ class BlogPostView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BlogPostHeader(
-          title: post.title,
-          author: post.author.alias??"",
-          date: DateTime.fromMillisecondsSinceEpoch(post.createdAt.toInt()).toLocal().toString().split(" ").first,
-        ),
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BlogPostHeader(
+            title: post.title,
+            author: post.author.alias??"",
+            date: DateTime.fromMillisecondsSinceEpoch(post.createdAt.toInt()).toLocal().toString().split(" ").first,
+          ),
 
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: MarkdownBody(
-              data: post.content, 
-              extensionSet: md.ExtensionSet.gitHubFlavored,
-              blockSyntaxes: [UrlEmbedSyntax()],
-              builders: {
-                'urlembed': UrlEmbedBuilder(),
-              },
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: MarkdownBody(
+                data: post.content, 
+                extensionSet: md.ExtensionSet.gitHubFlavored,
+                blockSyntaxes: [UrlEmbedSyntax()],
+                builders: {
+                  'urlembed': UrlEmbedBuilder(),
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      )
     );
   }
 }
@@ -48,7 +50,7 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
     if (url.isEmpty) return const SizedBox();
 
     return Container(
-      height: 300,
+      height: 800,
       margin: const EdgeInsets.symmetric(vertical: 12),
       child: InAppWebView(
         initialUrlRequest: URLRequest(url: WebUri(url)),
