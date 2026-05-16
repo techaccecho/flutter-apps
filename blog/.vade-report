@@ -1,0 +1,60 @@
+# Vercel Web Analytics Installation
+
+Successfully installed and configured Vercel Web Analytics for this Flutter web project.
+
+## Changes Made
+
+### Modified Files:
+- `blog/web/index.html` - Added Vercel Web Analytics script tag
+
+## Implementation Details
+
+### Framework Identification
+This project is a **Flutter web application** (not a JavaScript framework like Next.js or React), as indicated by:
+- `pubspec.yaml` with Flutter dependencies
+- Flutter SDK requirement: ^3.11.0
+- Standard Flutter web directory structure
+
+### Installation Method
+Since Flutter web apps compile to static HTML/JavaScript, I used the **vanilla HTML/JavaScript integration method** as documented in the official Vercel Analytics documentation.
+
+### What Was Added
+Added the Vercel Web Analytics tracking script to the HTML entry point:
+```html
+<!-- Vercel Web Analytics -->
+<script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+```
+
+The script tag was placed:
+- In `blog/web/index.html` (the main HTML template for the Flutter web app)
+- Just before the closing `</body>` tag
+- After existing scripts (Auth0, Flutter bootstrap)
+- With the `defer` attribute for optimal performance
+
+## Verification
+
+- ✅ HTML syntax is valid
+- ✅ Script tag properly formatted with defer attribute
+- ✅ Follows official Vercel documentation for plain HTML sites
+- ✅ Preserves existing code structure
+- ✅ No changes to Flutter/Dart code required
+
+## Notes
+
+1. **No package.json changes**: Flutter projects don't use npm/yarn/pnpm - they use `pubspec.yaml` for dependency management. The Vercel Analytics script is loaded via CDN, so no Dart/Flutter package installation is required.
+
+2. **No lockfile updates needed**: Since we're using a CDN-hosted script rather than a package manager dependency, no lockfiles need to be updated.
+
+3. **Framework compatibility**: The vanilla JavaScript implementation is the correct approach for Flutter web apps, as the `@vercel/analytics` npm package is designed for JavaScript frameworks, not Dart/Flutter.
+
+4. **Deployment**: Once deployed to Vercel, the analytics will automatically track page views and Web Vitals. No additional configuration is required in Vercel's dashboard - the analytics will be enabled automatically for projects deployed to Vercel.
+
+## How It Works
+
+When the Flutter web app loads:
+1. The HTML file is served
+2. The Vercel Analytics script loads asynchronously (deferred)
+3. Analytics tracking begins automatically
+4. Page views and Web Vitals are sent to Vercel's analytics service
+
+The implementation follows the official Vercel documentation for integrating analytics into plain HTML/JavaScript sites, which is the appropriate method for Flutter web applications.
