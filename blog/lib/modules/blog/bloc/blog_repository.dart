@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'package:blog/modules/blog/bloc/blog_event.dart';
-import 'package:blog/modules/blog/model/blog_post.dart';
+import 'package:blog/modules/blog/model/author.dart';
+import 'package:blog/modules/blog/model/comment.dart';
+import 'package:blog/modules/blog/model/post.dart';
+import 'package:blog/modules/blog/model/stats.dart';
 
 class BlogRepository {
   final _controller = StreamController<BlogEvent>();
 
-  List<BlogPost> blogs = [
-      BlogPost(
+  List<Post> blogs = [
+      Post(
           id: "1",
           title: "Strange Logs in My System",
-          author: "cedric_dev",
-          date: "Mar 2, 2006",
-          excerpt: "I’ve been seeing patterns in my logs that I can’t explain...",
-          comments: 12,
-          article: '''
+          author: Author(id: "120213", alias: "cedric_dev"),
+          createdAt: 1677628800000,
+          comments: [Comment(author: Author(id: "120213", alias: "cedric_dev"), content: "I see the same thing!", createdAt: 1677628800000, id: "c1", media: [], stats: Stats(reactions: [], commentsCount: 12, viewsCount: 200))],
+          content: '''
 # 🚀 From Idea to Launch: Building Your First Side Project
 
 *By DayOne Team — April 2026*
@@ -46,16 +48,15 @@ Start with:
 <urlembed>https://example.com</urlembed>
 
 ---
-'''
+''', isDraft: false, isLocked: true, isPinned: false, media: [], priority: 0.0, reactions: [], stats: Stats(reactions: [], commentsCount: 12, viewsCount: 200), type: ''
         ),
-        BlogPost(
+        Post(
           id: "2",
           title: "Exploring a Forgotten Game",
-          author: "cedric_dev",
-          date: "Feb 24, 2006",
-          excerpt: "I found something interesting while browsing old archives...",
-          comments: 8,
-          article: '''
+          author: Author(id: "120213", alias: "cedric_dev"),
+          createdAt: 1677628800000,
+          comments: [Comment(author: Author(id: "120213", alias: "cedric_dev"), content: "I see the same thing!", createdAt: 1677628800000, id: "c1", media: [], stats: Stats(reactions: [], commentsCount: 12, viewsCount: 200))],
+          content: '''
 # 🚀 From Idea to Launch: Building Your First Side Project
 
 *By DayOne Team — April 2026*
@@ -90,7 +91,7 @@ Don’t aim for perfect code. Aim for **working code**.
 void main() {
   print('Ship it 🚀');
 }
-''',
+''', isDraft: false, isLocked: true, isPinned: false, media: [], priority: 0.0, reactions: [], stats: Stats(reactions: [], commentsCount: 12, viewsCount: 200), type: ''
         ),
   ];
 
@@ -100,14 +101,14 @@ void main() {
     yield* _controller.stream;
   }
 
-  Future<List<BlogPost>> getBlogPosts(bool fromCache) async {
+  Future<List<Post>> getBlogPosts(bool fromCache) async {
     if (!fromCache) {
       await Future.delayed(const Duration(seconds: 1));
     }
     return List.of(blogs);
   }
 
-  Future<BlogPost> getBlogPost(String blogId) async {
+  Future<Post> getBlogPost(String blogId) async {
     return blogs[int.tryParse(blogId)!];
   }
 
