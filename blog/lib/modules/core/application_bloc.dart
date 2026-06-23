@@ -3,6 +3,7 @@ import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_bloc.dart';
 import 'package:blog/shared/util/abstract_bloc/base_emitter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blog/shared/models/user.dart';
 
 import 'application.dart';
 
@@ -11,6 +12,7 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
   late StreamSubscription<ApplicationEvent> _subscription;
 
   HomeViewState currentRoute = HomeViewState.blog;
+
 
   ApplicationBloc({
     required ApplicationRepository repository
@@ -31,7 +33,8 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
       ApplicationStartupEvent event, Emitter<ApplicationState> emit) async {
       await _repository.initialiseAuth();
       bool isLoggedIn = await _repository.isLoggedIn();
-      emit.logCall(ApplicationContentLoadedState(route: HomeViewState.blog, isLoggedIn: isLoggedIn, timestamp: DateTime.now().millisecondsSinceEpoch));
+      final currentUser = _repository.currentUser;
+      emit.logCall(ApplicationContentLoadedState(route: HomeViewState.blog, isLoggedIn: isLoggedIn, timestamp: DateTime.now().millisecondsSinceEpoch, currentUser: currentUser));
   }
 
   Future<void> _onApplicationRefresh(
@@ -41,21 +44,26 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
   Future<void> _onApplicationNavigate(
       ApplicationNavigateEvent event, Emitter<ApplicationState> emit) async {
       bool isLoggedIn = await _repository.isLoggedIn();
+      final currentUser = _repository.currentUser;
       currentRoute = event.route;
-      emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: isLoggedIn, timestamp: DateTime.now().millisecondsSinceEpoch));
+      emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: isLoggedIn, timestamp: DateTime.now().millisecondsSinceEpoch, currentUser: currentUser));
   }
 
   Future<void> _onApplicationLoginEvent(
       ApplicationLoginEvent event, Emitter<ApplicationState> emit) async {
       await _repository.login();
-      emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: await _repository.isLoggedIn(), timestamp: DateTime.now().millisecondsSinceEpoch));
+      final currentUser = _repository.currentUser;
+      emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: await _repository.isLoggedIn(), timestamp: DateTime.now().millisecondsSinceEpoch, currentUser: currentUser));
   }
 
   Future<void> _onApplicationLogoutEvent(
       ApplicationLogoutEvent event, Emitter<ApplicationState> emit) async {
       await _repository.logout();
-      emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: await _repository.isLoggedIn(), timestamp: DateTime.now().millisecondsSinceEpoch));
+      final currentUser = _repository.currentUser;
+      emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: await _repository.isLoggedIn(), timestamp: DateTime.now().millisecondsSinceEpoch, currentUser: currentUser));
   }
+
+  User? get currentUser => _repository.currentUser;
 
   @override
   Future<void> close() async {

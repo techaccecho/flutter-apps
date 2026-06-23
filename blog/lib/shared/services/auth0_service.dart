@@ -16,5 +16,6 @@ class Auth0Service extends ChangeNotifier {
       AppConfig.clientId,
       cacheLocation: CacheLocation.localStorage,
     );
+
   }
 }

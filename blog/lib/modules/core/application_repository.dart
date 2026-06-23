@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'package:blog/modules/core/application_event.dart';
 import 'package:blog/shared/services/authentication_service.dart';
+import 'package:blog/shared/models/user.dart';
 
 class ApplicationRepository {
-  final _controller = StreamController<ApplicationEvent>();
+  final _controller = StreamController<ApplicationEvent>.broadcast();
   final AuthenticationService authenticationService;
+  User? _currentUser;
 
-  ApplicationRepository({required this.authenticationService});
+  ApplicationRepository({
+    required this.authenticationService,
+  });
 
   Stream<ApplicationEvent> get data async* {
     yield const ApplicationStartupEvent();
@@ -14,7 +18,8 @@ class ApplicationRepository {
   }
 
   Future<void> initialiseAuth() async {
-    await authenticationService.init();
+    final userResponse = await authenticationService.init();
+    _currentUser = userResponse;
   }
 
   Future<bool> isLoggedIn() async {
@@ -27,7 +32,12 @@ class ApplicationRepository {
 
   Future<void> logout() async {
     await authenticationService.logout();
+    _currentUser = null;
   }
-  
-  void dispose() => _controller.close();
+
+  User? get currentUser => _currentUser;
+
+  void dispose() {
+    _controller.close();
+  }
 }

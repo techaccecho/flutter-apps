@@ -1,4 +1,5 @@
 import 'package:blog/shared/util/abstract_bloc/base_event.dart';
+import 'package:blog/shared/models/author.dart';
 
 abstract class BlogEvent extends BaseEvent {
   const BlogEvent();
@@ -36,8 +37,9 @@ class OpenBlogPostEvent extends BlogEvent {
 }
 
 class CreateNewBlogPostEvent extends BlogEvent {
+  final Author author;
 
-  const CreateNewBlogPostEvent();
+  const CreateNewBlogPostEvent({ required this.author });
 
   @override
   List<Object?> get props => [];
@@ -58,4 +60,22 @@ class EditBlogPostEvent extends BlogEvent {
   Map<String, dynamic> get properties => {
     "blogId": blogId
   };
+}
+
+class SaveNewBlogPostEvent extends BlogEvent {
+  final String authorId;
+  final String title;
+  final String content;
+
+  const SaveNewBlogPostEvent({
+    required this.authorId,
+    required this.title,
+    required this.content,
+  });
+
+  @override
+  List<Object?> get props => [];
+
+  @override
+  Map<String, dynamic> get properties => {};
 }

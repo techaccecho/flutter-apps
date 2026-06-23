@@ -3,9 +3,14 @@ import 'package:blog/modules/core/application_repository.dart';
 import 'package:blog/modules/home/view/home_view.dart';
 import 'package:blog/resources/app_theme.dart';
 import 'package:blog/shared/services/authentication_service.dart';
+import 'package:blog/shared/repositories/auth_repository.dart';
+import 'package:blog/shared/providers/auth_api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:blog/shared/util/app_config.dart';
+import 'package:dio/dio.dart';
+import 'package:blog/shared/interceptors/auth_interceptor.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,12 +22,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final authenticationService = AuthenticationService();
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: AppConfig.blogApiBaseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
+
+    final authApiProvider = AuthApiProvider(dio);
+    final authRepository = AuthRepository(apiProvider: authApiProvider);
+    final authenticationService = AuthenticationService(
+      authRepository: authRepository,
+    );
+
+    dio.interceptors.addAll([AuthInterceptor(authService: authenticationService), LogInterceptor(requestBody: true, responseBody: true)]);
+
     final ApplicationBloc applicationBloc =
         ApplicationBloc(repository: ApplicationRepository(authenticationService: authenticationService));
 
     return MultiProvider(providers:   [
         Provider<AuthenticationService>(create: (_) => authenticationService),
+        Provider<AuthRepository>(create: (_) => authRepository),
         BlocProvider<ApplicationBloc>(create: (_) => applicationBloc),
     ], child: MaterialApp(
         title: 'Blog.NET',
