@@ -63,7 +63,9 @@ class AuthenticationService extends ChangeNotifier {
 
   Future<String?> getAccessToken() async {
     try {
-      return (await auth0Service.auth0Web.credentials()).accessToken;
+      return (await auth0Service.auth0Web.credentials(
+        audience: AppConfig.audience,
+      )).accessToken;
     } catch (e) {
       debugPrint("Error fetching access token: $e");
       return null;
