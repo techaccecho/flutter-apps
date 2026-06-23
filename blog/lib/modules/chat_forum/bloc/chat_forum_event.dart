@@ -46,9 +46,11 @@ class ChatLoadThreadEvent extends ChatForumEvent {
 }
 
 class ChatAddCommentEvent extends ChatForumEvent {
+  final String threadId;
+  final String authorId;
   final String message;
   
-  const ChatAddCommentEvent(this.message);
+  const ChatAddCommentEvent({ required this.threadId, required this.authorId, required this.message });
 
   @override
   List<Object?> get props => [];

@@ -1,4 +1,4 @@
-import 'package:blog/modules/blog/model/post.dart';
+import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/blog/view/view_posts/blog_post_header.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
 
 class BlogPostView extends StatelessWidget {
-  final Post post;
+  final BlogPost post;
 
   const BlogPostView({super.key, required this.post});
 
@@ -20,7 +20,7 @@ class BlogPostView extends StatelessWidget {
           BlogPostHeader(
             title: post.title,
             author: post.author.alias??"",
-            date: DateTime.fromMillisecondsSinceEpoch(post.createdAt.toInt()).toLocal().toString().split(" ").first,
+            date: post.createdAt.toLocal().toString().split(" ").first,
           ),
 
           Expanded(

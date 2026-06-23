@@ -1,6 +1,7 @@
-import 'package:blog/modules/chat_forum/model/chat_item.dart';
 import 'package:blog/modules/chat_forum/model/thread.dart';
 import 'package:blog/shared/util/abstract_bloc/base_state.dart';
+import 'package:blog/shared/models/author.dart';
+import 'package:blog/modules/chat_forum/bloc/chat_forum_repository.dart';
 
 class ChatForumState extends BaseState {
   const ChatForumState();
@@ -26,18 +27,18 @@ class ChatForumLoadingState extends ChatForumState {
 
 class ChatForumContentLoadedState extends ChatForumState {
 
-  final List<ChatItem> chats;
+  final ThreadPaginatedResult chat;
 
   const ChatForumContentLoadedState({
-    required this.chats,
+    required this.chat,
   });
 
   @override
-  List<Object?> get props => [chats];
+  List<Object?> get props => [chat];
 
   @override
   Map<String, dynamic> get properties => {
-    'chats': chats,
+    'chat': chat,
   };
 }
 
@@ -62,16 +63,16 @@ class ChatForumThreadLoadingState extends ChatForumState {}
 
 class ChatForumThreadLoadedState extends ChatForumState {
   final Thread thread;
-  final List<CommentItem> comments;
+  final Author? currentAuthor;
 
   const ChatForumThreadLoadedState({
     required this.thread,
-    required this.comments,
+    this.currentAuthor
   });
 
 
   @override
-  List<Object?> get props => [thread, comments];
+  List<Object?> get props => [thread];
 
   @override
   Map<String, dynamic> get properties => {};

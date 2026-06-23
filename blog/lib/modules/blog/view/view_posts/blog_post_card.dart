@@ -1,16 +1,12 @@
-import 'package:blog/modules/blog/model/post.dart';
 import 'package:blog/resources/resources.dart';
+import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:flutter/material.dart';
 
 class BlogPostCard extends StatelessWidget {
-  final Post post;
+  final BlogPost post;
   final VoidCallback onTap;
 
-  const BlogPostCard({
-    super.key,
-    required this.post,
-    required this.onTap,
-  });
+  const BlogPostCard({super.key, required this.post, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +26,13 @@ class BlogPostCard extends StatelessWidget {
             Text(post.title, style: AppTextStyles.h2),
             const SizedBox(height: 8),
             Text(
-              "by ${post.author.alias} · ${DateTime.fromMillisecondsSinceEpoch(post.createdAt.toInt()).toLocal().toString().split(" ").first}",
+              "by ${post.author.displayName} · ${post.displayCreatedAt}",
               style: AppTextStyles.bodySmall,
             ),
             const SizedBox(height: 12),
-            Text(post.content.substring(0, 50), style: AppTextStyles.body),
+            Text(post.content.length > 50 ? post.content.substring(0, 50) : post.content, style: AppTextStyles.body),
             const SizedBox(height: 12),
-            Text(
-              "${post.comments.length} comments",
-              style: AppTextStyles.link,
-            ),
+            Text("${post.engagement.comments} comments", style: AppTextStyles.link),
           ],
         ),
       ),

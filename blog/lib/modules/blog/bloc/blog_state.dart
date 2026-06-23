@@ -1,5 +1,6 @@
-import 'package:blog/modules/blog/model/post.dart';
+import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/shared/util/abstract_bloc/base_state.dart';
+import 'package:blog/shared/models/author.dart';
 
 abstract class BlogState extends BaseState {
   const BlogState();
@@ -16,13 +17,13 @@ class BlogInitialState extends BlogState {}
 class BlogLoadingState extends BlogState {}
 
 class BlogLoadedState extends BlogState {
-  final List<Post> posts;
+  final List<BlogPost> posts;
 
   const BlogLoadedState(this.posts);
 }
 
 class BlogPostLoadedState extends BlogState {
-  final Post blogPost;
+  final BlogPost blogPost;
 
   const BlogPostLoadedState({required this.blogPost});
 
@@ -31,7 +32,7 @@ class BlogPostLoadedState extends BlogState {
 }
 
 class BlogPostCreateState extends BlogState {
-  final String author;
+  final Author? author;
 
   const BlogPostCreateState({required this.author});
 
@@ -40,7 +41,7 @@ class BlogPostCreateState extends BlogState {
 }
 
 class BlogPostEditState extends BlogState {
-  final Post? blogPost;
+  final BlogPost? blogPost;
 
   const BlogPostEditState({required this.blogPost});
 

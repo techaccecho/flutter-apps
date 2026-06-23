@@ -10,6 +10,8 @@ class BlogPostHeaderCreate extends StatefulWidget {
   final String author;
   final String? title;
   final VoidCallback setIsPreviewMode;
+  final ValueChanged<String> onSave;
+  final VoidCallback onClose;
 
   const BlogPostHeaderCreate({
     super.key,
@@ -17,6 +19,8 @@ class BlogPostHeaderCreate extends StatefulWidget {
     required this.title,
     required this.setIsPreviewMode,
     this.isEditing = false,
+    required this.onSave,
+    required this.onClose
   });
 
   @override
@@ -108,9 +112,24 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
                       ),
                     ),),
                     SizedBox(width: AppSpacing.lg),
-                    Icon(Icons.close, size: 24, color: AppColors.textPrimary),
+                    IconButton(
+                      icon: Icon(
+                          Icons.close,
+                          size: 24,
+                          color: AppColors.textPrimary,
+                        ),
+                      onPressed: () {
+                        widget.onClose();
+                      }
+                    ),
                     SizedBox(width: AppSpacing.xs),
-                    Icon(Icons.save, size: 24, color: AppColors.textPrimary),
+                    IconButton(
+                      icon: const Icon(Icons.save, size: 24, color: AppColors.textPrimary),
+                      onPressed: () {
+                        print("Saving");
+                        widget.onSave(_titleController.text);
+                      }
+                    ),
                     SizedBox(width: AppSpacing.xs),
                   ],),
                 ),
