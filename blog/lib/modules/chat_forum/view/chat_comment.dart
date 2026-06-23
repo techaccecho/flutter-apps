@@ -1,15 +1,17 @@
-import 'package:blog/modules/chat_forum/model/thread.dart';
+import 'package:blog/shared/models/comment.dart';
+import 'package:blog/shared/models/user_preview.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
 
 class ChatComment extends StatelessWidget {
-  final CommentItem comment;
+  final Comment comment;
+  final UserPreview? currentUser;
 
-  const ChatComment({super.key, required this.comment});
+  const ChatComment({super.key, required this.comment, this.currentUser });
 
   @override
   Widget build(BuildContext context) {
-    final isWeird = comment.message.contains("haven");
+    final isWeird = comment.content.contains("haven");
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -31,10 +33,10 @@ class ChatComment extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  comment.username,
+                  comment.author.alias ?? '',
                   style: AppTextStyles.h3,
                 ),
-                if (comment.isOp)
+                if (comment.author.id == currentUser?.id)
                   Text(
                     "OP",
                     style: AppTextStyles.caption.copyWith(
@@ -50,10 +52,10 @@ class ChatComment extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(comment.message, style: AppTextStyles.body),
+                  Text(comment.content, style: AppTextStyles.body),
                   const SizedBox(height: 8),
                   Text(
-                    comment.time,
+                    comment.displayCreatedAt,
                     style: AppTextStyles.bodySmall,
                   ),
                 ],

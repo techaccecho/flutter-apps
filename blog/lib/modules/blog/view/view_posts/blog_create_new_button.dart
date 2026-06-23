@@ -6,6 +6,7 @@ import 'package:blog/resources/app_strings.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blog/shared/models/author.dart';
 
 class BlogCreateNewButton extends StatelessWidget {
   const BlogCreateNewButton({super.key});
@@ -16,10 +17,10 @@ class BlogCreateNewButton extends StatelessWidget {
     return BlocBuilder<ApplicationBloc, ApplicationState>(
       builder: (context, state) {
         
-        if (state is ApplicationContentLoadedState && state.isLoggedIn) {
+        if (state is ApplicationContentLoadedState && state.isLoggedIn && state.currentUser != null) {
           return InkWell(
             onTap: () => {
-              context.read<BlogBloc>().add(CreateNewBlogPostEvent()),
+              context.read<BlogBloc>().add(CreateNewBlogPostEvent(author: Author.fromUser(state.currentUser!))),
             },
             child: Container(
               width: double.infinity,

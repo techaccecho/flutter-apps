@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatReplyBox extends StatefulWidget {
-  const ChatReplyBox({super.key});
+  final String threadId;
+  final String authorId;
+
+  const ChatReplyBox({super.key, required this.threadId, required this.authorId });
 
   @override
   State<ChatReplyBox> createState() => _ChatReplyBoxState();
@@ -15,10 +18,19 @@ class ChatReplyBox extends StatefulWidget {
 class _ChatReplyBoxState extends State<ChatReplyBox> {
   final controller = TextEditingController();
 
-  void postReply() {
+  void onReply() {
+    final message = controller.text.trim();
+
+    if (message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('A message cannot be empty')),
+      );
+      return;
+    }
+
     context
         .read<ChatForumBloc>()
-        .add(ChatAddCommentEvent(controller.text));
+        .add(ChatAddCommentEvent(threadId: widget.threadId, authorId: widget.authorId, message: controller.text));
     controller.clear();
   }
 
@@ -41,7 +53,7 @@ class _ChatReplyBoxState extends State<ChatReplyBox> {
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(width: 120, child: RaisedButton(action: postReply, title: "Post"))
+          SizedBox(width: 120, child: RaisedButton(action: onReply, title: "Post"))
         ],
       ),
     );

@@ -1,68 +1,69 @@
 import 'dart:async';
-import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
-import 'package:blog/modules/chat_forum/model/chat_item.dart';
 import 'package:blog/modules/chat_forum/model/thread.dart';
+import 'package:blog/modules/chat_forum/model/create_thread.dart';
+import 'package:blog/modules/chat_forum/model/update_thread.dart';
+import 'package:blog/modules/chat_forum/model/add_thread_comment.dart';
+import 'package:blog/shared/providers/blog_api_provider.dart';
+
+class ThreadPaginatedResult {
+  final List<Thread> threads;
+  final String? nextCursor;
+  final bool hasMore;
+
+  ThreadPaginatedResult({
+    required this.threads,
+    this.nextCursor,
+    required this.hasMore,
+  });
+}
 
 class ChatForumRepository {
-  final _controller = StreamController<ChatForumEvent>();
+  final BlogApiProvider apiProvider;
 
-  ChatForumRepository();
+  ChatForumRepository({required this.apiProvider});
 
-  List<CommentItem> comments = [
-      CommentItem(id: '11', username: 'Bilo', message: 'kosdjnfd njisndjn ishdfybyhbf. sdbfyhsbdfy sb ybdfy b ybhysd y bys bhyhdgfy ghsy sdfs', time: '12:10'),
-      CommentItem(id: '12', username: 'Caleb', message: 'njhbt dede fgf yg tfr ded tvyni kiubh tvrdex', time: '12:10'),
-      CommentItem(id: '13', username: 'Crayton', message: 'kmuby redftgg klploj uygrdw sexcr vfvbgb', time: '12:10'),
-      CommentItem(id: '14', username: 'Yusuf', message: '6yrtuyjkglh jlkjlmnijhg gvgj hbkhjlkjl ho; hbukhlb n.ljknhgfvtvyb hjkn', time: '12:10'),
-      CommentItem(id: '14', username: 'William', message: 'oyuibln jkboiljk bnoiljbnoilj kbiuhjlkb knjnlkjbn', time: '12:10')];
-
-  List<ChatItem> chatItems = [
-    ChatItem(
-      title: 'Chat one',
-      participants: 3,
-      replies: 20,
-      lastPost: "Here is a last post from someone"
-    ),
-    ChatItem(
-      title: 'Chat two',
-      participants: 2,
-      replies: 50,
-      lastPost: "Here is a last post from someone"
-    ),
-    ChatItem(
-      title: 'Chat three',
-      participants: 5,
-      replies: 5,
-      lastPost: "Here is a last post from someone"
-    )
-  ];
-
-  Stream<ChatForumEvent> get data async* {
-    yield const ChatForumLoadEvent();
-    yield* _controller.stream;
+  Future<Thread> createThread(CreateThread request) async {
+    final response = await apiProvider.createBlog(request.toCreateBlog());
+    return Thread.fromBlog(response.data);
   }
 
-  Future<List<ChatItem>> fetchContent(bool fromCache) {
-    if (fromCache) {
-      return Future.value(chatItems);
-    } else {
-      return Future.delayed(const Duration(seconds: 1), () {
-        return chatItems;
-      });
-    }
+  Future<Thread> getThread(String id) async {
+    final response = await apiProvider.fetchBlog(id);
+    return Thread.fromBlog(response.data);
   }
 
-  Future<Thread> getThread(String threadId) async {
-    return Thread(id: 'Thread 1', title: 'Wow look at this!', author: 'Arthor Zacharia', createdAt: '2026-03-21');
+  Future<Thread> updateThread({
+    required String id,
+    required UpdateThread update,
+  }) async {
+    final response = await apiProvider.updateBlog(
+      blogId: id,
+      update: update.toUpdateBlog(),
+    );
+    return Thread.fromBlog(response.data);
   }
 
-  Future<List<CommentItem>> getComments(String threadId) async {
-    return List.of(comments);
+  Future<void> deletePost(String id) async {
+    await apiProvider.deleteBlog(id);
   }
 
-  Future<bool> addComment(CommentItem comment) async {
-    comments.add(comment);
-    return true;
+  Future<ThreadPaginatedResult> getThreads({String? cursor}) async {
+    final response = await apiProvider.fetchBlogsByType(
+      type: 'thread',
+      cursor: cursor,
+    );
+    return ThreadPaginatedResult(
+      threads: response.data.map((b) => Thread.fromBlog(b)).toList(),
+      nextCursor: response.meta?.nextCursor,
+      hasMore: response.meta?.hasMore ?? false,
+    );
   }
 
-  void dispose() => _controller.close();
+  Future<Thread> addThreadComment({ required String id, required AddThreadComment request }) async {
+    final response = await apiProvider.addComment(
+      blogId: id,
+      request: request.toAddComment(),
+    );
+    return Thread.fromBlog(response.data);
+  }
 }

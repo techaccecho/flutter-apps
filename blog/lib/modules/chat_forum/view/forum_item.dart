@@ -1,20 +1,20 @@
 import 'package:blog/modules/chat_forum/bloc/chat_forum_bloc.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
 import 'package:flutter/material.dart';
-import 'package:blog/modules/chat_forum/model/chat_item.dart';
+import 'package:blog/modules/chat_forum/model/thread.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ForumItem extends StatelessWidget {
-  final ChatItem chat;
+  final Thread thread;
 
-  const ForumItem({super.key, required this.chat});
+  const ForumItem({super.key, required this.thread});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.read<ChatForumBloc>().add(ChatLoadThreadEvent("1"));
+        context.read<ChatForumBloc>().add(ChatLoadThreadEvent(thread.id));
       },
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -31,19 +31,21 @@ class ForumItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(chat.title, style: AppTextStyles.h2),
+                  Text(thread.title, style: AppTextStyles.h2),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    "${chat.replies} replies • ${chat.participants} participants",
+                    "${thread.engagement.comments} replies • ${thread.participants.length} participants",
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textMuted,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    "Last post: ${chat.lastPost}",
-                    style: AppTextStyles.bodySmall,
-                  ),
+                  if (thread.comments.isNotEmpty) ...[
+                    Text(
+                      "Last post: ${thread.comments[thread.comments.length - 1].content}",
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ],
                 ],
               ),
             ),

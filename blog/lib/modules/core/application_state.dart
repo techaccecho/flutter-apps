@@ -1,5 +1,6 @@
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_state.dart';
+import 'package:blog/shared/models/user.dart';
 
 class ApplicationState extends BaseState {
   const ApplicationState();
@@ -35,12 +36,14 @@ class ApplicationContentLoadedState extends ApplicationState {
 
   final HomeViewState route;
   final bool isLoggedIn;
+  final User? currentUser;
   final int timestamp;
 
   const ApplicationContentLoadedState({
     required this.route,
     required this.isLoggedIn,
-    required this.timestamp
+    required this.timestamp,
+    required this.currentUser
   });
 
   @override
