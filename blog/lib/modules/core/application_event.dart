@@ -36,13 +36,17 @@ class ApplicationRefreshEvent extends ApplicationEvent {
 class ApplicationNavigateEvent extends ApplicationEvent {
 
   final HomeViewState route;
-  const ApplicationNavigateEvent({required this.route});
+  final String? userId;
+  const ApplicationNavigateEvent({required this.route, this.userId});
 
   @override
-  List<Object?> get props => [route];
+  List<Object?> get props => [route, userId];
 
   @override
-  Map<String, dynamic> get properties => {"route": route};
+  Map<String, dynamic> get properties => {
+    "route": route,
+    "userId": userId,
+  };
 }
 
 class ApplicationLoginEvent extends ApplicationEvent {

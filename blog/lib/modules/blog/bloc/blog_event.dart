@@ -66,16 +66,20 @@ class SaveNewBlogPostEvent extends BlogEvent {
   final String authorId;
   final String title;
   final String content;
+  final DateTime? publishDate;
 
   const SaveNewBlogPostEvent({
     required this.authorId,
     required this.title,
     required this.content,
+    this.publishDate,
   });
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [publishDate];
 
   @override
-  Map<String, dynamic> get properties => {};
+  Map<String, dynamic> get properties => {
+    if (publishDate != null) 'publishDate': publishDate!.toIso8601String(),
+  };
 }

@@ -10,4 +10,24 @@ class AuthRepository {
     final existingResponse = await apiProvider.authenticate();
     return existingResponse.data;
   }
+
+  Future<User> getUser(String userId) async {
+    final response = await apiProvider.getUser(userId);
+    return response.data;
+  }
+
+  Future<List<User>> getUsers({int? limit, String? cursor}) async {
+    final response = await apiProvider.getUsers(limit: limit, cursor: cursor);
+    return response.data;
+  }
+
+  Future<List<User>> getArchivedUsers({int? limit, String? cursor}) async {
+    final response = await apiProvider.getArchivedUsers(limit: limit, cursor: cursor);
+    return response.data;
+  }
+
+  Future<User> getArchivedUser(String userId) async {
+    final response = await apiProvider.getArchivedUser(userId);
+    return response.data;
+  }
 }

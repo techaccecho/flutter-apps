@@ -37,7 +37,7 @@ class _NavItemState extends State<NavItem> {
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? highlightColor.withOpacity(0.1)
+                ? highlightColor.withValues(alpha: 0.1)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
           ),
@@ -51,7 +51,7 @@ class _NavItemState extends State<NavItem> {
                 decoration: BoxDecoration(
                   color: widget.isSelected
                       ? highlightColor
-                      : (_isHovered ? highlightColor.withOpacity(0.5) : Colors.transparent),
+                      : (_isHovered ? highlightColor.withValues(alpha: 0.5) : Colors.transparent),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

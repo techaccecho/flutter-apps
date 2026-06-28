@@ -2,6 +2,9 @@ import 'package:blog/shared/models/comment.dart';
 import 'package:blog/shared/models/user_preview.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blog/modules/core/application.dart';
+import 'package:blog/modules/home/model/home_view_state.dart';
 
 class ChatComment extends StatelessWidget {
   final Comment comment;
@@ -32,9 +35,22 @@ class ChatComment extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Text(
-                  comment.author.alias ?? '',
-                  style: AppTextStyles.h3,
+                InkWell(
+                  onTap: () {
+                    context.read<ApplicationBloc>().add(
+                      ApplicationNavigateEvent(
+                        route: HomeViewState.profile,
+                        userId: comment.author.id,
+                      ),
+                    );
+                  },
+                  child: Text(
+                    comment.author.alias ?? '',
+                    style: AppTextStyles.link.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
                 if (comment.author.id == currentUser?.id)
                   Text(
