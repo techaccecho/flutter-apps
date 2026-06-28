@@ -4,8 +4,19 @@ This is the blog site used by Cedric to document his research and testing of Ech
 
 ## What can it do?
 
-- View, Write and Share blog posts
-- Create and interact with Forum topics
+- View, write and share blog posts.
+- Open a blog post to read the full post content and its comments.
+- Create and interact with forum topics.
+- View user profiles from author/comment links.
+- Allow administrators to access the archived user directory.
+
+## Layout Behavior
+
+The web layout is responsive:
+
+- Mobile widths use a compact header layout.
+- Tablet widths show a fixed-width sidebar with flexible content.
+- Desktop widths use the full browser width with a `2:8` sidebar/content split, including maximized wide monitors.
 
 ## Prerequisites
 
