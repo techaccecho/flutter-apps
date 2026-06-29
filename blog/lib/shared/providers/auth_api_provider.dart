@@ -20,6 +20,64 @@ class AuthApiProvider {
     }
   }
 
+  Future<ApiResponse<User>> getUser(String userId) async {
+    try {
+      final response = await _dio.get('/users/$userId');
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<List<User>>> getUsers({int? limit, String? cursor}) async {
+    try {
+      final response = await _dio.get('/users', queryParameters: {
+        'limit': ?limit,
+        'cursor': ?cursor,
+      });
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonList) => (jsonList as List).map((item) => User.fromJson(item)).toList(),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<List<User>>> getArchivedUsers({int? limit, String? cursor}) async {
+    try {
+      final response = await _dio.get('/users/archived', queryParameters: {
+        'limit': ?limit,
+        'cursor': ?cursor,
+      });
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonList) => (jsonList as List).map((item) => User.fromJson(item)).toList(),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<User>> getArchivedUser(String userId) async {
+    try {
+      final response = await _dio.get('/users/archived/$userId');
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
   Exception _handleDioError(DioException e) {
     if (e.response != null && e.response?.data is Map) {
       final data = e.response!.data;

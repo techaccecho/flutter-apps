@@ -22,8 +22,14 @@ class LoadBlogPostsEvent extends BlogEvent {
   Map<String, dynamic> get properties => {};
 }
 
-class OpenBlogPostEvent extends BlogEvent {
+class LoadMoreBlogPostsEvent extends BlogEvent {
+  const LoadMoreBlogPostsEvent();
 
+  @override
+  Map<String, dynamic> get properties => {};
+}
+
+class OpenBlogPostEvent extends BlogEvent {
   final String blogId;
   const OpenBlogPostEvent({required this.blogId});
 
@@ -31,15 +37,13 @@ class OpenBlogPostEvent extends BlogEvent {
   List<Object?> get props => [blogId];
 
   @override
-  Map<String, dynamic> get properties => {
-    "blogId": blogId
-  };
+  Map<String, dynamic> get properties => {"blogId": blogId};
 }
 
 class CreateNewBlogPostEvent extends BlogEvent {
   final Author author;
 
-  const CreateNewBlogPostEvent({ required this.author });
+  const CreateNewBlogPostEvent({required this.author});
 
   @override
   List<Object?> get props => [];
@@ -49,33 +53,34 @@ class CreateNewBlogPostEvent extends BlogEvent {
 }
 
 class EditBlogPostEvent extends BlogEvent {
-
   final String blogId;
-  const EditBlogPostEvent({required this.blogId});  
+  const EditBlogPostEvent({required this.blogId});
 
   @override
   List<Object?> get props => [blogId];
 
   @override
-  Map<String, dynamic> get properties => {
-    "blogId": blogId
-  };
+  Map<String, dynamic> get properties => {"blogId": blogId};
 }
 
 class SaveNewBlogPostEvent extends BlogEvent {
   final String authorId;
   final String title;
   final String content;
+  final DateTime? publishDate;
 
   const SaveNewBlogPostEvent({
     required this.authorId,
     required this.title,
     required this.content,
+    this.publishDate,
   });
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [publishDate];
 
   @override
-  Map<String, dynamic> get properties => {};
+  Map<String, dynamic> get properties => {
+    if (publishDate != null) 'publishDate': publishDate!.toIso8601String(),
+  };
 }

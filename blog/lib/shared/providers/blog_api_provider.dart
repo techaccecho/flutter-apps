@@ -23,15 +23,22 @@ class BlogApiProvider {
     }
   }
 
-  Future<ApiResponse<List<Blog>>> fetchBlogsByType({required String type, String? cursor}) async {
+  Future<ApiResponse<List<Blog>>> fetchBlogsByType({
+    required String type,
+    String? cursor,
+    int? limit,
+    String? sort,
+  }) async {
     try {
-      final response = await _dio.get('/${type}s', queryParameters: {
-        'cursor': ?cursor
-      });
+      final response = await _dio.get(
+        '/${type}s',
+        queryParameters: {'cursor': ?cursor, 'limit': ?limit, 'sort': ?sort},
+      );
 
       return ApiResponse.fromJson(
         response.data,
-        (jsonList) => (jsonList as List).map((item) => Blog.fromJson(item)).toList()
+        (jsonList) =>
+            (jsonList as List).map((item) => Blog.fromJson(item)).toList(),
       );
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -51,9 +58,15 @@ class BlogApiProvider {
     }
   }
 
-  Future<ApiResponse<Blog>> updateBlog({required String blogId, required UpdateBlog update}) async {
+  Future<ApiResponse<Blog>> updateBlog({
+    required String blogId,
+    required UpdateBlog update,
+  }) async {
     try {
-      final response = await _dio.patch('/blogs/$blogId', data: update.toJson());
+      final response = await _dio.patch(
+        '/blogs/$blogId',
+        data: update.toJson(),
+      );
 
       return ApiResponse.fromJson(
         response.data,
@@ -72,9 +85,15 @@ class BlogApiProvider {
     }
   }
 
-  Future<ApiResponse<Blog>> addComment({required String blogId, required AddComment request }) async {
+  Future<ApiResponse<Blog>> addComment({
+    required String blogId,
+    required AddComment request,
+  }) async {
     try {
-      final response = await _dio.post('/blogs/$blogId/comments', data: request.toJson());
+      final response = await _dio.post(
+        '/blogs/$blogId/comments',
+        data: request.toJson(),
+      );
 
       return ApiResponse.fromJson(
         response.data,

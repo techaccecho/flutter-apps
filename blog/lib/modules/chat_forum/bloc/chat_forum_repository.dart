@@ -47,10 +47,16 @@ class ChatForumRepository {
     await apiProvider.deleteBlog(id);
   }
 
-  Future<ThreadPaginatedResult> getThreads({String? cursor}) async {
+  Future<ThreadPaginatedResult> getThreads({
+    String? cursor,
+    int? limit,
+    String sort = 'desc',
+  }) async {
     final response = await apiProvider.fetchBlogsByType(
       type: 'thread',
       cursor: cursor,
+      limit: limit,
+      sort: sort,
     );
     return ThreadPaginatedResult(
       threads: response.data.map((b) => Thread.fromBlog(b)).toList(),
@@ -59,7 +65,10 @@ class ChatForumRepository {
     );
   }
 
-  Future<Thread> addThreadComment({ required String id, required AddThreadComment request }) async {
+  Future<Thread> addThreadComment({
+    required String id,
+    required AddThreadComment request,
+  }) async {
     final response = await apiProvider.addComment(
       blogId: id,
       request: request.toAddComment(),

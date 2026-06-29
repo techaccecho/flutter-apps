@@ -24,7 +24,10 @@ class AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 401) {
-      authService.logout();
+      final authHeader = err.requestOptions.headers['Authorization'];
+      if (authHeader != null && authHeader.toString().isNotEmpty) {
+        authService.logout();
+      }
     }
     return handler.next(err);
   }

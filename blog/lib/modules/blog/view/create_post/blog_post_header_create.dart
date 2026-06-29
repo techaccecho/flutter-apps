@@ -126,7 +126,6 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
                     IconButton(
                       icon: const Icon(Icons.save, size: 24, color: AppColors.textPrimary),
                       onPressed: () {
-                        print("Saving");
                         widget.onSave(_titleController.text);
                       }
                     ),

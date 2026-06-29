@@ -19,9 +19,7 @@ class BlogPostPaginatedResult {
 class BlogPostRepository {
   final BlogApiProvider apiProvider;
 
-  BlogPostRepository({
-    required this.apiProvider
-  });
+  BlogPostRepository({required this.apiProvider});
 
   Future<BlogPost> createPost(CreateBlogPost request) async {
     final response = await apiProvider.createBlog(request.toCreateBlog());
@@ -33,8 +31,14 @@ class BlogPostRepository {
     return BlogPost.fromBlog(response.data);
   }
 
-  Future<BlogPost> updatePost({required String id, required UpdateBlogPost update}) async {
-    final response = await apiProvider.updateBlog(blogId: id, update: update.toUpdateBlog());
+  Future<BlogPost> updatePost({
+    required String id,
+    required UpdateBlogPost update,
+  }) async {
+    final response = await apiProvider.updateBlog(
+      blogId: id,
+      update: update.toUpdateBlog(),
+    );
     return BlogPost.fromBlog(response.data);
   }
 
@@ -42,8 +46,17 @@ class BlogPostRepository {
     await apiProvider.deleteBlog(id);
   }
 
-  Future<BlogPostPaginatedResult> getPosts({String? cursor}) async {
-    final response = await apiProvider.fetchBlogsByType(type: 'post', cursor: cursor);
+  Future<BlogPostPaginatedResult> getPosts({
+    String? cursor,
+    int? limit,
+    String sort = 'desc',
+  }) async {
+    final response = await apiProvider.fetchBlogsByType(
+      type: 'post',
+      cursor: cursor,
+      limit: limit,
+      sort: sort,
+    );
     return BlogPostPaginatedResult(
       posts: response.data.map((b) => BlogPost.fromBlog(b)).toList(),
       nextCursor: response.meta?.nextCursor,
