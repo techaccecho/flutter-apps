@@ -43,7 +43,8 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     final request = CreateBlogPost(
       authorId:  event.authorId,
       title: event.title,
-      content: event.content
+      content: event.content,
+      createdAt: event.publishDate,
     );
 
     await _repository.createPost(request);

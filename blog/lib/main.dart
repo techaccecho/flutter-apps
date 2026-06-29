@@ -5,6 +5,7 @@ import 'package:blog/resources/app_theme.dart';
 import 'package:blog/shared/services/authentication_service.dart';
 import 'package:blog/shared/repositories/auth_repository.dart';
 import 'package:blog/shared/providers/auth_api_provider.dart';
+import 'package:blog/shared/providers/blog_api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
     final authenticationService = AuthenticationService(
       authRepository: authRepository,
     );
+    final blogApiProvider = BlogApiProvider(dio);
 
     dio.interceptors.addAll([AuthInterceptor(authService: authenticationService), LogInterceptor(requestBody: true, responseBody: true)]);
 
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(providers:   [
         Provider<AuthenticationService>(create: (_) => authenticationService),
         Provider<AuthRepository>(create: (_) => authRepository),
+        Provider<BlogApiProvider>(create: (_) => blogApiProvider),
         BlocProvider<ApplicationBloc>(create: (_) => applicationBloc),
     ], child: MaterialApp(
         title: 'Blog.NET',

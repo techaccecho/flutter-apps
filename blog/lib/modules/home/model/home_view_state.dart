@@ -1,5 +1,6 @@
 enum HomeViewState {
   blog,
   chatForum,
-  profile
+  profile,
+  archived
 }

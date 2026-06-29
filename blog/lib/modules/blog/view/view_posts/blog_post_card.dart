@@ -1,6 +1,10 @@
 import 'package:blog/resources/resources.dart';
 import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blog/modules/core/application.dart';
+import 'package:blog/modules/home/model/home_view_state.dart';
 
 class BlogPostCard extends StatelessWidget {
   final BlogPost post;
@@ -25,9 +29,27 @@ class BlogPostCard extends StatelessWidget {
           children: [
             Text(post.title, style: AppTextStyles.h2),
             const SizedBox(height: 8),
-            Text(
-              "by ${post.author.displayName} · ${post.displayCreatedAt}",
-              style: AppTextStyles.bodySmall,
+            RichText(
+              text: TextSpan(
+                style: AppTextStyles.bodySmall,
+                children: [
+                  const TextSpan(text: "by "),
+                  TextSpan(
+                    text: post.author.displayName,
+                    style: AppTextStyles.link.copyWith(fontSize: 12),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        context.read<ApplicationBloc>().add(
+                          ApplicationNavigateEvent(
+                            route: HomeViewState.profile,
+                            userId: post.author.id,
+                          ),
+                        );
+                      },
+                  ),
+                  TextSpan(text: " · ${post.displayCreatedAt}"),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             Text(post.content.length > 50 ? post.content.substring(0, 50) : post.content, style: AppTextStyles.body),

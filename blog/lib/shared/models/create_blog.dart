@@ -3,12 +3,14 @@ class CreateBlog {
   final String title;
   final String content;
   final String type;
+  final DateTime? createdAt;
 
   CreateBlog({
     required this.authorId,
     required this.title,
     required this.content,
-    required this.type
+    required this.type,
+    this.createdAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -16,7 +18,8 @@ class CreateBlog {
       'authorId': authorId,
       'title': title,
       'content': content,
-      'type': type
+      'type': type,
+      if (createdAt != null) 'createdAt': createdAt!.toUtc().toIso8601String(),
     };
   }
 }

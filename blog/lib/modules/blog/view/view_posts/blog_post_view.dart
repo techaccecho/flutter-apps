@@ -1,5 +1,6 @@
 import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/blog/view/view_posts/blog_post_header.dart';
+import 'package:blog/modules/chat_forum/view/chat_comment.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -19,25 +20,40 @@ class BlogPostView extends StatelessWidget {
         children: [
           BlogPostHeader(
             title: post.title,
-            author: post.author.alias??"",
+            author: post.author,
             date: post.createdAt.toLocal().toString().split(" ").first,
           ),
 
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
-              child: MarkdownBody(
-                data: post.content, 
-                extensionSet: md.ExtensionSet.gitHubFlavored,
-                blockSyntaxes: [UrlEmbedSyntax()],
-                builders: {
-                  'urlembed': UrlEmbedBuilder(),
-                },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MarkdownBody(
+                    data: post.content,
+                    extensionSet: md.ExtensionSet.gitHubFlavored,
+                    blockSyntaxes: [UrlEmbedSyntax()],
+                    builders: {'urlembed': UrlEmbedBuilder()},
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(
+                    'Comments (${post.comments.length})',
+                    style: AppTextStyles.h2,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  if (post.comments.isEmpty)
+                    Text('No comments yet.', style: AppTextStyles.bodySmall)
+                  else
+                    ...post.comments.map(
+                      (comment) => ChatComment(comment: comment),
+                    ),
+                ],
               ),
             ),
           ),
         ],
-      )
+      ),
     );
   }
 }

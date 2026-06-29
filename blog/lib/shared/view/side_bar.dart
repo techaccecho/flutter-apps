@@ -81,6 +81,20 @@ class _SidebarState extends State<Sidebar> {
                 ),
               ),
               const SizedBox(height: 4),
+              if (state is ApplicationContentLoadedState &&
+                  state.isLoggedIn &&
+                  state.currentUser?.role == 'admin') ...[
+                NavItem(
+                  title: "• Archived",
+                  isSelected: state.route == HomeViewState.archived,
+                  onTap: () => context.read<ApplicationBloc>().add(
+                    const ApplicationNavigateEvent(
+                      route: HomeViewState.archived,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+              ],
 
               BlocBuilder<ApplicationBloc, ApplicationState>(
                 builder: (context, state) {
