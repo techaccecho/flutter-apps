@@ -18,8 +18,43 @@ class BlogLoadingState extends BlogState {}
 
 class BlogLoadedState extends BlogState {
   final List<BlogPost> posts;
+  final String? nextCursor;
+  final bool hasMore;
+  final bool isLoadingMore;
+  final bool hasLoadMoreError;
 
-  const BlogLoadedState(this.posts);
+  const BlogLoadedState(
+    this.posts, {
+    this.nextCursor,
+    this.hasMore = false,
+    this.isLoadingMore = false,
+    this.hasLoadMoreError = false,
+  });
+
+  BlogLoadedState copyWith({
+    List<BlogPost>? posts,
+    String? nextCursor,
+    bool? hasMore,
+    bool? isLoadingMore,
+    bool? hasLoadMoreError,
+  }) {
+    return BlogLoadedState(
+      posts ?? this.posts,
+      nextCursor: nextCursor ?? this.nextCursor,
+      hasMore: hasMore ?? this.hasMore,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasLoadMoreError: hasLoadMoreError ?? this.hasLoadMoreError,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    posts,
+    nextCursor,
+    hasMore,
+    isLoadingMore,
+    hasLoadMoreError,
+  ];
 }
 
 class BlogPostLoadedState extends BlogState {

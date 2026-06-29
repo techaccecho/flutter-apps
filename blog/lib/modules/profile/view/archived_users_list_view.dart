@@ -318,7 +318,7 @@ class _ArchivedUsersListViewState extends State<ArchivedUsersListView> {
           children: [
             const SizedBox(height: AppSpacing.xs),
             Text(
-              user.bio ?? 'No biography details preserved.',
+              user.bio ?? '',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.body,

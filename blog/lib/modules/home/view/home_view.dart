@@ -4,7 +4,6 @@ import 'package:blog/modules/blog/bloc/blog_post_repository.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_bloc.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_repository.dart';
-import 'package:blog/shared/providers/blog_api_provider.dart';
 import 'package:blog/modules/blog/view/blog_post_landing.dart';
 import 'package:blog/modules/chat_forum/view/chat_forum_view.dart';
 import 'package:blog/modules/core/application.dart';
@@ -22,19 +21,20 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final blogApiProvider = context.read<BlogApiProvider>();
+    final blogPostRepository = context.read<BlogPostRepository>();
+    final chatForumRepository = context.read<ChatForumRepository>();
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<BlogBloc>(
-          create: (context) => BlogBloc(
-            repository: BlogPostRepository(apiProvider: blogApiProvider),
-          )..add(LoadBlogPostsEvent()),
+          create: (context) =>
+              BlogBloc(repository: blogPostRepository)
+                ..add(LoadBlogPostsEvent()),
         ),
         BlocProvider<ChatForumBloc>(
-          create: (context) => ChatForumBloc(
-            repository: ChatForumRepository(apiProvider: blogApiProvider),
-          )..add(ChatForumLoadEvent()),
+          create: (context) =>
+              ChatForumBloc(repository: chatForumRepository)
+                ..add(ChatForumLoadEvent()),
         ),
       ],
       child: Scaffold(

@@ -1,10 +1,10 @@
 import 'package:blog/modules/blog/bloc/blog_bloc.dart';
 import 'package:blog/modules/blog/bloc/blog_event.dart';
-import 'package:blog/modules/blog/bloc/blog_state.dart';
+import 'package:blog/modules/blog/bloc/blog_post_repository.dart';
 import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_bloc.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
-import 'package:blog/modules/chat_forum/bloc/chat_forum_state.dart';
+import 'package:blog/modules/chat_forum/bloc/chat_forum_repository.dart';
 import 'package:blog/modules/chat_forum/model/thread.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
@@ -24,13 +24,63 @@ class UserProfileView extends StatefulWidget {
   State<UserProfileView> createState() => _UserProfileViewState();
 }
 
+class _ActivityTimelineItem {
+  final String id;
+  final String title;
+  final String content;
+  final DateTime createdAt;
+  final bool isPost;
+
+  const _ActivityTimelineItem({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.createdAt,
+    required this.isPost,
+  });
+
+  factory _ActivityTimelineItem.fromPost(BlogPost post) {
+    return _ActivityTimelineItem(
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      createdAt: post.createdAt,
+      isPost: true,
+    );
+  }
+
+  factory _ActivityTimelineItem.fromThread(Thread thread) {
+    return _ActivityTimelineItem(
+      id: thread.id,
+      title: thread.title,
+      content: thread.content,
+      createdAt: thread.createdAt,
+      isPost: false,
+    );
+  }
+}
+
 class _UserProfileViewState extends State<UserProfileView> {
+  static const int _activityPageSize = 10;
+  static const int _maxActivityFetchBatches = 3;
+
   late Future<User?> _userFuture;
+  final List<_ActivityTimelineItem> _activityItems = [];
+
+  String? _postCursor;
+  String? _threadCursor;
+  bool _hasMorePosts = true;
+  bool _hasMoreThreads = true;
+  bool _isActivityInitialLoading = true;
+  bool _isActivityLoadingMore = false;
+  bool _hasActivityError = false;
+  int _activityLoadGeneration = 0;
 
   @override
   void initState() {
     super.initState();
     _loadUser();
+    _loadInitialActivity();
   }
 
   @override
@@ -38,6 +88,7 @@ class _UserProfileViewState extends State<UserProfileView> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.userId != widget.userId) {
       _loadUser();
+      _loadInitialActivity();
     }
   }
 
@@ -59,6 +110,141 @@ class _UserProfileViewState extends State<UserProfileView> {
         .catchError((_) {
           return null;
         });
+  }
+
+  Future<void> _loadInitialActivity() async {
+    final userId = widget.userId;
+    final generation = ++_activityLoadGeneration;
+
+    setState(() {
+      _activityItems.clear();
+      _postCursor = null;
+      _threadCursor = null;
+      _hasMorePosts = userId != null;
+      _hasMoreThreads = userId != null;
+      _isActivityInitialLoading = userId != null;
+      _isActivityLoadingMore = false;
+      _hasActivityError = false;
+    });
+
+    if (userId == null) {
+      return;
+    }
+
+    await _loadMoreActivity(generation: generation);
+  }
+
+  Future<void> _loadMoreActivity({int? generation}) async {
+    final userId = widget.userId;
+    final requestGeneration = generation ?? _activityLoadGeneration;
+    if (userId == null ||
+        _isActivityLoadingMore ||
+        (!_hasMorePosts && !_hasMoreThreads)) {
+      return;
+    }
+
+    setState(() {
+      _isActivityLoadingMore = true;
+      _hasActivityError = false;
+    });
+
+    final blogRepository = context.read<BlogPostRepository>();
+    final forumRepository = context.read<ChatForumRepository>();
+    final newItems = <_ActivityTimelineItem>[];
+    var postCursor = _postCursor;
+    var threadCursor = _threadCursor;
+    var hasMorePosts = _hasMorePosts;
+    var hasMoreThreads = _hasMoreThreads;
+    var postFailedThisRequest = false;
+    var threadFailedThisRequest = false;
+    var hadRequestError = false;
+    var requestedAnyPage = false;
+
+    for (
+      var batch = 0;
+      batch < _maxActivityFetchBatches &&
+          newItems.isEmpty &&
+          ((hasMorePosts && !postFailedThisRequest) ||
+              (hasMoreThreads && !threadFailedThisRequest));
+      batch++
+    ) {
+      if (hasMorePosts && !postFailedThisRequest) {
+        requestedAnyPage = true;
+        try {
+          final response = await blogRepository.getPosts(
+            cursor: postCursor,
+            limit: _activityPageSize,
+            sort: 'desc',
+          );
+
+          postCursor = response.nextCursor;
+          hasMorePosts = response.hasMore;
+          newItems.addAll(
+            response.posts
+                .where((post) => post.author.id == userId)
+                .map(_ActivityTimelineItem.fromPost),
+          );
+        } catch (_) {
+          hadRequestError = true;
+          postFailedThisRequest = true;
+        }
+      }
+
+      if (hasMoreThreads && !threadFailedThisRequest) {
+        requestedAnyPage = true;
+        try {
+          final response = await forumRepository.getThreads(
+            cursor: threadCursor,
+            limit: _activityPageSize,
+            sort: 'desc',
+          );
+
+          threadCursor = response.nextCursor;
+          hasMoreThreads = response.hasMore;
+          newItems.addAll(
+            response.threads
+                .where((thread) => thread.author.id == userId)
+                .map(_ActivityTimelineItem.fromThread),
+          );
+        } catch (_) {
+          hadRequestError = true;
+          threadFailedThisRequest = true;
+        }
+      }
+    }
+
+    if (!mounted ||
+        requestGeneration != _activityLoadGeneration ||
+        widget.userId != userId) {
+      return;
+    }
+
+    setState(() {
+      _postCursor = postCursor;
+      _threadCursor = threadCursor;
+      _hasMorePosts = hasMorePosts;
+      _hasMoreThreads = hasMoreThreads;
+      _mergeActivityItems(newItems);
+      _isActivityInitialLoading = false;
+      _isActivityLoadingMore = false;
+      _hasActivityError =
+          hadRequestError && (!requestedAnyPage || newItems.isEmpty);
+    });
+  }
+
+  void _mergeActivityItems(List<_ActivityTimelineItem> items) {
+    final existingKeys = _activityItems
+        .map((item) => '${item.isPost ? 'post' : 'thread'}:${item.id}')
+        .toSet();
+
+    for (final item in items) {
+      final key = '${item.isPost ? 'post' : 'thread'}:${item.id}';
+      if (existingKeys.add(key)) {
+        _activityItems.add(item);
+      }
+    }
+
+    _activityItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   @override
@@ -90,30 +276,6 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   Widget _buildProfileContent(User user) {
-    // Collect user timeline items
-    final List<dynamic> timelineItems = [];
-
-    final blogState = context.read<BlogBloc>().state;
-    if (blogState is BlogLoadedState) {
-      timelineItems.addAll(
-        blogState.posts.where((p) => p.author.id == user.id),
-      );
-    }
-
-    final forumState = context.read<ChatForumBloc>().state;
-    if (forumState is ChatForumContentLoadedState) {
-      timelineItems.addAll(
-        forumState.chat.threads.where((t) => t.author.id == user.id),
-      );
-    }
-
-    // Sort chronologically (latest first)
-    timelineItems.sort((a, b) {
-      final dateA = a is BlogPost ? a.createdAt : (a as Thread).createdAt;
-      final dateB = b is BlogPost ? b.createdAt : (b as Thread).createdAt;
-      return dateB.compareTo(dateA);
-    });
-
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     return Scaffold(
@@ -181,7 +343,7 @@ class _UserProfileViewState extends State<UserProfileView> {
                         Row(
                           children: [
                             Text(
-                              '${user.firstName} ${user.lastName}',
+                              '${user.firstName ?? ""} ${user.lastName ?? ""}',
                               style: AppTextStyles.body.copyWith(
                                 color: AppColors.textMuted,
                               ),
@@ -189,11 +351,7 @@ class _UserProfileViewState extends State<UserProfileView> {
                           ],
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        Text(
-                          user.bio ?? 'No biography provided.',
-                          style: AppTextStyles.bodySmall,
-                        ),
-
+                        Text(user.bio ?? '', style: AppTextStyles.bodySmall),
                       ],
                     ),
                   ),
@@ -257,113 +415,164 @@ class _UserProfileViewState extends State<UserProfileView> {
             Text('Activity History', style: AppTextStyles.h2),
             const SizedBox(height: AppSpacing.md),
 
-            if (timelineItems.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'No recent activity recorded for this user.',
-                  style: AppTextStyles.body,
-                  textAlign: TextAlign.center,
-                ),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: timelineItems.length,
-                itemBuilder: (context, index) {
-                  final item = timelineItems[index];
-                  final isPost = item is BlogPost;
-
-                  final String title = isPost ? item.title : item.title;
-                  final String content = isPost ? item.content : item.content;
-                  final DateTime date = isPost
-                      ? item.createdAt
-                      : item.createdAt;
-
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(AppSpacing.md),
-                      leading: Icon(
-                        isPost ? Icons.book : Icons.forum,
-                        color: AppColors.primary,
-                        size: 32,
-                      ),
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                isPost
-                                    ? 'Published Blog Post'
-                                    : 'Created Forum Thread',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                dateFormat.format(date.toLocal()),
-                                style: AppTextStyles.bodySmall,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(title, style: AppTextStyles.h3),
-                        ],
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.xs),
-                        child: Text(
-                          content.length > 120
-                              ? '${content.substring(0, 120).replaceAll(RegExp(r'[#*_\-\`\n]'), ' ')}...'
-                              : content.replaceAll(RegExp(r'[#*_\-\`\n]'), ' '),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.body,
-                        ),
-                      ),
-                      onTap: () {
-                        if (isPost) {
-                          context.read<BlogBloc>().add(
-                            OpenBlogPostEvent(blogId: item.id),
-                          );
-                          context.read<ApplicationBloc>().add(
-                            const ApplicationNavigateEvent(
-                              route: HomeViewState.blog,
-                            ),
-                          );
-                        } else {
-                          context.read<ChatForumBloc>().add(
-                            ChatLoadThreadEvent(item.id),
-                          );
-                          context.read<ApplicationBloc>().add(
-                            const ApplicationNavigateEvent(
-                              route: HomeViewState.chatForum,
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
+            _buildActivityTimeline(dateFormat),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActivityTimeline(DateFormat dateFormat) {
+    if (_isActivityInitialLoading && _activityItems.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.xl),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_hasActivityError && _activityItems.isEmpty) {
+      return _buildActivityMessage(
+        message: 'Unable to load activity history.',
+        actionLabel: 'Retry',
+        onPressed: _loadInitialActivity,
+      );
+    }
+
+    if (_activityItems.isEmpty && !_hasMoreActivity) {
+      return _buildActivityMessage(
+        message: 'No recent activity recorded for this user.',
+      );
+    }
+
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _activityItems.length,
+          itemBuilder: (context, index) {
+            return _buildActivityTile(_activityItems[index], dateFormat);
+          },
+        ),
+        if (_isActivityLoadingMore)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(AppSpacing.lg),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else if (_hasActivityError || _hasMoreActivity)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: OutlinedButton(
+                onPressed: _loadMoreActivity,
+                child: Text(
+                  _hasActivityError ? 'Retry' : 'Load older activity',
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  bool get _hasMoreActivity => _hasMorePosts || _hasMoreThreads;
+
+  Widget _buildActivityMessage({
+    required String message,
+    String? actionLabel,
+    VoidCallback? onPressed,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        children: [
+          Text(message, style: AppTextStyles.body, textAlign: TextAlign.center),
+          if (actionLabel != null && onPressed != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            OutlinedButton(onPressed: onPressed, child: Text(actionLabel)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityTile(_ActivityTimelineItem item, DateFormat dateFormat) {
+    final sanitizedContent = item.content.replaceAll(
+      RegExp(r'[#*_\-\`\n]'),
+      ' ',
+    );
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(AppSpacing.md),
+        leading: Icon(
+          item.isPost ? Icons.book : Icons.forum,
+          color: AppColors.primary,
+          size: 32,
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  item.isPost ? 'Published Blog Post' : 'Created Forum Thread',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  dateFormat.format(item.createdAt.toLocal()),
+                  style: AppTextStyles.bodySmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(item.title, style: AppTextStyles.h3),
+          ],
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
+          child: Text(
+            sanitizedContent.length > 120
+                ? '${sanitizedContent.substring(0, 120)}...'
+                : sanitizedContent,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body,
+          ),
+        ),
+        onTap: () {
+          if (item.isPost) {
+            context.read<BlogBloc>().add(OpenBlogPostEvent(blogId: item.id));
+            context.read<ApplicationBloc>().add(
+              const ApplicationNavigateEvent(route: HomeViewState.blog),
+            );
+          } else {
+            context.read<ChatForumBloc>().add(ChatLoadThreadEvent(item.id));
+            context.read<ApplicationBloc>().add(
+              const ApplicationNavigateEvent(route: HomeViewState.chatForum),
+            );
+          }
+        },
       ),
     );
   }

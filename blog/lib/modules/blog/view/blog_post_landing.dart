@@ -19,7 +19,12 @@ class PostLanding extends StatelessWidget {
         }
 
         if (state is BlogLoadedState) {
-          return PostList(posts: state.posts, postsAmount: state.posts.length);
+          return PostList(
+            posts: state.posts,
+            hasMore: state.hasMore,
+            isLoadingMore: state.isLoadingMore,
+            hasLoadMoreError: state.hasLoadMoreError,
+          );
         }
 
         if (state is BlogPostLoadedState) {
@@ -27,11 +32,19 @@ class PostLanding extends StatelessWidget {
         }
 
         if (state is BlogPostCreateState) {
-          return BlogPostCreateView(post: null, author: state.author, isEditing: false);
+          return BlogPostCreateView(
+            post: null,
+            author: state.author,
+            isEditing: false,
+          );
         }
 
         if (state is BlogPostEditState) {
-          return BlogPostCreateView(post: state.blogPost, author: state.blogPost?.author, isEditing: true);
+          return BlogPostCreateView(
+            post: state.blogPost,
+            author: state.blogPost?.author,
+            isEditing: true,
+          );
         }
 
         return const Center(child: Text(Strings.blogPostNone));
