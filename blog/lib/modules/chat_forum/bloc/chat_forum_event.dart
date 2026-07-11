@@ -22,7 +22,6 @@ class ChatForumLoadEvent extends ChatForumEvent {
 }
 
 class ChatForumRefreshEvent extends ChatForumEvent {
-
   const ChatForumRefreshEvent();
 
   @override
@@ -37,7 +36,6 @@ class ChatLoadThreadEvent extends ChatForumEvent {
 
   const ChatLoadThreadEvent(this.threadId);
 
-
   @override
   List<Object?> get props => [];
 
@@ -45,12 +43,64 @@ class ChatLoadThreadEvent extends ChatForumEvent {
   Map<String, dynamic> get properties => {};
 }
 
+class ChatCreateThreadEvent extends ChatForumEvent {
+  final String authorId;
+  final String title;
+  final String content;
+
+  const ChatCreateThreadEvent({
+    required this.authorId,
+    required this.title,
+    required this.content,
+  });
+
+  @override
+  List<Object?> get props => [authorId, title, content];
+
+  @override
+  Map<String, dynamic> get properties => {'authorId': authorId};
+}
+
+class ChatUpdateThreadEvent extends ChatForumEvent {
+  final String threadId;
+  final String title;
+  final String content;
+
+  const ChatUpdateThreadEvent({
+    required this.threadId,
+    required this.title,
+    required this.content,
+  });
+
+  @override
+  List<Object?> get props => [threadId, title, content];
+
+  @override
+  Map<String, dynamic> get properties => {'threadId': threadId};
+}
+
+class ChatDeleteThreadEvent extends ChatForumEvent {
+  final String threadId;
+
+  const ChatDeleteThreadEvent({required this.threadId});
+
+  @override
+  List<Object?> get props => [threadId];
+
+  @override
+  Map<String, dynamic> get properties => {'threadId': threadId};
+}
+
 class ChatAddCommentEvent extends ChatForumEvent {
   final String threadId;
   final String authorId;
   final String message;
-  
-  const ChatAddCommentEvent({ required this.threadId, required this.authorId, required this.message });
+
+  const ChatAddCommentEvent({
+    required this.threadId,
+    required this.authorId,
+    required this.message,
+  });
 
   @override
   List<Object?> get props => [];

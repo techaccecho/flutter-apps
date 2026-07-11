@@ -10,7 +10,8 @@ class BlogPostHeaderCreate extends StatefulWidget {
   final String author;
   final String? title;
   final VoidCallback setIsPreviewMode;
-  final ValueChanged<String> onSave;
+  final ValueChanged<String> onSaveDraft;
+  final ValueChanged<String> onPublish;
   final VoidCallback onClose;
 
   const BlogPostHeaderCreate({
@@ -19,8 +20,9 @@ class BlogPostHeaderCreate extends StatefulWidget {
     required this.title,
     required this.setIsPreviewMode,
     this.isEditing = false,
-    required this.onSave,
-    required this.onClose
+    required this.onSaveDraft,
+    required this.onPublish,
+    required this.onClose,
   });
 
   @override
@@ -49,18 +51,14 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(
-          bottom: BorderSide(color: AppColors.border),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
             onPressed: () {
-              context
-                  .read<BlogBloc>()
-                  .add(LoadBlogPostsEvent(fromCache: true));
+              context.read<BlogBloc>().add(LoadBlogPostsEvent(fromCache: true));
             },
             icon: const Icon(Icons.arrow_back),
           ),
@@ -78,61 +76,79 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
                   maxLines: null,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  "by ${widget.author}",
-                  style: AppTextStyles.bodySmall,
-                ),
+                Text("by ${widget.author}", style: AppTextStyles.bodySmall),
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   margin: const EdgeInsets.only(top: AppSpacing.sm),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
-                  child: Row(children: [
-                    BlogPostMenuButton(buttonText: "Embed url"),
-                    BlogPostMenuButton(buttonText: "Add image"),
-                    Spacer(),
-                    InkWell(
-                      onTap: () {
-                        widget.setIsPreviewMode();
-                        // setState(() {
-                        //   isPreview = !isPreview;
-                        // });
-                      },
-                      child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
+                  ),
+                  child: Row(
+                    children: [
+                      BlogPostMenuButton(buttonText: "Embed url"),
+                      BlogPostMenuButton(buttonText: "Add image"),
+                      Spacer(),
+                      InkWell(
+                        onTap: () {
+                          widget.setIsPreviewMode();
+                          setState(() {
+                            isPreview = !isPreview;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.sm,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isPreview ? "Edit" : "Preview",
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: Text(
-                        isPreview ? "Edit" : "Preview",
-                        style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
-                      ),
-                    ),),
-                    SizedBox(width: AppSpacing.lg),
-                    IconButton(
-                      icon: Icon(
+                      SizedBox(width: AppSpacing.lg),
+                      IconButton(
+                        icon: Icon(
                           Icons.close,
                           size: 24,
                           color: AppColors.textPrimary,
                         ),
-                      onPressed: () {
-                        widget.onClose();
-                      }
-                    ),
-                    SizedBox(width: AppSpacing.xs),
-                    IconButton(
-                      icon: const Icon(Icons.save, size: 24, color: AppColors.textPrimary),
-                      onPressed: () {
-                        widget.onSave(_titleController.text);
-                      }
-                    ),
-                    SizedBox(width: AppSpacing.xs),
-                  ],),
+                        onPressed: () {
+                          widget.onClose();
+                        },
+                      ),
+                      SizedBox(width: AppSpacing.xs),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.save, size: 18),
+                        label: const Text('Save draft'),
+                        onPressed: () {
+                          widget.onSaveDraft(_titleController.text);
+                        },
+                      ),
+                      SizedBox(width: AppSpacing.sm),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.publish, size: 18),
+                        label: Text(
+                          widget.isEditing ? 'Update post' : 'Publish',
+                        ),
+                        onPressed: () {
+                          widget.onPublish(_titleController.text);
+                        },
+                      ),
+                      SizedBox(width: AppSpacing.xs),
+                    ],
+                  ),
                 ),
-              
               ],
             ),
           ),

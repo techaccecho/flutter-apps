@@ -1,6 +1,7 @@
 import 'package:blog/modules/blog/bloc/blog_bloc.dart';
 import 'package:blog/modules/blog/bloc/blog_event.dart';
 import 'package:blog/modules/blog/view/view_posts/blog_create_new_button.dart';
+import 'package:blog/modules/core/application.dart';
 import 'package:blog/resources/app_strings.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:blog/modules/blog/view/view_posts/blog_post_card.dart';
@@ -80,6 +81,14 @@ class _PostListState extends State<PostList> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<ApplicationBloc>().state;
+    final currentUser = appState is ApplicationContentLoadedState
+        ? appState.currentUser
+        : context.read<ApplicationBloc>().currentUser;
+    final visiblePosts = widget.posts
+        .where((post) => !post.isDraft || post.author.id == currentUser?.id)
+        .toList();
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -99,19 +108,19 @@ class _PostListState extends State<PostList> {
           child: ListView.builder(
             controller: _scrollController,
             padding: const EdgeInsets.all(AppSpacing.md),
-            itemCount: widget.posts.length + (_showFooter ? 1 : 0),
+            itemCount: visiblePosts.length + (_showFooter ? 1 : 0),
             itemBuilder: (context, index) {
-              if (index >= widget.posts.length) {
+              if (index >= visiblePosts.length) {
                 return _buildFooter(context);
               }
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: BlogPostCard(
-                  post: widget.posts[index],
+                  post: visiblePosts[index],
                   onTap: () {
                     context.read<BlogBloc>().add(
-                      OpenBlogPostEvent(blogId: widget.posts[index].id),
+                      OpenBlogPostEvent(blogId: visiblePosts[index].id),
                     );
                   },
                 ),

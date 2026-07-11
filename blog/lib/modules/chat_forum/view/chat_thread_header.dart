@@ -7,8 +7,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatThreadHeader extends StatelessWidget {
   final Thread thread;
+  final bool canManage;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
-  const ChatThreadHeader({super.key, required this.thread});
+  const ChatThreadHeader({
+    super.key,
+    required this.thread,
+    this.canManage = false,
+    this.onEdit,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +38,33 @@ class ChatThreadHeader extends StatelessWidget {
             icon: Icon(Icons.arrow_back),
           ),
           SizedBox(width: AppSpacing.md),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(thread.title, style: AppTextStyles.h1),
-              const SizedBox(height: 4),
-              Text(
-                "Started by ${thread.author.displayName} · ${thread.displayCreatedAt}",
-                style: AppTextStyles.bodySmall,
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(thread.title, style: AppTextStyles.h1),
+                const SizedBox(height: 4),
+                Text(
+                  "Started by ${thread.author.displayName} · ${thread.displayCreatedAt}",
+                  style: AppTextStyles.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(thread.content, style: AppTextStyles.body),
+              ],
+            ),
           ),
+          if (canManage) ...[
+            IconButton(
+              tooltip: 'Edit thread',
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit),
+            ),
+            IconButton(
+              tooltip: 'Delete thread',
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
         ],
       ),
     );

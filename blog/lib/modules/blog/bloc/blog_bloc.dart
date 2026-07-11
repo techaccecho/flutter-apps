@@ -4,8 +4,10 @@ import 'package:blog/modules/blog/bloc/blog_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_bloc.dart';
 import 'package:blog/shared/util/abstract_bloc/base_emitter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/blog/bloc/blog_post_repository.dart';
 import 'package:blog/modules/blog/model/create_blog_post.dart';
+import 'package:blog/modules/blog/model/update_blog_post.dart';
 
 class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
   static const int _pageSize = 10;
@@ -20,7 +22,10 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     on<LoadMoreBlogPostsEvent>(_loadMoreBlogPosts);
     on<OpenBlogPostEvent>(_openBlogPost);
     on<CreateNewBlogPostEvent>(_createNewBlogPost);
+    on<EditBlogPostEvent>(_editBlogPost);
     on<SaveNewBlogPostEvent>(_saveNewBlogPost);
+    on<UpdateBlogPostEvent>(_updateBlogPost);
+    on<DeleteBlogPostEvent>(_deleteBlogPost);
   }
 
   Future<void> _loadBlogPosts(
@@ -86,9 +91,13 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     OpenBlogPostEvent event,
     Emitter<BlogState> emit,
   ) async {
-    emit.logCall(
-      BlogPostLoadedState(blogPost: await _repository.getPost(event.blogId)),
-    );
+    try {
+      emit.logCall(
+        BlogPostLoadedState(blogPost: await _repository.getPost(event.blogId)),
+      );
+    } catch (_) {
+      emit.logCall(BlogErrorState());
+    }
   }
 
   Future<void> _createNewBlogPost(
@@ -96,6 +105,29 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     Emitter<BlogState> emit,
   ) async {
     emit.logCall(BlogPostCreateState(author: event.author));
+  }
+
+  Future<void> _editBlogPost(
+    EditBlogPostEvent event,
+    Emitter<BlogState> emit,
+  ) async {
+    try {
+      final blogPost = await _repository.getPost(event.blogId);
+      final response = await _repository.getPosts(
+        cursor: null,
+        limit: _pageSize,
+        sort: _sortDirection,
+      );
+      final latestPost = _latestPublishedPost(
+        response.posts.where((post) => post.id != event.blogId),
+      );
+
+      emit.logCall(
+        BlogPostEditState(blogPost: blogPost, latestPost: latestPost),
+      );
+    } catch (_) {
+      emit.logCall(BlogErrorState());
+    }
   }
 
   Future<void> _saveNewBlogPost(
@@ -106,10 +138,50 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
       authorId: event.authorId,
       title: event.title,
       content: event.content,
+      isDraft: event.isDraft,
       createdAt: event.publishDate,
     );
 
-    await _repository.createPost(request);
+    try {
+      await _repository.createPost(request);
+      await _reloadFirstPage(emit);
+    } catch (_) {
+      emit.logCall(BlogErrorState());
+    }
+  }
+
+  Future<void> _updateBlogPost(
+    UpdateBlogPostEvent event,
+    Emitter<BlogState> emit,
+  ) async {
+    try {
+      await _repository.updatePost(
+        id: event.blogId,
+        update: UpdateBlogPost(
+          title: event.title,
+          content: event.content,
+          isDraft: event.isDraft,
+        ),
+      );
+      await _reloadFirstPage(emit);
+    } catch (_) {
+      emit.logCall(BlogErrorState());
+    }
+  }
+
+  Future<void> _deleteBlogPost(
+    DeleteBlogPostEvent event,
+    Emitter<BlogState> emit,
+  ) async {
+    try {
+      await _repository.deletePost(event.blogId);
+      await _reloadFirstPage(emit);
+    } catch (_) {
+      emit.logCall(BlogErrorState());
+    }
+  }
+
+  Future<void> _reloadFirstPage(Emitter<BlogState> emit) async {
     final response = await _repository.getPosts(
       cursor: null,
       limit: _pageSize,
@@ -122,5 +194,21 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
         hasMore: response.hasMore,
       ),
     );
+  }
+
+  BlogPost? _latestPublishedPost(Iterable<BlogPost> posts) {
+    BlogPost? latestPost;
+
+    for (final post in posts) {
+      if (post.isDraft) {
+        continue;
+      }
+
+      if (latestPost == null || post.createdAt.isAfter(latestPost.createdAt)) {
+        latestPost = post;
+      }
+    }
+
+    return latestPost;
   }
 }

@@ -27,7 +27,17 @@ class BlogPostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(post.title, style: AppTextStyles.h2),
+            Row(
+              children: [
+                Expanded(child: Text(post.title, style: AppTextStyles.h2)),
+                if (post.isDraft)
+                  Chip(
+                    label: const Text('Draft'),
+                    visualDensity: VisualDensity.compact,
+                    backgroundColor: AppColors.background,
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
             RichText(
               text: TextSpan(
@@ -52,9 +62,17 @@ class BlogPostCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(post.content.length > 50 ? post.content.substring(0, 50) : post.content, style: AppTextStyles.body),
+            Text(
+              post.content.length > 50
+                  ? post.content.substring(0, 50)
+                  : post.content,
+              style: AppTextStyles.body,
+            ),
             const SizedBox(height: 12),
-            Text("${post.engagement.comments} comments", style: AppTextStyles.link),
+            Text(
+              "${post.engagement.comments} comments",
+              style: AppTextStyles.link,
+            ),
           ],
         ),
       ),

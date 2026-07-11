@@ -35,6 +35,7 @@ class PostLanding extends StatelessWidget {
           return BlogPostCreateView(
             post: null,
             author: state.author,
+            latestPost: null,
             isEditing: false,
           );
         }
@@ -43,6 +44,7 @@ class PostLanding extends StatelessWidget {
           return BlogPostCreateView(
             post: state.blogPost,
             author: state.blogPost?.author,
+            latestPost: state.latestPost,
             isEditing: true,
           );
         }

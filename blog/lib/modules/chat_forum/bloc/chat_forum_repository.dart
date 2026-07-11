@@ -43,7 +43,7 @@ class ChatForumRepository {
     return Thread.fromBlog(response.data);
   }
 
-  Future<void> deletePost(String id) async {
+  Future<void> deleteThread(String id) async {
     await apiProvider.deleteBlog(id);
   }
 

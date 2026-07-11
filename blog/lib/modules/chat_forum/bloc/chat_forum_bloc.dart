@@ -3,45 +3,55 @@ import 'package:blog/shared/util/abstract_bloc/base_bloc.dart';
 import 'package:blog/shared/util/abstract_bloc/base_emitter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blog/modules/chat_forum/model/add_thread_comment.dart';
+import 'package:blog/modules/chat_forum/model/create_thread.dart';
+import 'package:blog/modules/chat_forum/model/update_thread.dart';
 
 import 'chat_forum.dart';
 
 class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
   final ChatForumRepository _repository;
 
-  ChatForumBloc({
-    required ChatForumRepository repository
-  })  : _repository = repository,
-        super(const ChatForumInitialState()) {
+  ChatForumBloc({required ChatForumRepository repository})
+    : _repository = repository,
+      super(const ChatForumInitialState()) {
     on<ChatForumLoadEvent>(_onChatForumLoad);
     on<ChatForumRefreshEvent>(_onChatForumRefresh);
     on<ChatLoadThreadEvent>(_fetchChatThread);
+    on<ChatCreateThreadEvent>(_onCreateThread);
+    on<ChatUpdateThreadEvent>(_onUpdateThread);
+    on<ChatDeleteThreadEvent>(_onDeleteThread);
     on<ChatAddCommentEvent>(_onAddComment);
   }
 
   Future<void> _onChatForumLoad(
-      ChatForumLoadEvent event, Emitter<ChatForumState> emit) async {
-
+    ChatForumLoadEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
     emit.logCall(ChatForumLoadingState());
-     await _fetchContent(emit, event.fromCache);
+    await _fetchContent(emit, event.fromCache);
   }
 
   Future<void> _onChatForumRefresh(
-      ChatForumRefreshEvent event, Emitter<ChatForumState> emit) async {
-
+    ChatForumRefreshEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
     emit.logCall(ChatForumLoadingState());
     await _fetchContent(emit, false);
   }
 
-  Future<void> _fetchContent(Emitter<ChatForumState> emit, bool fromCache) async {
+  Future<void> _fetchContent(
+    Emitter<ChatForumState> emit,
+    bool fromCache,
+  ) async {
     ThreadPaginatedResult threads = await _repository.getThreads();
     //List<ChatItem> chats = await _repository.get(fromCache);
     emit.logCall(ChatForumContentLoadedState(chat: threads));
   }
 
   Future<void> _fetchChatThread(
-      ChatLoadThreadEvent event, Emitter<ChatForumState> emit) async {
-    
+    ChatLoadThreadEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
     emit.logCall(ChatForumThreadLoadingState());
 
     try {
@@ -52,26 +62,82 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     } catch (_) {
       emit.logCall(ChatForumThreadErrorState());
     }
-
   }
 
-  Future<void> _onAddComment(ChatAddCommentEvent event, Emitter<ChatForumState> emit) async {
+  Future<void> _onCreateThread(
+    ChatCreateThreadEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
     emit.logCall(ChatForumLoadingState());
 
-    final request = AddThreadComment(authorId: event.authorId, content: event.message);
-    final response = await _repository.addThreadComment(id: event.threadId, request: request);
+    try {
+      final request = CreateThread(
+        authorId: event.authorId,
+        title: event.title,
+        content: event.content,
+      );
+      await _repository.createThread(request);
+      await _fetchContent(emit, false);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to create thread'));
+    }
+  }
 
-    emit.logCall(ChatForumThreadLoadedState(
-      thread: response
-    ));
+  Future<void> _onUpdateThread(
+    ChatUpdateThreadEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
+    emit.logCall(ChatForumThreadLoadingState());
+
+    try {
+      final thread = await _repository.updateThread(
+        id: event.threadId,
+        update: UpdateThread(title: event.title, content: event.content),
+      );
+      emit.logCall(ChatForumThreadLoadedState(thread: thread));
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to update thread'));
+    }
+  }
+
+  Future<void> _onDeleteThread(
+    ChatDeleteThreadEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
+    emit.logCall(ChatForumLoadingState());
+
+    try {
+      await _repository.deleteThread(event.threadId);
+      await _fetchContent(emit, false);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to delete thread'));
+    }
+  }
+
+  Future<void> _onAddComment(
+    ChatAddCommentEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
+    emit.logCall(ChatForumLoadingState());
+
+    final request = AddThreadComment(
+      authorId: event.authorId,
+      content: event.message,
+    );
+    final response = await _repository.addThreadComment(
+      id: event.threadId,
+      request: request,
+    );
+
+    emit.logCall(ChatForumThreadLoadedState(thread: response));
   }
 
   //   final newComment = CommentItem(
-//     id: DateTime.now().toString(),
-//     username: "You",
-//     message: event.message,
-//     time: "just now",
-//   );
+  //     id: DateTime.now().toString(),
+  //     username: "You",
+  //     message: event.message,
+  //     time: "just now",
+  //   );
 
   @override
   Future<void> close() async {

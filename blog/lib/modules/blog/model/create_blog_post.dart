@@ -4,12 +4,14 @@ class CreateBlogPost {
   final String authorId;
   final String title;
   final String content;
+  final bool isDraft;
   final DateTime? createdAt;
 
   CreateBlogPost({
     required this.authorId,
     required this.title,
     required this.content,
+    required this.isDraft,
     this.createdAt,
   });
 
@@ -18,6 +20,7 @@ class CreateBlogPost {
     title: title,
     content: content,
     type: 'post',
+    isDraft: isDraft,
     createdAt: createdAt,
   );
 }

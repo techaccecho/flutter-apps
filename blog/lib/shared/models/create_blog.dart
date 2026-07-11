@@ -3,6 +3,7 @@ class CreateBlog {
   final String title;
   final String content;
   final String type;
+  final bool isDraft;
   final DateTime? createdAt;
 
   CreateBlog({
@@ -10,6 +11,7 @@ class CreateBlog {
     required this.title,
     required this.content,
     required this.type,
+    required this.isDraft,
     this.createdAt,
   });
 
@@ -19,6 +21,7 @@ class CreateBlog {
       'title': title,
       'content': content,
       'type': type,
+      'isDraft': isDraft,
       if (createdAt != null) 'createdAt': createdAt!.toUtc().toIso8601String(),
     };
   }

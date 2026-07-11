@@ -8,13 +8,14 @@ class CreateThread {
   CreateThread({
     required this.authorId,
     required this.title,
-    required this.content
+    required this.content,
   });
 
   CreateBlog toCreateBlog() => CreateBlog(
     authorId: authorId,
     title: title,
     content: content,
-    type: 'thread'
-    );
+    type: 'thread',
+    isDraft: false,
+  );
 }

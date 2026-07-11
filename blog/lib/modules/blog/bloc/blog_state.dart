@@ -77,11 +77,12 @@ class BlogPostCreateState extends BlogState {
 
 class BlogPostEditState extends BlogState {
   final BlogPost? blogPost;
+  final BlogPost? latestPost;
 
-  const BlogPostEditState({required this.blogPost});
+  const BlogPostEditState({required this.blogPost, this.latestPost});
 
   @override
-  List<Object?> get props => [blogPost];
+  List<Object?> get props => [blogPost, latestPost];
 }
 
 class BlogErrorState extends BlogState {}

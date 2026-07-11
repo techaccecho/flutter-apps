@@ -8,13 +8,14 @@ class CreateBlogPost {
   CreateBlogPost({
     required this.authorId,
     required this.title,
-    required this.content
+    required this.content,
   });
 
   CreateBlog toCreateBlog() => CreateBlog(
     authorId: authorId,
     title: title,
     content: content,
-    type: 'post'
-    );
+    type: 'post',
+    isDraft: false,
+  );
 }
