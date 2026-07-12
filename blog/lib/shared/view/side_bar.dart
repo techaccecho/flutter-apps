@@ -83,9 +83,9 @@ class _SidebarState extends State<Sidebar> {
               const SizedBox(height: 4),
               if (state is ApplicationContentLoadedState &&
                   state.isLoggedIn &&
-                  state.currentUser?.role == 'admin') ...[
+                  state.currentUser?.role == Strings.roleAdmin) ...[
                 NavItem(
-                  title: "• Archived",
+                  title: Strings.linkArchived,
                   isSelected: state.route == HomeViewState.archived,
                   onTap: () => context.read<ApplicationBloc>().add(
                     const ApplicationNavigateEvent(

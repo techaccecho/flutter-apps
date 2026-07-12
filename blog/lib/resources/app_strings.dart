@@ -12,6 +12,9 @@ class Strings {
   static const btnLogin = "Login";
   static const btnLogout = "Logout";
 
+  // Roles
+  static const roleAdmin= 'admin';
+
   // SideBar
   static const titleAccount = "Account";
   static const titleNavigation = "Navigation";
@@ -21,6 +24,7 @@ class Strings {
   static const linkHome = "• Home";
   static const linkForums = "• Forums";
   static const linkProfile = "• Profile";
+  static const linkArchived= "• Archived";
   static const captionAbout = "A community of developers sharing ideas, code, and discoveries.";
   static const btnSigOut = "Sign out";
 
