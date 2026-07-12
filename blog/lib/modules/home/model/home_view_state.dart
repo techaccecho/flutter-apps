@@ -1,6 +1,1 @@
-enum HomeViewState {
-  blog,
-  chatForum,
-  profile,
-  archived
-}
+enum HomeViewState { blog, chatForum, profile, archived, faq }

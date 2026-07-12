@@ -7,6 +7,7 @@ import 'package:blog/modules/chat_forum/bloc/chat_forum_repository.dart';
 import 'package:blog/modules/blog/view/blog_post_landing.dart';
 import 'package:blog/modules/chat_forum/view/chat_forum_view.dart';
 import 'package:blog/modules/core/application.dart';
+import 'package:blog/modules/faq/view/faq_view.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/modules/profile/view/user_profile_view.dart';
 import 'package:blog/modules/profile/view/archived_users_list_view.dart';
@@ -77,6 +78,8 @@ class _MobileLayout extends StatelessWidget {
                   return UserProfileView(userId: state.viewUserId);
                 } else if (state.route == HomeViewState.archived) {
                   return _buildArchivedViewGuard(state);
+                } else if (state.route == HomeViewState.faq) {
+                  return const FaqView();
                 } else {
                   return CircularProgressIndicator();
                 }
@@ -140,6 +143,8 @@ class _TabletLayout extends StatelessWidget {
                         return UserProfileView(userId: state.viewUserId);
                       } else if (state.route == HomeViewState.archived) {
                         return _buildArchivedViewGuard(state);
+                      } else if (state.route == HomeViewState.faq) {
+                        return const FaqView();
                       } else {
                         return CircularProgressIndicator();
                       }
@@ -208,6 +213,8 @@ class _DesktopLayout extends StatelessWidget {
                               return UserProfileView(userId: state.viewUserId);
                             } else if (state.route == HomeViewState.archived) {
                               return _buildArchivedViewGuard(state);
+                            } else if (state.route == HomeViewState.faq) {
+                              return const FaqView();
                             } else {
                               return const Text(Strings.appLoading);
                             }

@@ -119,6 +119,16 @@ class _SidebarState extends State<Sidebar> {
               Text(Strings.titleAbout, style: AppTextStyles.h2),
               const SizedBox(height: 8),
               Text(Strings.captionAbout, style: AppTextStyles.body),
+              const SizedBox(height: 8),
+              NavItem(
+                title: Strings.linkRulesOfEngagementFaq,
+                isSelected:
+                    state is ApplicationContentLoadedState &&
+                    state.route == HomeViewState.faq,
+                onTap: () => context.read<ApplicationBloc>().add(
+                  const ApplicationNavigateEvent(route: HomeViewState.faq),
+                ),
+              ),
 
               Spacer(),
               if (state is ApplicationContentLoadedState && state.isLoggedIn)

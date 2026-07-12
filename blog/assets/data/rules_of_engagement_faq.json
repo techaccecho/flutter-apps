@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "title": "Rules of Engagement FAQ",
+  "description": "Common expectations for participating in the blog community.",
+  "items": [
+    {
+      "id": "be-respectful",
+      "sortOrder": 1,
+      "question": "How should I engage with other members?",
+      "answer": "Be respectful, professional, and constructive. Debate ideas directly without insulting, harassing, or targeting people.",
+      "tags": ["conduct", "community"]
+    },
+    {
+      "id": "stay-on-topic",
+      "sortOrder": 2,
+      "question": "What counts as a relevant comment or post?",
+      "answer": "Keep contributions related to the blog post, discussion thread, or community topic. Move unrelated questions or side conversations to a more appropriate thread.",
+      "tags": ["content", "discussion"]
+    },
+    {
+      "id": "constructive-feedback",
+      "sortOrder": 3,
+      "question": "How should feedback be shared?",
+      "answer": "Share feedback with enough context to be useful. Explain what you observed, why it matters, and, where possible, suggest a practical improvement.",
+      "tags": ["feedback", "discussion"]
+    },
+    {
+      "id": "no-spam",
+      "sortOrder": 4,
+      "question": "Are promotions or repeated posts allowed?",
+      "answer": "Spam, repeated posts, unsolicited promotions, and irrelevant links are not allowed. Only share links when they directly support the discussion.",
+      "tags": ["spam", "content"]
+    },
+    {
+      "id": "protect-privacy",
+      "sortOrder": 5,
+      "question": "Can I share personal or private information?",
+      "answer": "Do not post private, confidential, or sensitive information about yourself, other members, clients, employers, or third parties.",
+      "tags": ["privacy", "safety"]
+    },
+    {
+      "id": "credit-sources",
+      "sortOrder": 6,
+      "question": "Should I credit sources?",
+      "answer": "Credit original authors, tools, articles, data, and media where relevant. Do not present someone else's work as your own.",
+      "tags": ["content", "attribution"]
+    },
+    {
+      "id": "inclusive-language",
+      "sortOrder": 7,
+      "question": "What language is not acceptable?",
+      "answer": "Discriminatory, hateful, threatening, or exclusionary language is not acceptable. Keep the blog welcoming for people from different backgrounds and experience levels.",
+      "tags": ["conduct", "safety"]
+    },
+    {
+      "id": "report-problems",
+      "sortOrder": 8,
+      "question": "What should I do if I see a problem?",
+      "answer": "Report content that appears abusive, unsafe, misleading, or against these rules. Avoid escalating conflicts in the thread.",
+      "tags": ["moderation", "safety"]
+    },
+    {
+      "id": "moderation",
+      "sortOrder": 9,
+      "question": "How are the rules enforced?",
+      "answer": "Moderators may edit, hide, remove, or restrict content and accounts when needed to protect the quality and safety of the blog.",
+      "tags": ["moderation", "enforcement"]
+    }
+  ]
+}
