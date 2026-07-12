@@ -235,7 +235,7 @@ class _DesktopLayout extends StatelessWidget {
 }
 
 Widget _buildArchivedViewGuard(ApplicationContentLoadedState state) {
-  if (state.isLoggedIn && state.currentUser?.role == 'admin') {
+  if (state.isLoggedIn && state.currentUser?.role == Strings.roleAdmin) {
     return const ArchivedUsersListView();
   }
   return const Center(

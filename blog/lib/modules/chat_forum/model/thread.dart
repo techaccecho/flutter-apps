@@ -25,6 +25,7 @@ class Thread {
   final Engagement engagement;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
 
   Thread({
     required this.id,
@@ -43,6 +44,7 @@ class Thread {
     required this.engagement,
     required this.createdAt,
     this.updatedAt,
+    this.deletedAt,
   });
 
   factory Thread.fromBlog(Blog blog) => Thread(
@@ -54,7 +56,9 @@ class Thread {
     isDraft: blog.isDraft,
     isPinned: blog.isPinned,
     isLocked: blog.isLocked,
-    participants: blog.participants.map((p) => Participant.fromUserPreview(p)).toList(),
+    participants: blog.participants
+        .map((p) => Participant.fromUserPreview(p))
+        .toList(),
     comments: blog.comments,
     attachments: blog.attachments,
     viewers: blog.viewers,
@@ -62,7 +66,11 @@ class Thread {
     engagement: blog.engagement,
     createdAt: blog.createdAt,
     updatedAt: blog.updatedAt,
+    deletedAt: blog.deletedAt,
   );
 
-  String get displayCreatedAt => DateFormat('yyyy-MM-dd HH:mm').format(createdAt.toLocal());
+  String get displayCreatedAt =>
+      DateFormat('yyyy-MM-dd HH:mm').format(createdAt.toLocal());
+
+  bool get isAdminRemoved => deletedAt != null;
 }

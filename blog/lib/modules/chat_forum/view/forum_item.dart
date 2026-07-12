@@ -31,7 +31,19 @@ class ForumItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(thread.title, style: AppTextStyles.h2),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(thread.title, style: AppTextStyles.h2),
+                      ),
+                      if (thread.isAdminRemoved)
+                        Chip(
+                          label: const Text('Removed'),
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: AppColors.background,
+                        ),
+                    ],
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     "${thread.engagement.comments} replies • ${thread.participants.length} participants",

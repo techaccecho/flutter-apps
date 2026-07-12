@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:blog/shared/util/abstract_bloc/base_bloc.dart';
 import 'package:blog/shared/util/abstract_bloc/base_emitter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blog/modules/blog/util/blog_content.dart';
 import 'package:blog/modules/chat_forum/model/add_thread_comment.dart';
 import 'package:blog/modules/chat_forum/model/create_thread.dart';
 import 'package:blog/modules/chat_forum/model/update_thread.dart';
@@ -20,6 +21,7 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     on<ChatCreateThreadEvent>(_onCreateThread);
     on<ChatUpdateThreadEvent>(_onUpdateThread);
     on<ChatDeleteThreadEvent>(_onDeleteThread);
+    on<ChatSoftDeleteThreadEvent>(_onSoftDeleteThread);
     on<ChatAddCommentEvent>(_onAddComment);
   }
 
@@ -71,10 +73,19 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     emit.logCall(ChatForumLoadingState());
 
     try {
+      final title = sanitizeBlogContent(event.title).trim();
+      final content = sanitizeBlogContent(event.content);
+      final validationError = _validateThreadInput(title, content);
+
+      if (validationError != null) {
+        emit.logCall(ChatForumErrorState(error: validationError));
+        return;
+      }
+
       final request = CreateThread(
         authorId: event.authorId,
-        title: event.title,
-        content: event.content,
+        title: title,
+        content: content,
       );
       await _repository.createThread(request);
       await _fetchContent(emit, false);
@@ -90,9 +101,18 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     emit.logCall(ChatForumThreadLoadingState());
 
     try {
+      final title = sanitizeBlogContent(event.title).trim();
+      final content = sanitizeBlogContent(event.content);
+      final validationError = _validateThreadInput(title, content);
+
+      if (validationError != null) {
+        emit.logCall(ChatForumErrorState(error: validationError));
+        return;
+      }
+
       final thread = await _repository.updateThread(
         id: event.threadId,
-        update: UpdateThread(title: event.title, content: event.content),
+        update: UpdateThread(title: title, content: content),
       );
       emit.logCall(ChatForumThreadLoadedState(thread: thread));
     } catch (_) {
@@ -107,10 +127,27 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     emit.logCall(ChatForumLoadingState());
 
     try {
-      await _repository.deleteThread(event.threadId);
+      await _repository.deleteThread(event.threadId, reason: event.reason);
       await _fetchContent(emit, false);
     } catch (_) {
       emit.logCall(const ChatForumErrorState(error: 'Unable to delete thread'));
+    }
+  }
+
+  Future<void> _onSoftDeleteThread(
+    ChatSoftDeleteThreadEvent event,
+    Emitter<ChatForumState> emit,
+  ) async {
+    emit.logCall(ChatForumLoadingState());
+
+    try {
+      await _repository.softDeleteThread(
+        id: event.threadId,
+        reason: event.reason,
+      );
+      await _fetchContent(emit, false);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to remove thread'));
     }
   }
 
@@ -130,6 +167,18 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     );
 
     emit.logCall(ChatForumThreadLoadedState(thread: response));
+  }
+
+  String? _validateThreadInput(String title, String content) {
+    if (title.isEmpty) {
+      return 'Title cannot be empty';
+    }
+
+    if (title.length > 200) {
+      return 'Title must be 200 characters or less';
+    }
+
+    return validateBlogContent(content);
   }
 
   //   final newComment = CommentItem(

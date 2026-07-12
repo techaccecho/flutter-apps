@@ -85,9 +85,18 @@ class _PostListState extends State<PostList> {
     final currentUser = appState is ApplicationContentLoadedState
         ? appState.currentUser
         : context.read<ApplicationBloc>().currentUser;
-    final visiblePosts = widget.posts
-        .where((post) => !post.isDraft || post.author.id == currentUser?.id)
-        .toList();
+    final isAdmin = currentUser?.role == Strings.roleAdmin;
+    final visiblePosts = widget.posts.where((post) {
+      if (isAdmin) {
+        return true;
+      }
+
+      if (post.isDraft || post.isAdminRemoved) {
+        return post.author.id == currentUser?.id;
+      }
+
+      return true;
+    }).toList();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
