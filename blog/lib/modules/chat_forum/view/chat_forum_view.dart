@@ -161,11 +161,72 @@ class ChatForumView extends StatelessWidget {
   }
 
   Future<void> _confirmDeleteThread(BuildContext context, Thread thread) async {
-    final shouldDelete = await showDialog<bool>(
+    final shouldDelete = await _confirmAction(
+      context,
+      title: 'Delete thread?',
+      message: 'This action cannot be undone.',
+    );
+
+    if (!shouldDelete || !context.mounted) {
+      return;
+    }
+
+    context.read<ChatForumBloc>().add(
+      ChatDeleteThreadEvent(threadId: thread.id),
+    );
+  }
+
+  Future<void> _confirmHardDeleteThread(
+    BuildContext context,
+    Thread thread,
+  ) async {
+    final reason = await _confirmReasonedAction(
+      context,
+      title: 'Delete thread?',
+      message:
+          'This permanently deletes the thread and related data. This action cannot be undone.',
+    );
+
+    if (reason == null || !context.mounted) {
+      return;
+    }
+
+    context.read<ChatForumBloc>().add(
+      ChatDeleteThreadEvent(threadId: thread.id, reason: reason),
+    );
+  }
+
+  Future<void> _confirmSoftDeleteThread(
+    BuildContext context,
+    Thread thread,
+  ) async {
+    final reason = await _confirmReasonedAction(
+      context,
+      title: 'Remove thread?',
+      message:
+          'This hides the thread from other users and makes it read-only for the owner.',
+    );
+
+    if (reason == null || !context.mounted) {
+      return;
+    }
+
+    context.read<ChatForumBloc>().add(
+      ChatSoftDeleteThreadEvent(threadId: thread.id, reason: reason),
+    );
+  }
+
+  Future<bool> _confirmAction(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete thread?'),
-        content: const Text('This action cannot be undone.'),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        title: Text(title),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -173,19 +234,67 @@ class ChatForumView extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
+            child: const Text('Confirm'),
           ),
         ],
       ),
     );
 
-    if (shouldDelete != true || !context.mounted) {
-      return;
-    }
+    return confirmed == true;
+  }
 
-    context.read<ChatForumBloc>().add(
-      ChatDeleteThreadEvent(threadId: thread.id),
+  Future<String?> _confirmReasonedAction(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) async {
+    const reasons = ['Broke site rules', 'Unsafe content', 'Spam or abuse'];
+    var selectedReason = reasons.first;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              const SizedBox(height: AppSpacing.md),
+              DropdownButtonFormField<String>(
+                initialValue: selectedReason,
+                decoration: const InputDecoration(labelText: 'Reason'),
+                items: reasons
+                    .map(
+                      (reason) =>
+                          DropdownMenuItem(value: reason, child: Text(reason)),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => selectedReason = value);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Confirm'),
+            ),
+          ],
+        ),
+      ),
     );
+
+    return confirmed == true ? selectedReason : null;
   }
 
   @override
@@ -202,6 +311,19 @@ class ChatForumView extends StatelessWidget {
         }
 
         if (state is ChatForumContentLoadedState) {
+          final isAdmin = currentUser?.role == Strings.roleAdmin;
+          final visibleThreads = state.chat.threads.where((thread) {
+            if (isAdmin) {
+              return true;
+            }
+
+            if (thread.isDraft || thread.isAdminRemoved) {
+              return thread.author.id == currentUser?.id;
+            }
+
+            return true;
+          }).toList();
+
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
@@ -257,10 +379,10 @@ class ChatForumView extends StatelessWidget {
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
-                  itemCount: state.chat.threads.length,
+                  itemCount: visibleThreads.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final item = state.chat.threads[index];
+                    final item = visibleThreads[index];
                     return ForumItem(thread: item);
                   },
                 ),
@@ -274,26 +396,60 @@ class ChatForumView extends StatelessWidget {
         }
 
         if (state is ChatForumThreadLoadedState) {
-          final canManage = author?.id == state.thread.author.id;
+          final isOwner = author?.id == state.thread.author.id;
+          final isAdmin = currentUser?.role == Strings.roleAdmin;
+          final isReadOnly = state.thread.isAdminRemoved;
+          final canEdit = isOwner && !isReadOnly;
+          final canDelete = isOwner || isAdmin;
+          final canSoftDelete = isAdmin && !state.thread.isAdminRemoved;
+          final canShowComments = !state.thread.isAdminRemoved || isAdmin;
 
           return Column(
             children: [
               ChatThreadHeader(
                 thread: state.thread,
-                canManage: canManage,
+                canEdit: canEdit,
+                canDelete: canDelete,
+                canSoftDelete: canSoftDelete,
                 onEdit: () => _showEditThreadDialog(context, state.thread),
-                onDelete: () => _confirmDeleteThread(context, state.thread),
+                onSoftDelete: () =>
+                    _confirmSoftDeleteThread(context, state.thread),
+                onDelete: () => isAdmin
+                    ? _confirmHardDeleteThread(context, state.thread)
+                    : _confirmDeleteThread(context, state.thread),
               ),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.thread.comments.length,
-                  itemBuilder: (context, index) {
-                    return ChatComment(comment: state.thread.comments[index]);
-                  },
+              if (state.thread.isAdminRemoved)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                    0,
+                  ),
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Text(
+                    'This thread has been removed by an admin because it broke site rules.',
+                    style: AppTextStyles.bodySmall,
+                  ),
                 ),
-              ),
-              if (author != null) ...[
+              if (canShowComments)
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.thread.comments.length,
+                    itemBuilder: (context, index) {
+                      return ChatComment(comment: state.thread.comments[index]);
+                    },
+                  ),
+                )
+              else
+                const Expanded(child: SizedBox.shrink()),
+              if (author != null && !state.thread.isAdminRemoved) ...[
                 ChatReplyBox(threadId: state.thread.id, authorId: author.id),
               ],
             ],

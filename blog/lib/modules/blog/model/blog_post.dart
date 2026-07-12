@@ -23,6 +23,7 @@ class BlogPost {
   final Engagement engagement;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
 
   BlogPost({
     required this.id,
@@ -40,6 +41,7 @@ class BlogPost {
     required this.engagement,
     required this.createdAt,
     this.updatedAt,
+    this.deletedAt,
   });
 
   factory BlogPost.fromBlog(Blog blog) => BlogPost(
@@ -58,7 +60,10 @@ class BlogPost {
     engagement: blog.engagement,
     createdAt: blog.createdAt,
     updatedAt: blog.updatedAt,
+    deletedAt: blog.deletedAt,
   );
 
   String get displayCreatedAt => DateFormat('yyyy-MM-dd').format(createdAt.toLocal());
+
+  bool get isAdminRemoved => deletedAt != null;
 }

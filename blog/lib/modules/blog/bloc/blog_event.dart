@@ -110,12 +110,35 @@ class UpdateBlogPostEvent extends BlogEvent {
 
 class DeleteBlogPostEvent extends BlogEvent {
   final String blogId;
+  final String? reason;
 
-  const DeleteBlogPostEvent({required this.blogId});
-
-  @override
-  List<Object?> get props => [blogId];
+  const DeleteBlogPostEvent({required this.blogId, this.reason});
 
   @override
-  Map<String, dynamic> get properties => {'blogId': blogId};
+  List<Object?> get props => [blogId, reason];
+
+  @override
+  Map<String, dynamic> get properties => {
+    'blogId': blogId,
+    if (reason != null) 'reason': reason,
+  };
+}
+
+class SoftDeleteBlogPostEvent extends BlogEvent {
+  final String blogId;
+  final String reason;
+
+  const SoftDeleteBlogPostEvent({
+    required this.blogId,
+    required this.reason,
+  });
+
+  @override
+  List<Object?> get props => [blogId, reason];
+
+  @override
+  Map<String, dynamic> get properties => {
+    'blogId': blogId,
+    'reason': reason,
+  };
 }

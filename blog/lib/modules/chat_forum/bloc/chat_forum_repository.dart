@@ -43,8 +43,16 @@ class ChatForumRepository {
     return Thread.fromBlog(response.data);
   }
 
-  Future<void> deleteThread(String id) async {
-    await apiProvider.deleteBlog(id);
+  Future<void> deleteThread(String id, {String? reason}) async {
+    await apiProvider.deleteBlog(id, reason: reason);
+  }
+
+  Future<Thread> softDeleteThread({
+    required String id,
+    required String reason,
+  }) async {
+    final response = await apiProvider.softDeleteBlog(id: id, reason: reason);
+    return Thread.fromBlog(response.data);
   }
 
   Future<ThreadPaginatedResult> getThreads({

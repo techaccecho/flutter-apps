@@ -13,9 +13,12 @@ class BlogPostHeader extends StatelessWidget {
   final Author author;
   final String date;
   final bool isDraft;
-  final bool canManage;
+  final bool canEdit;
+  final bool canDelete;
+  final bool canSoftDelete;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onSoftDelete;
 
   const BlogPostHeader({
     super.key,
@@ -23,9 +26,12 @@ class BlogPostHeader extends StatelessWidget {
     required this.author,
     required this.date,
     this.isDraft = false,
-    this.canManage = false,
+    this.canEdit = false,
+    this.canDelete = false,
+    this.canSoftDelete = false,
     this.onEdit,
     this.onDelete,
+    this.onSoftDelete,
   });
 
   @override
@@ -90,12 +96,21 @@ class BlogPostHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (canManage) ...[
+          if (canEdit) ...[
             IconButton(
               tooltip: 'Edit post',
               onPressed: onEdit,
               icon: const Icon(Icons.edit),
             ),
+          ],
+          if (canSoftDelete) ...[
+            IconButton(
+              tooltip: 'Remove post',
+              onPressed: onSoftDelete,
+              icon: const Icon(Icons.block),
+            ),
+          ],
+          if (canDelete) ...[
             IconButton(
               tooltip: 'Delete post',
               onPressed: onDelete,

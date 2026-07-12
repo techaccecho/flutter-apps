@@ -77,9 +77,31 @@ class BlogApiProvider {
     }
   }
 
-  Future<void> deleteBlog(String id) async {
+  Future<void> deleteBlog(String id, {String? reason}) async {
     try {
-      await _dio.delete('/blogs/$id');
+      await _dio.delete(
+        '/blogs/$id',
+        data: reason != null ? {'reason': reason} : null,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<Blog>> softDeleteBlog({
+    required String id,
+    required String reason,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/blogs/$id/soft-delete',
+        data: {'reason': reason},
+      );
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => Blog.fromJson(jsonMap),
+      );
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
