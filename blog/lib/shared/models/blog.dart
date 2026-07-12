@@ -22,6 +22,7 @@ class Blog {
   final Engagement engagement;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
 
   Blog({
     required this.id,
@@ -40,7 +41,8 @@ class Blog {
     required this.reactions,
     required this.engagement,
     required this.createdAt,
-    this.updatedAt
+    this.updatedAt,
+    this.deletedAt,
   });
 
   factory Blog.fromJson(Map<String, dynamic> json) => Blog(
@@ -60,7 +62,8 @@ class Blog {
     reactions: (json['reactions'] as List? ?? []).map((r) => Reaction.fromJson(r)).toList(),
     engagement: Engagement.fromJson(json['engagement']),
     createdAt: DateTime.parse(json['createdAt']),
-    updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null
+    updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+    deletedAt: json['deletedAt'] != null ? DateTime.parse(json['deletedAt']) : null,
   );
 
   Map<String, dynamic> toJson() {
@@ -82,6 +85,7 @@ class Blog {
       'engagement': engagement.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'deletedAt': deletedAt?.toIso8601String(),
     };
   }
 }

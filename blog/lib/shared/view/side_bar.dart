@@ -83,9 +83,9 @@ class _SidebarState extends State<Sidebar> {
               const SizedBox(height: 4),
               if (state is ApplicationContentLoadedState &&
                   state.isLoggedIn &&
-                  state.currentUser?.role == 'admin') ...[
+                  state.currentUser?.role == Strings.roleAdmin) ...[
                 NavItem(
-                  title: "• Archived",
+                  title: Strings.linkArchived,
                   isSelected: state.route == HomeViewState.archived,
                   onTap: () => context.read<ApplicationBloc>().add(
                     const ApplicationNavigateEvent(
@@ -119,6 +119,16 @@ class _SidebarState extends State<Sidebar> {
               Text(Strings.titleAbout, style: AppTextStyles.h2),
               const SizedBox(height: 8),
               Text(Strings.captionAbout, style: AppTextStyles.body),
+              const SizedBox(height: 8),
+              NavItem(
+                title: Strings.linkRulesOfEngagementFaq,
+                isSelected:
+                    state is ApplicationContentLoadedState &&
+                    state.route == HomeViewState.faq,
+                onTap: () => context.read<ApplicationBloc>().add(
+                  const ApplicationNavigateEvent(route: HomeViewState.faq),
+                ),
+              ),
 
               Spacer(),
               if (state is ApplicationContentLoadedState && state.isLoggedIn)

@@ -8,6 +8,7 @@ import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/blog/bloc/blog_post_repository.dart';
 import 'package:blog/modules/blog/model/create_blog_post.dart';
 import 'package:blog/modules/blog/model/update_blog_post.dart';
+import 'package:blog/modules/blog/util/blog_content.dart';
 
 class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
   static const int _pageSize = 10;
@@ -26,6 +27,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     on<SaveNewBlogPostEvent>(_saveNewBlogPost);
     on<UpdateBlogPostEvent>(_updateBlogPost);
     on<DeleteBlogPostEvent>(_deleteBlogPost);
+    on<SoftDeleteBlogPostEvent>(_softDeleteBlogPost);
   }
 
   Future<void> _loadBlogPosts(
@@ -137,7 +139,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     final request = CreateBlogPost(
       authorId: event.authorId,
       title: event.title,
-      content: event.content,
+      content: sanitizeBlogContent(event.content),
       isDraft: event.isDraft,
       createdAt: event.publishDate,
     );
@@ -159,7 +161,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
         id: event.blogId,
         update: UpdateBlogPost(
           title: event.title,
-          content: event.content,
+          content: sanitizeBlogContent(event.content),
           isDraft: event.isDraft,
         ),
       );
@@ -174,7 +176,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     Emitter<BlogState> emit,
   ) async {
     try {
-      await _repository.deletePost(event.blogId);
+      await _repository.deletePost(event.blogId, reason: event.reason);
       await _reloadFirstPage(emit);
     } catch (_) {
       emit.logCall(BlogErrorState());
@@ -194,6 +196,21 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
         hasMore: response.hasMore,
       ),
     );
+  }
+
+  Future<void> _softDeleteBlogPost(
+    SoftDeleteBlogPostEvent event,
+    Emitter<BlogState> emit,
+  ) async {
+    try {
+      await _repository.softDeletePost(
+        id: event.blogId,
+        reason: event.reason,
+      );
+      await _reloadFirstPage(emit);
+    } catch (_) {
+      emit.logCall(BlogErrorState());
+    }
   }
 
   BlogPost? _latestPublishedPost(Iterable<BlogPost> posts) {

@@ -1,28 +1,27 @@
-import 'package:blog/modules/blog/bloc/blog_bloc.dart';
-import 'package:blog/modules/blog/bloc/blog_event.dart';
 import 'package:blog/modules/blog/view/create_post/blog_menu_button.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BlogPostHeaderCreate extends StatefulWidget {
   final bool isEditing;
   final String author;
-  final String? title;
+  final TextEditingController titleController;
   final VoidCallback setIsPreviewMode;
   final ValueChanged<String> onSaveDraft;
   final ValueChanged<String> onPublish;
   final VoidCallback onClose;
+  final bool canSaveDraft;
 
   const BlogPostHeaderCreate({
     super.key,
     required this.author,
-    required this.title,
+    required this.titleController,
     required this.setIsPreviewMode,
     this.isEditing = false,
     required this.onSaveDraft,
     required this.onPublish,
     required this.onClose,
+    this.canSaveDraft = true,
   });
 
   @override
@@ -30,20 +29,7 @@ class BlogPostHeaderCreate extends StatefulWidget {
 }
 
 class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
-  late final TextEditingController _titleController;
   bool isPreview = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _titleController = TextEditingController(text: widget.title ?? "");
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +44,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
         children: [
           IconButton(
             onPressed: () {
-              context.read<BlogBloc>().add(LoadBlogPostsEvent(fromCache: true));
+              widget.onClose();
             },
             icon: const Icon(Icons.arrow_back),
           ),
@@ -68,7 +54,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
-                  controller: _titleController,
+                  controller: widget.titleController,
                   decoration: const InputDecoration(
                     hintText: "Enter title here",
                   ),
@@ -128,21 +114,23 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
                         },
                       ),
                       SizedBox(width: AppSpacing.xs),
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.save, size: 18),
-                        label: const Text('Save draft'),
-                        onPressed: () {
-                          widget.onSaveDraft(_titleController.text);
-                        },
-                      ),
-                      SizedBox(width: AppSpacing.sm),
+                      if (widget.canSaveDraft) ...[
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.save, size: 18),
+                          label: const Text('Save draft'),
+                          onPressed: () {
+                            widget.onSaveDraft(widget.titleController.text);
+                          },
+                        ),
+                        SizedBox(width: AppSpacing.sm),
+                      ],
                       ElevatedButton.icon(
                         icon: const Icon(Icons.publish, size: 18),
                         label: Text(
                           widget.isEditing ? 'Update post' : 'Publish',
                         ),
                         onPressed: () {
-                          widget.onPublish(_titleController.text);
+                          widget.onPublish(widget.titleController.text);
                         },
                       ),
                       SizedBox(width: AppSpacing.xs),

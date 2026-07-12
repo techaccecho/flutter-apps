@@ -3,6 +3,7 @@ import 'package:blog/modules/blog/bloc/blog_event.dart';
 import 'package:blog/modules/blog/bloc/blog_state.dart';
 import 'package:blog/modules/blog/view/view_posts/blog_post_view.dart';
 import 'package:blog/modules/blog/view/create_post/blog_post_header_create.dart';
+import 'package:blog/resources/app_strings.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:blog/modules/blog/model/blog_post.dart';
+import 'package:blog/modules/blog/util/blog_content.dart';
 import 'package:blog/shared/models/author.dart';
 import 'package:intl/intl.dart';
 
@@ -33,13 +35,19 @@ class BlogPostCreateView extends StatefulWidget {
 
 class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
   late final TextEditingController _controller;
+  late final TextEditingController _titleController;
   DateTime _selectedPublishDate = DateTime.now();
   bool _adminOverride = false;
+  late final String _initialContent;
+  late final String _initialTitle;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.post?.content ?? '');
+    _titleController = TextEditingController(text: widget.post?.title ?? '');
+    _initialContent = _controller.text;
+    _initialTitle = _titleController.text;
     if (widget.post != null) {
       _selectedPublishDate = widget.post!.createdAt;
     }
@@ -48,6 +56,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
   @override
   void dispose() {
     _controller.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
@@ -80,11 +89,28 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
   }
 
   void _handleSave(String titleText, {required bool isDraft}) {
-    final String bodyText = _controller.text;
+    final String bodyText = sanitizeBlogContent(_controller.text);
+    final contentError = validateBlogContent(bodyText);
 
-    if (titleText.trim().isEmpty || bodyText.trim().isEmpty) {
+    if (titleText.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Title cannot be empty')));
+      return;
+    }
+
+    if (contentError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(contentError)));
+      return;
+    }
+
+    if (widget.isEditing && widget.post?.isDraft == false && isDraft) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title and body cannot be empty')),
+        const SnackBar(
+          content: Text('Published posts cannot be saved as draft'),
+        ),
       );
       return;
     }
@@ -95,7 +121,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
         latestPost != null &&
         _selectedPublishDate.isBefore(latestPost.createdAt)) {
       final currentUser = context.read<ApplicationBloc>().currentUser;
-      final isAdmin = currentUser?.role == 'admin';
+      final isAdmin = currentUser?.role == Strings.roleAdmin;
 
       if (!isAdmin || !_adminOverride) {
         showDialog(
@@ -124,7 +150,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
         UpdateBlogPostEvent(
           blogId: post.id,
           title: titleText.trim(),
-          content: bodyText.trim(),
+          content: bodyText,
           isDraft: isDraft,
         ),
       );
@@ -143,7 +169,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
       SaveNewBlogPostEvent(
         authorId: authorId,
         title: titleText.trim(),
-        content: bodyText.trim(),
+        content: bodyText,
         isDraft: isDraft,
         publishDate: _selectedPublishDate,
       ),
@@ -160,7 +186,8 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
 
       BlogPost? latestPost;
       for (final post in posts) {
-        if (latestPost == null || post.createdAt.isAfter(latestPost.createdAt)) {
+        if (latestPost == null ||
+            post.createdAt.isAfter(latestPost.createdAt)) {
           latestPost = post;
         }
       }
@@ -179,14 +206,44 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
     return !widget.isEditing || widget.post?.isDraft == true;
   }
 
+  Future<void> _handleClose() async {
+    if (_controller.text != _initialContent ||
+        _titleController.text != _initialTitle) {
+      final shouldDiscard = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Discard changes?'),
+          content: const Text('You have unsaved changes.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Confirm'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldDiscard != true || !mounted) {
+        return;
+      }
+    }
+
+    context.read<BlogBloc>().add(const LoadBlogPostsEvent(fromCache: true));
+  }
+
   bool isPreview = false;
 
   @override
   Widget build(BuildContext context) {
     final currentUser = context.read<ApplicationBloc>().currentUser;
-    final isAdmin = currentUser?.role == 'admin';
+    final isAdmin = currentUser?.role == Strings.roleAdmin;
 
-    final showPublishControls = !widget.isEditing || widget.post?.isDraft == true;
+    final showPublishControls =
+        !widget.isEditing || widget.post?.isDraft == true;
     final latestPost = _latestPostForTimelineCheck();
     final isOutOfOrder =
         showPublishControls &&
@@ -197,7 +254,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         BlogPostHeaderCreate(
-          title: widget.post?.title ?? "",
+          titleController: _titleController,
           author: widget.author?.displayName ?? "",
           isEditing: widget.isEditing,
           setIsPreviewMode: () => setState(() {
@@ -207,11 +264,8 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
               _handleSave(titleText, isDraft: true),
           onPublish: (String titleText) =>
               _handleSave(titleText, isDraft: false),
-          onClose: () {
-            context.read<BlogBloc>().add(
-              const LoadBlogPostsEvent(fromCache: true),
-            );
-          },
+          onClose: _handleClose,
+          canSaveDraft: showPublishControls,
         ),
 
         if (showPublishControls)
@@ -282,7 +336,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: MarkdownBody(
-                    data: _controller.text,
+                    data: sanitizeBlogContent(_controller.text),
                     extensionSet: md.ExtensionSet.gitHubFlavored,
                     blockSyntaxes: [UrlEmbedSyntax()],
                     builders: {'urlembed': UrlEmbedBuilder()},

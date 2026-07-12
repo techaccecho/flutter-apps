@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ApplicationBloc>(create: (_) => applicationBloc),
       ],
       child: MaterialApp(
-        title: 'Blog.NET',
+        title: 'BlogNET',
         theme: AppTheme.light(),
         home: const HomeView(),
       ),

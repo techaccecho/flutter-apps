@@ -42,8 +42,16 @@ class BlogPostRepository {
     return BlogPost.fromBlog(response.data);
   }
 
-  Future<void> deletePost(String id) async {
-    await apiProvider.deleteBlog(id);
+  Future<void> deletePost(String id, {String? reason}) async {
+    await apiProvider.deleteBlog(id, reason: reason);
+  }
+
+  Future<BlogPost> softDeletePost({
+    required String id,
+    required String reason,
+  }) async {
+    final response = await apiProvider.softDeleteBlog(id: id, reason: reason);
+    return BlogPost.fromBlog(response.data);
   }
 
   Future<BlogPostPaginatedResult> getPosts({

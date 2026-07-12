@@ -81,14 +81,37 @@ class ChatUpdateThreadEvent extends ChatForumEvent {
 
 class ChatDeleteThreadEvent extends ChatForumEvent {
   final String threadId;
+  final String? reason;
 
-  const ChatDeleteThreadEvent({required this.threadId});
-
-  @override
-  List<Object?> get props => [threadId];
+  const ChatDeleteThreadEvent({required this.threadId, this.reason});
 
   @override
-  Map<String, dynamic> get properties => {'threadId': threadId};
+  List<Object?> get props => [threadId, reason];
+
+  @override
+  Map<String, dynamic> get properties => {
+    'threadId': threadId,
+    if (reason != null) 'reason': reason,
+  };
+}
+
+class ChatSoftDeleteThreadEvent extends ChatForumEvent {
+  final String threadId;
+  final String reason;
+
+  const ChatSoftDeleteThreadEvent({
+    required this.threadId,
+    required this.reason,
+  });
+
+  @override
+  List<Object?> get props => [threadId, reason];
+
+  @override
+  Map<String, dynamic> get properties => {
+    'threadId': threadId,
+    'reason': reason,
+  };
 }
 
 class ChatAddCommentEvent extends ChatForumEvent {

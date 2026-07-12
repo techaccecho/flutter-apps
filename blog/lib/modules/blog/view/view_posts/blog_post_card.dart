@@ -36,6 +36,12 @@ class BlogPostCard extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                     backgroundColor: AppColors.background,
                   ),
+                if (post.isAdminRemoved)
+                  Chip(
+                    label: const Text('Removed'),
+                    visualDensity: VisualDensity.compact,
+                    backgroundColor: AppColors.background,
+                  ),
               ],
             ),
             const SizedBox(height: 8),
