@@ -13,13 +13,16 @@ abstract class BlogEvent extends BaseEvent {
 
 class LoadBlogPostsEvent extends BlogEvent {
   final bool fromCache;
-  const LoadBlogPostsEvent({this.fromCache = false});
+  final String? search;
+  const LoadBlogPostsEvent({this.fromCache = false, this.search});
 
   @override
-  List<Object?> get props => [fromCache];
+  List<Object?> get props => [fromCache, search];
 
   @override
-  Map<String, dynamic> get properties => {};
+  Map<String, dynamic> get properties => {
+    if (search != null) 'search': search,
+  };
 }
 
 class LoadMoreBlogPostsEvent extends BlogEvent {

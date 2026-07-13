@@ -1,3 +1,7 @@
+import 'package:blog/modules/blog/bloc/blog_bloc.dart';
+import 'package:blog/modules/blog/bloc/blog_event.dart';
+import 'package:blog/modules/chat_forum/bloc/chat_forum_bloc.dart';
+import 'package:blog/modules/chat_forum/bloc/chat_forum_event.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/resources/app_strings.dart';
@@ -21,6 +25,21 @@ class _SidebarState extends State<Sidebar> {
 
   Future<void> _logout() async {
     context.read<ApplicationBloc>().add(ApplicationLogoutEvent());
+    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _onNavigate(BuildContext context, HomeViewState route) {
+    if (route == HomeViewState.blog) {
+      context.read<BlogBloc>().add(LoadBlogPostsEvent());
+    } else if (route == HomeViewState.chatForum) {
+      context.read<ChatForumBloc>().add(ChatForumLoadEvent());
+    }
+    context.read<ApplicationBloc>().add(ApplicationNavigateEvent(route: route));
+    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -66,9 +85,7 @@ class _SidebarState extends State<Sidebar> {
                 isSelected:
                     state is ApplicationContentLoadedState &&
                     state.route == HomeViewState.blog,
-                onTap: () => context.read<ApplicationBloc>().add(
-                  ApplicationNavigateEvent(route: HomeViewState.blog),
-                ),
+                onTap: () => _onNavigate(context, HomeViewState.blog),
               ),
               const SizedBox(height: 4),
               NavItem(
@@ -76,9 +93,7 @@ class _SidebarState extends State<Sidebar> {
                 isSelected:
                     state is ApplicationContentLoadedState &&
                     state.route == HomeViewState.chatForum,
-                onTap: () => context.read<ApplicationBloc>().add(
-                  ApplicationNavigateEvent(route: HomeViewState.chatForum),
-                ),
+                onTap: () => _onNavigate(context, HomeViewState.chatForum),
               ),
               const SizedBox(height: 4),
               if (state is ApplicationContentLoadedState &&
@@ -87,31 +102,21 @@ class _SidebarState extends State<Sidebar> {
                 NavItem(
                   title: Strings.linkArchived,
                   isSelected: state.route == HomeViewState.archived,
-                  onTap: () => context.read<ApplicationBloc>().add(
-                    const ApplicationNavigateEvent(
-                      route: HomeViewState.archived,
-                    ),
-                  ),
+                  onTap: () => _onNavigate(context, HomeViewState.archived),
                 ),
                 const SizedBox(height: 4),
               ],
 
-              BlocBuilder<ApplicationBloc, ApplicationState>(
-                builder: (context, state) {
-                  if (state is ApplicationContentLoadedState &&
-                      state.isLoggedIn) {
-                    return NavItem(
-                      title: Strings.linkProfile,
-                      isSelected: state.route == HomeViewState.profile,
-                      onTap: () => context.read<ApplicationBloc>().add(
-                        ApplicationNavigateEvent(route: HomeViewState.profile),
-                      ),
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                },
-              ),
+              if (state is ApplicationContentLoadedState &&
+                  state.isLoggedIn) ...[
+                NavItem(
+                  title: Strings.linkProfile,
+                  isSelected: state.route == HomeViewState.profile &&
+                      state.viewUserId == state.currentUser?.id,
+                  onTap: () => _onNavigate(context, HomeViewState.profile),
+                ),
+                const SizedBox(height: 4),
+              ],
 
               const SizedBox(height: 24),
 
@@ -125,9 +130,7 @@ class _SidebarState extends State<Sidebar> {
                 isSelected:
                     state is ApplicationContentLoadedState &&
                     state.route == HomeViewState.faq,
-                onTap: () => context.read<ApplicationBloc>().add(
-                  const ApplicationNavigateEvent(route: HomeViewState.faq),
-                ),
+                onTap: () => _onNavigate(context, HomeViewState.faq),
               ),
 
               Spacer(),

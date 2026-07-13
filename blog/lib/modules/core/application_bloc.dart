@@ -66,6 +66,7 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
   Future<void> _onApplicationLogoutEvent(
       ApplicationLogoutEvent event, Emitter<ApplicationState> emit) async {
       await _repository.logout();
+      currentRoute = HomeViewState.blog;
       final currentUser = _repository.currentUser;
       emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: await _repository.isLoggedIn(), timestamp: DateTime.now().millisecondsSinceEpoch, currentUser: currentUser));
   }

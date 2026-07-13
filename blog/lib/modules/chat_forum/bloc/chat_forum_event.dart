@@ -12,13 +12,17 @@ abstract class ChatForumEvent extends BaseEvent {
 
 class ChatForumLoadEvent extends ChatForumEvent {
   final bool fromCache;
-  const ChatForumLoadEvent({this.fromCache = false});
+  final String? search;
+  const ChatForumLoadEvent({this.fromCache = false, this.search});
 
   @override
-  List<Object?> get props => [fromCache];
+  List<Object?> get props => [fromCache, search];
 
   @override
-  Map<String, dynamic> get properties => {"fromCache": fromCache};
+  Map<String, dynamic> get properties => {
+    "fromCache": fromCache,
+    if (search != null) "search": search,
+  };
 }
 
 class ChatForumRefreshEvent extends ChatForumEvent {

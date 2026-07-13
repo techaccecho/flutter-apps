@@ -29,25 +29,26 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     ChatForumLoadEvent event,
     Emitter<ChatForumState> emit,
   ) async {
-    emit.logCall(ChatForumLoadingState());
-    await _fetchContent(emit, event.fromCache);
+    emit.logCall(const ChatForumLoadingState());
+    await _fetchContent(emit, event.fromCache, search: event.search);
   }
 
   Future<void> _onChatForumRefresh(
     ChatForumRefreshEvent event,
     Emitter<ChatForumState> emit,
   ) async {
-    emit.logCall(ChatForumLoadingState());
+    emit.logCall(const ChatForumLoadingState());
     await _fetchContent(emit, false);
   }
 
   Future<void> _fetchContent(
     Emitter<ChatForumState> emit,
-    bool fromCache,
-  ) async {
-    ThreadPaginatedResult threads = await _repository.getThreads();
+    bool fromCache, {
+    String? search,
+  }) async {
+    ThreadPaginatedResult threads = await _repository.getThreads(search: search);
     //List<ChatItem> chats = await _repository.get(fromCache);
-    emit.logCall(ChatForumContentLoadedState(chat: threads));
+    emit.logCall(ChatForumContentLoadedState(chat: threads, search: search));
   }
 
   Future<void> _fetchChatThread(

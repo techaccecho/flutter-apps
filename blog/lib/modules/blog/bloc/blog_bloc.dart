@@ -39,6 +39,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
         cursor: null,
         limit: _pageSize,
         sort: _sortDirection,
+        search: event.search,
       );
 
       emit.logCall(
@@ -46,6 +47,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
           response.posts,
           nextCursor: response.nextCursor,
           hasMore: response.hasMore,
+          search: event.search,
         ),
       );
     } catch (_) {
@@ -73,6 +75,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
         cursor: currentState.nextCursor,
         limit: _pageSize,
         sort: _sortDirection,
+        search: currentState.search,
       );
 
       emit.logCall(
@@ -80,6 +83,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
           [...currentState.posts, ...response.posts],
           nextCursor: response.nextCursor,
           hasMore: response.hasMore,
+          search: currentState.search,
         ),
       );
     } catch (_) {
