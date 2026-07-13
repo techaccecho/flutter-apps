@@ -4,6 +4,7 @@ import 'package:blog/shared/models/blog.dart';
 import 'package:blog/shared/models/create_blog.dart';
 import 'package:blog/shared/models/update_blog.dart';
 import 'package:blog/shared/models/add_comment.dart';
+import 'package:blog/modules/faq/model/faq_content.dart';
 
 class BlogApiProvider {
   final Dio _dio;
@@ -52,6 +53,19 @@ class BlogApiProvider {
       return ApiResponse.fromJson(
         response.data,
         (jsonMap) => Blog.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<FaqContent>> fetchRulesOfEngagementFaq() async {
+    try {
+      final response = await _dio.get('/rules-of-engagement/faq');
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => FaqContent.fromJson(jsonMap),
       );
     } on DioException catch (e) {
       throw _handleDioError(e);

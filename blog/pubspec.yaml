@@ -32,9 +32,6 @@ flutter:
 
   uses-material-design: true
 
-  assets:
-    - assets/data/
-
   fonts:
     - family: DataType
       fonts:
