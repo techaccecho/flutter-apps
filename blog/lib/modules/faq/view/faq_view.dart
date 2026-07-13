@@ -1,31 +1,57 @@
-import 'dart:convert';
-
+import 'package:blog/modules/faq/model/faq_content.dart';
 import 'package:blog/resources/resources.dart';
+import 'package:blog/shared/providers/blog_api_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
-class FaqView extends StatelessWidget {
+class FaqView extends StatefulWidget {
   const FaqView({super.key});
 
-  static const _assetPath = 'assets/data/rules_of_engagement_faq.json';
+  @override
+  State<FaqView> createState() => _FaqViewState();
+}
 
-  Future<_FaqContent> _loadFaq() async {
-    final jsonString = await rootBundle.loadString(_assetPath);
-    final json = jsonDecode(jsonString) as Map<String, dynamic>;
+class _FaqViewState extends State<FaqView> {
+  late Future<FaqContent> _faqFuture;
 
-    return _FaqContent.fromJson(json);
+  @override
+  void initState() {
+    super.initState();
+    _faqFuture = _loadFaq();
+  }
+
+  Future<FaqContent> _loadFaq() {
+    return context.read<BlogApiProvider>().fetchRulesOfEngagementFaq().then(
+      (response) => response.data,
+    );
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _faqFuture = _loadFaq();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<_FaqContent>(
-      future: _loadFaq(),
+    return FutureBuilder<FaqContent>(
+      future: _faqFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
-              child: Text('Unable to load the FAQ.', style: AppTextStyles.body),
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Unable to load the FAQ.',
+                    style: AppTextStyles.body,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  TextButton(onPressed: _retryLoad, child: const Text('Retry')),
+                ],
+              ),
             ),
           );
         }
@@ -52,6 +78,8 @@ class FaqView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: ExpansionTile(
+                  shape: const Border(),
+                  collapsedShape: const Border(),
                   tilePadding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
                     vertical: AppSpacing.xs,
@@ -75,55 +103,6 @@ class FaqView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _FaqContent {
-  final String title;
-  final String description;
-  final List<_FaqItem> items;
-
-  const _FaqContent({
-    required this.title,
-    required this.description,
-    required this.items,
-  });
-
-  factory _FaqContent.fromJson(Map<String, dynamic> json) {
-    final itemsJson = json['items'] as List<dynamic>? ?? [];
-    final items =
-        itemsJson
-            .map((item) => _FaqItem.fromJson(item as Map<String, dynamic>))
-            .toList()
-          ..sort(
-            (first, second) => first.sortOrder.compareTo(second.sortOrder),
-          );
-
-    return _FaqContent(
-      title: json['title'] as String? ?? 'FAQ',
-      description: json['description'] as String? ?? '',
-      items: items,
-    );
-  }
-}
-
-class _FaqItem {
-  final int sortOrder;
-  final String question;
-  final String answer;
-
-  const _FaqItem({
-    required this.sortOrder,
-    required this.question,
-    required this.answer,
-  });
-
-  factory _FaqItem.fromJson(Map<String, dynamic> json) {
-    return _FaqItem(
-      sortOrder: json['sortOrder'] as int? ?? 0,
-      question: json['question'] as String? ?? '',
-      answer: json['answer'] as String? ?? '',
     );
   }
 }
