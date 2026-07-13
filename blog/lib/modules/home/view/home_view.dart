@@ -40,6 +40,7 @@ class HomeView extends StatelessWidget {
       ],
       child: Scaffold(
         backgroundColor: AppColors.background,
+        drawer: const Sidebar(),
         body: LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;

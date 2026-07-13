@@ -29,11 +29,19 @@ class BlogApiProvider {
     String? cursor,
     int? limit,
     String? sort,
+    String? search,
   }) async {
     try {
+      final queryParams = {
+        'cursor': cursor,
+        'limit': limit,
+        'sort': sort,
+        'search': search,
+      }..removeWhere((key, value) => value == null || (value is String && value.isEmpty));
+
       final response = await _dio.get(
         '/${type}s',
-        queryParameters: {'cursor': ?cursor, 'limit': ?limit, 'sort': ?sort},
+        queryParameters: queryParams,
       );
 
       return ApiResponse.fromJson(

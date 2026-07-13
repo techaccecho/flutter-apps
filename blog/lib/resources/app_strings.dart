@@ -25,7 +25,7 @@ class Strings {
   static const linkForums = "• Forums";
   static const linkProfile = "• Profile";
   static const linkArchived = "• Archived";
-  static const linkRulesOfEngagementFaq = "• Rules of Engagement FAQ";
+  static const linkRulesOfEngagementFaq = "• FAQ";
   static const captionAbout =
       "A community of developers sharing ideas, code, and discoveries.";
   static const btnSigOut = "Sign out";

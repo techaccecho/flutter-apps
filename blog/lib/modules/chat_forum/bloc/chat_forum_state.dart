@@ -26,19 +26,21 @@ class ChatForumLoadingState extends ChatForumState {
 }
 
 class ChatForumContentLoadedState extends ChatForumState {
-
   final ThreadPaginatedResult chat;
+  final String? search;
 
   const ChatForumContentLoadedState({
     required this.chat,
+    this.search,
   });
 
   @override
-  List<Object?> get props => [chat];
+  List<Object?> get props => [chat, search];
 
   @override
   Map<String, dynamic> get properties => {
     'chat': chat,
+    if (search != null) 'search': search,
   };
 }
 

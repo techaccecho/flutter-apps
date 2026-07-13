@@ -59,12 +59,14 @@ class ChatForumRepository {
     String? cursor,
     int? limit,
     String sort = 'desc',
+    String? search,
   }) async {
     final response = await apiProvider.fetchBlogsByType(
       type: 'thread',
       cursor: cursor,
       limit: limit,
       sort: sort,
+      search: search,
     );
     return ThreadPaginatedResult(
       threads: response.data.map((b) => Thread.fromBlog(b)).toList(),

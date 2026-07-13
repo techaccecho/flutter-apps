@@ -22,6 +22,7 @@ class BlogLoadedState extends BlogState {
   final bool hasMore;
   final bool isLoadingMore;
   final bool hasLoadMoreError;
+  final String? search;
 
   const BlogLoadedState(
     this.posts, {
@@ -29,6 +30,7 @@ class BlogLoadedState extends BlogState {
     this.hasMore = false,
     this.isLoadingMore = false,
     this.hasLoadMoreError = false,
+    this.search,
   });
 
   BlogLoadedState copyWith({
@@ -37,6 +39,7 @@ class BlogLoadedState extends BlogState {
     bool? hasMore,
     bool? isLoadingMore,
     bool? hasLoadMoreError,
+    String? search,
   }) {
     return BlogLoadedState(
       posts ?? this.posts,
@@ -44,6 +47,7 @@ class BlogLoadedState extends BlogState {
       hasMore: hasMore ?? this.hasMore,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasLoadMoreError: hasLoadMoreError ?? this.hasLoadMoreError,
+      search: search ?? this.search,
     );
   }
 
@@ -54,6 +58,7 @@ class BlogLoadedState extends BlogState {
     hasMore,
     isLoadingMore,
     hasLoadMoreError,
+    search,
   ];
 }
 
