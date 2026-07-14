@@ -100,11 +100,20 @@ class _UserProfileViewState extends State<UserProfileView> {
     }
 
     final authRepository = context.read<AuthRepository>();
+    final currentUser = context.read<ApplicationBloc>().currentUser;
+
+    if (currentUser != null && currentUser.id == userId) {
+      _userFuture = authRepository
+          .getUser(userId)
+          .then<User?>((user) => user)
+          .catchError((_) => null);
+      return;
+    }
 
     _userFuture = authRepository
-        .getArchivedUser(userId)
+        .getUser(userId)
         .catchError((_) {
-          return authRepository.getUser(userId);
+          return authRepository.getArchivedUser(userId);
         })
         .then<User?>((user) => user)
         .catchError((_) {
@@ -277,6 +286,8 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   Widget _buildProfileContent(User user) {
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+    final appBloc = context.read<ApplicationBloc>();
+    final isOwnProfile = appBloc.currentUser?.id == user.id;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -314,6 +325,16 @@ class _UserProfileViewState extends State<UserProfileView> {
                         Row(
                           children: [
                             Text(user.displayName, style: AppTextStyles.h1),
+                            if (isOwnProfile) ...[
+                              const SizedBox(width: AppSpacing.md),
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: AppColors.primary, size: 20),
+                                tooltip: 'Edit Profile',
+                                constraints: const BoxConstraints(),
+                                padding: EdgeInsets.zero,
+                                onPressed: () => _showEditProfileDialog(context, user),
+                              ),
+                            ],
                             if (user.isLocked) ...[
                               const SizedBox(width: AppSpacing.md),
                               Container(
@@ -339,17 +360,43 @@ class _UserProfileViewState extends State<UserProfileView> {
                             ],
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.md),
-                        Row(
-                          children: [
-                            Text(
-                              '${user.firstName ?? ""} ${user.lastName ?? ""}',
-                              style: AppTextStyles.body.copyWith(
-                                color: AppColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
+                        if ((user.firstName?.isNotEmpty ?? false) || 
+                            (user.lastName?.isNotEmpty ?? false) || 
+                            (user.dateOfBirth?.isNotEmpty ?? false)) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          Row(
+                            children: [
+                              if ((user.firstName?.isNotEmpty ?? false) || (user.lastName?.isNotEmpty ?? false))
+                                Text(
+                                  '${user.firstName ?? ""} ${user.lastName ?? ""}'.trim(),
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                              if (user.dateOfBirth != null && user.dateOfBirth!.isNotEmpty) ...[
+                                if ((user.firstName?.isNotEmpty ?? false) || (user.lastName?.isNotEmpty ?? false))
+                                  Text(
+                                    ' • ',
+                                    style: AppTextStyles.body.copyWith(
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                const Icon(
+                                  Icons.cake,
+                                  size: 14,
+                                  color: AppColors.textMuted,
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  user.dateOfBirth!,
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: AppSpacing.md),
                         Text(user.bio ?? '', style: AppTextStyles.bodySmall),
                       ],
@@ -574,6 +621,239 @@ class _UserProfileViewState extends State<UserProfileView> {
           }
         },
       ),
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context, User user) async {
+    final updatedUser = await showDialog<User>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return _EditProfileDialog(
+          user: user,
+          applicationBloc: context.read<ApplicationBloc>(),
+        );
+      },
+    );
+
+    if (updatedUser != null && mounted) {
+      setState(() {
+        _userFuture = Future.value(updatedUser);
+      });
+    }
+  }
+}
+
+class _EditProfileDialog extends StatefulWidget {
+  final User user;
+  final ApplicationBloc applicationBloc;
+
+  const _EditProfileDialog({
+    required this.user,
+    required this.applicationBloc,
+  });
+
+  @override
+  State<_EditProfileDialog> createState() => _EditProfileDialogState();
+}
+
+class _EditProfileDialogState extends State<_EditProfileDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _aliasController;
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _bioController;
+  late final TextEditingController _dobController;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _aliasController = TextEditingController(text: widget.user.alias);
+    _firstNameController = TextEditingController(text: widget.user.firstName);
+    _lastNameController = TextEditingController(text: widget.user.lastName);
+    _bioController = TextEditingController(text: widget.user.bio);
+    _dobController = TextEditingController(text: widget.user.dateOfBirth);
+  }
+
+  @override
+  void dispose() {
+    _aliasController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _bioController.dispose();
+    _dobController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final authRepo = context.read<AuthRepository>();
+      final updatedUser = await authRepo.updateUser(
+        widget.user.id,
+        alias: _aliasController.text.trim().isEmpty ? null : _aliasController.text.trim(),
+        firstName: _firstNameController.text.trim().isEmpty ? null : _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim().isEmpty ? null : _lastNameController.text.trim(),
+        bio: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(),
+        dateOfBirth: _dobController.text.trim().isEmpty ? null : _dobController.text.trim(),
+      );
+
+      widget.applicationBloc.add(ApplicationUpdateUserEvent(updatedUser));
+
+      if (mounted) {
+        Navigator.pop(context, updatedUser);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      title: const Text('Edit Profile'),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_errorMessage != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: AppColors.danger),
+                    ),
+                    child: Text(
+                      _errorMessage!,
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.danger),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+                TextFormField(
+                  controller: _aliasController,
+                  decoration: const InputDecoration(
+                    labelText: 'Alias / Display Name',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter screen name',
+                  ),
+                  textInputAction: TextInputAction.next,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Alias / Display Name is required';
+                    }
+                    final trimmed = value.trim();
+                    if (trimmed.length < 3 || trimmed.length > 20) {
+                      return 'Must be between 3 and 20 characters';
+                    }
+                    final aliasRegex = RegExp(r'^[a-zA-Z0-9_-]+$');
+                    if (!aliasRegex.hasMatch(trimmed)) {
+                      return 'Can only contain letters, numbers, underscores, and hyphens';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'First Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Last Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _dobController,
+                  decoration: const InputDecoration(
+                    labelText: 'Date of Birth',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.tryParse(_dobController.text) ??
+                          DateTime.now().subtract(const Duration(days: 6574)),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDate != null) {
+                      final String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                      _dobController.text = formattedDate;
+                    }
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _bioController,
+                  decoration: const InputDecoration(
+                    labelText: 'Bio',
+                    border: OutlineInputBorder(),
+                    hintText: 'Tell us about yourself...',
+                  ),
+                  maxLines: 3,
+                  maxLength: 160,
+                  validator: (value) {
+                    if (value != null && value.length > 160) {
+                      return 'Bio must be 160 characters or less';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _save,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Save'),
+        ),
+      ],
     );
   }
 }

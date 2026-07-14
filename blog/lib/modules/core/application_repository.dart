@@ -37,6 +37,10 @@ class ApplicationRepository {
 
   User? get currentUser => _currentUser;
 
+  void updateCurrentUser(User user) {
+    _currentUser = user;
+  }
+
   void dispose() {
     _controller.close();
   }
