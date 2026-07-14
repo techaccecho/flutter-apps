@@ -23,6 +23,7 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
     on<ApplicationNavigateEvent>(_onApplicationNavigate);
     on<ApplicationLoginEvent>(_onApplicationLoginEvent);
     on<ApplicationLogoutEvent>(_onApplicationLogoutEvent);
+    on<ApplicationUpdateUserEvent>(_onApplicationUpdateUser);
     
     _subscription = _repository.data.listen(
       (event) => add(event),
@@ -69,6 +70,25 @@ class ApplicationBloc extends AbstractBloc<ApplicationEvent, ApplicationState> {
       currentRoute = HomeViewState.blog;
       final currentUser = _repository.currentUser;
       emit.logCall(ApplicationContentLoadedState(route: currentRoute, isLoggedIn: await _repository.isLoggedIn(), timestamp: DateTime.now().millisecondsSinceEpoch, currentUser: currentUser));
+  }
+
+  Future<void> _onApplicationUpdateUser(
+      ApplicationUpdateUserEvent event, Emitter<ApplicationState> emit) async {
+    _repository.updateCurrentUser(event.user);
+
+    String? viewUserId;
+    final currentState = state;
+    if (currentState is ApplicationContentLoadedState) {
+      viewUserId = currentState.viewUserId;
+    }
+
+    emit.logCall(ApplicationContentLoadedState(
+      route: currentRoute,
+      isLoggedIn: await _repository.isLoggedIn(),
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      currentUser: event.user,
+      viewUserId: viewUserId,
+    ));
   }
 
   User? get currentUser => _repository.currentUser;

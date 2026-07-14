@@ -1,5 +1,6 @@
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/shared/util/abstract_bloc/base_event.dart';
+import 'package:blog/shared/models/user.dart';
 
 abstract class ApplicationEvent extends BaseEvent {
   const ApplicationEvent();
@@ -69,4 +70,18 @@ class ApplicationLogoutEvent extends ApplicationEvent {
   
   @override
   Map<String, dynamic> get properties => {};
+}
+
+class ApplicationUpdateUserEvent extends ApplicationEvent {
+  final User user;
+
+  const ApplicationUpdateUserEvent(this.user);
+
+  @override
+  List<Object?> get props => [user];
+
+  @override
+  Map<String, dynamic> get properties => {
+        "user": user,
+      };
 }

@@ -57,4 +57,23 @@ class AuthRepository {
     final response = await apiProvider.getArchivedUser(userId);
     return response.data;
   }
+
+  Future<User> updateUser(
+    String userId, {
+    String? alias,
+    String? firstName,
+    String? lastName,
+    String? bio,
+    String? dateOfBirth,
+  }) async {
+    final payload = <String, dynamic>{};
+    if (alias != null) payload['alias'] = alias;
+    if (firstName != null) payload['firstName'] = firstName;
+    if (lastName != null) payload['lastName'] = lastName;
+    if (bio != null) payload['bio'] = bio;
+    if (dateOfBirth != null) payload['dateOfBirth'] = dateOfBirth;
+
+    final response = await apiProvider.updateUser(userId, payload);
+    return response.data;
+  }
 }

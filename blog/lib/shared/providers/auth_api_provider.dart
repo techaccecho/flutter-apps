@@ -78,16 +78,52 @@ class AuthApiProvider {
     }
   }
 
-  Exception _handleDioError(DioException e) {
-    if (e.response != null && e.response?.data is Map) {
-      final data = e.response!.data;
+  Future<ApiResponse<User>> updateUser(String userId, Map<String, dynamic> updateData) async {
+    try {
+      final response = await _dio.patch('/users/$userId', data: updateData);
 
-      if (data.containsKey('code')) {
-        return Exception('[${data['code']}] ${data['message']}');
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Exception _handleDioError(DioException e) {
+    if (e.response != null) {
+      if (e.response!.statusCode == 500) {
+        return Exception('A server error occurred. Please try again later.');
       }
 
-      if (data.containsKey('message')) {
-        return Exception(data['message']);
+      if (e.response?.data is Map) {
+        final data = e.response!.data;
+
+        if (data['code'] == 'INTERNAL_SERVER_ERROR') {
+          return Exception('A server error occurred. Please try again later.');
+        }
+
+        if (data.containsKey('details') && data['details'] is List && (data['details'] as List).isNotEmpty) {
+          final details = data['details'] as List;
+          final messages = details.map((detail) {
+            if (detail is Map && detail.containsKey('message')) {
+              return detail['message'];
+            }
+            return null;
+          }).where((msg) => msg != null).join(', ');
+          if (messages.isNotEmpty) {
+            return Exception(messages);
+          }
+        }
+
+        if (data.containsKey('code')) {
+          return Exception('[${data['code']}] ${data['message']}');
+        }
+
+        if (data.containsKey('message')) {
+          return Exception(data['message']);
+        }
       }
     }
 
