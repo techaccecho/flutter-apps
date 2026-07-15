@@ -1,26 +1,29 @@
-import { NextResponse } from 'next/server';
+export default async function middleware(request) {
+  const url = new URL(request.url);
 
-export function middleware(request) {
   // Intercept all API calls matching /blog-api/*
-  if (request.nextUrl.pathname.startsWith('/blog-api')) {
+  if (url.pathname.startsWith('/blog-api')) {
+    const destination = 'https://blog-service-topaz.vercel.app' + url.pathname + url.search;
+
     const requestHeaders = new Headers(request.headers);
 
-    // Inject the shared secret header server-side.
-    // This value is securely read from Vercel's environment variables.
+    // Inject the shared secret header server-side
     const secret = process.env.VERCEL_PROXY_SECRET || '';
     requestHeaders.set('x-vercel-proxy-secret', secret);
 
-    // Proxy/rewrite the request to the real Fastify backend service
-    const destinationUrl = new URL(
-      request.nextUrl.pathname + request.nextUrl.search,
-      'https://blog-service-topaz.vercel.app'
-    );
+    const init = {
+      method: request.method,
+      headers: requestHeaders,
+    };
 
-    return NextResponse.rewrite(destinationUrl, {
-      request: {
-        headers: requestHeaders,
-      },
-    });
+    // Forward the request body for POST/PUT/PATCH/DELETE mutations
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      init.body = request.body;
+      init.duplex = 'half'; // Required for streaming request bodies in Edge Runtime
+    }
+
+    // Proxy the request using native Web fetch
+    return fetch(destination, init);
   }
 }
 
