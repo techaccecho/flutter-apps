@@ -75,9 +75,9 @@ class _BlogPostHeaderCreateState extends State<BlogPostHeaderCreate> {
                   ),
                   child: Row(
                     children: [
-                      BlogPostMenuButton(buttonText: "Embed url"),
-                      BlogPostMenuButton(buttonText: "Add image"),
-                      Spacer(),
+                      // BlogPostMenuButton(buttonText: "Embed url"),
+                      // BlogPostMenuButton(buttonText: "Add image"),
+                      // Spacer(),
                       InkWell(
                         onTap: () {
                           widget.setIsPreviewMode();
