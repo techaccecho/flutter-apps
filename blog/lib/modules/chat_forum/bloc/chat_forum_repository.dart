@@ -60,6 +60,7 @@ class ChatForumRepository {
     int? limit,
     String sort = 'desc',
     String? search,
+    String? authorId,
   }) async {
     final response = await apiProvider.fetchBlogsByType(
       type: 'thread',
@@ -67,6 +68,7 @@ class ChatForumRepository {
       limit: limit,
       sort: sort,
       search: search,
+      authorId: authorId,
     );
     return ThreadPaginatedResult(
       threads: response.data.map((b) => Thread.fromBlog(b)).toList(),

@@ -30,6 +30,7 @@ class BlogApiProvider {
     int? limit,
     String? sort,
     String? search,
+    String? authorId,
   }) async {
     try {
       final queryParams = {
@@ -37,6 +38,7 @@ class BlogApiProvider {
         'limit': limit,
         'sort': sort,
         'search': search,
+        'authorId': authorId,
       }..removeWhere((key, value) => value == null || (value is String && value.isEmpty));
 
       final response = await _dio.get(

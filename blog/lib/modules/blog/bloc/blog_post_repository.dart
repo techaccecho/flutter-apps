@@ -59,6 +59,7 @@ class BlogPostRepository {
     int? limit,
     String sort = 'desc',
     String? search,
+    String? authorId,
   }) async {
     final response = await apiProvider.fetchBlogsByType(
       type: 'post',
@@ -66,6 +67,7 @@ class BlogPostRepository {
       limit: limit,
       sort: sort,
       search: search,
+      authorId: authorId,
     );
     return BlogPostPaginatedResult(
       posts: response.data.map((b) => BlogPost.fromBlog(b)).toList(),
