@@ -184,6 +184,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             cursor: postCursor,
             limit: _activityPageSize,
             sort: 'desc',
+            authorId: userId,
           );
 
           postCursor = response.nextCursor;
@@ -206,6 +207,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             cursor: threadCursor,
             limit: _activityPageSize,
             sort: 'desc',
+            authorId: userId,
           );
 
           threadCursor = response.nextCursor;
