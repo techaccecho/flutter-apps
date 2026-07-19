@@ -27,20 +27,30 @@ class Comment {
     required this.reactions,
     required this.engagement,
     required this.createdAt,
-    this.updatedAt
+    this.updatedAt,
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) => Comment(
     id: json['id'],
     author: UserPreview.fromJson(json['author']),
     content: json['content'],
-    replies: (json['replies'] as List? ?? []).map((r) => Reply.fromJson(r)).toList(),
-    attachments: (json['attachments'] as List? ?? []).map((a) => Attachment.fromJson(a)).toList(),
-    viewers: (json['viewers'] as List? ?? []).map((u) => UserPreview.fromJson(u)).toList(),
-    reactions: (json['reactions'] as List? ?? []).map((r) => Reaction.fromJson(r)).toList(),
+    replies: (json['replies'] as List? ?? [])
+        .map((r) => Reply.fromJson(r))
+        .toList(),
+    attachments: (json['attachments'] as List? ?? [])
+        .map((a) => Attachment.fromJson(a))
+        .toList(),
+    viewers: (json['viewers'] as List? ?? [])
+        .map((u) => UserPreview.fromJson(u))
+        .toList(),
+    reactions: (json['reactions'] as List? ?? [])
+        .map((r) => Reaction.fromJson(r))
+        .toList(),
     engagement: Engagement.fromJson(json['engagement']),
     createdAt: DateTime.parse(json['createdAt']),
-    updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null
+    updatedAt: json['updatedAt'] != null
+        ? DateTime.parse(json['updatedAt'])
+        : null,
   );
 
   Map<String, dynamic> toJson() {
@@ -51,7 +61,7 @@ class Comment {
       'replies': replies.map((r) => r.toJson()).toList(),
       'attachments': attachments.map((a) => a.toJson()).toList(),
       'viewers': viewers.map((v) => v.toJson()).toList(),
-      'reactions': attachments.map((r) => r.toJson()).toList(),
+      'reactions': reactions.map((r) => r.toJson()).toList(),
       'engagement': engagement.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

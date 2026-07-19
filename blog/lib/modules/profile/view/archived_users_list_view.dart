@@ -267,11 +267,13 @@ class _ArchivedUsersListViewState extends State<ArchivedUsersListView> {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
         border: Border.all(color: AppColors.border),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: ListTile(
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(4),
+        child: ListTile(
         contentPadding: const EdgeInsets.all(AppSpacing.md),
         leading: CircleAvatar(
           radius: 28,
@@ -340,6 +342,7 @@ class _ArchivedUsersListViewState extends State<ArchivedUsersListView> {
             ),
           );
         },
+      ),
       ),
     );
   }

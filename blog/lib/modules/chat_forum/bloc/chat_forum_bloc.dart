@@ -30,7 +30,11 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     Emitter<ChatForumState> emit,
   ) async {
     emit.logCall(const ChatForumLoadingState());
-    await _fetchContent(emit, event.fromCache, search: event.search);
+    try {
+      await _fetchContent(emit, event.fromCache, search: event.search);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to load threads'));
+    }
   }
 
   Future<void> _onChatForumRefresh(
@@ -38,7 +42,11 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     Emitter<ChatForumState> emit,
   ) async {
     emit.logCall(const ChatForumLoadingState());
-    await _fetchContent(emit, false);
+    try {
+      await _fetchContent(emit, false);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to load threads'));
+    }
   }
 
   Future<void> _fetchContent(
@@ -158,16 +166,20 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
   ) async {
     emit.logCall(ChatForumLoadingState());
 
-    final request = AddThreadComment(
-      authorId: event.authorId,
-      content: event.message,
-    );
-    final response = await _repository.addThreadComment(
-      id: event.threadId,
-      request: request,
-    );
+    try {
+      final request = AddThreadComment(
+        authorId: event.authorId,
+        content: event.message,
+      );
+      final response = await _repository.addThreadComment(
+        id: event.threadId,
+        request: request,
+      );
 
-    emit.logCall(ChatForumThreadLoadedState(thread: response));
+      emit.logCall(ChatForumThreadLoadedState(thread: response));
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to add comment'));
+    }
   }
 
   String? _validateThreadInput(String title, String content) {
