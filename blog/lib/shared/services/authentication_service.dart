@@ -9,10 +9,13 @@ import 'package:blog/shared/repositories/auth_repository.dart';
 import 'package:blog/shared/models/user.dart';
 
 class AuthenticationService extends ChangeNotifier {
-  final Auth0Service auth0Service = Auth0Service();
+  final Auth0Service auth0Service;
   final AuthRepository authRepository;
 
-  AuthenticationService({ required this.authRepository});
+  AuthenticationService({
+    required this.authRepository,
+    Auth0Service? auth0Service,
+  }) : auth0Service = auth0Service ?? Auth0Service();
 
   Future<User?> init() async {
     try {
