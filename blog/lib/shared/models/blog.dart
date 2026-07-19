@@ -55,15 +55,29 @@ class Blog {
     isDraft: json['isDraft'],
     isPinned: json['isPinned'],
     isLocked: json['isLocked'],
-    participants: (json['participants'] as List? ?? []).map((p) => UserPreview.fromJson(p)).toList(),
-    comments: (json['comments'] as List? ?? []).map((c) => Comment.fromJson(c)).toList(),
-    attachments: (json['attachments'] as List? ?? []).map((a) => Attachment.fromJson(a)).toList(),
-    viewers: (json['viewers'] as List? ?? []).map((u) => UserPreview.fromJson(u)).toList(),
-    reactions: (json['reactions'] as List? ?? []).map((r) => Reaction.fromJson(r)).toList(),
+    participants: (json['participants'] as List? ?? [])
+        .map((p) => UserPreview.fromJson(p))
+        .toList(),
+    comments: (json['comments'] as List? ?? [])
+        .map((c) => Comment.fromJson(c))
+        .toList(),
+    attachments: (json['attachments'] as List? ?? [])
+        .map((a) => Attachment.fromJson(a))
+        .toList(),
+    viewers: (json['viewers'] as List? ?? [])
+        .map((u) => UserPreview.fromJson(u))
+        .toList(),
+    reactions: (json['reactions'] as List? ?? [])
+        .map((r) => Reaction.fromJson(r))
+        .toList(),
     engagement: Engagement.fromJson(json['engagement']),
     createdAt: DateTime.parse(json['createdAt']),
-    updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
-    deletedAt: json['deletedAt'] != null ? DateTime.parse(json['deletedAt']) : null,
+    updatedAt: json['updatedAt'] != null
+        ? DateTime.parse(json['updatedAt'])
+        : null,
+    deletedAt: json['deletedAt'] != null
+        ? DateTime.parse(json['deletedAt'])
+        : null,
   );
 
   Map<String, dynamic> toJson() {
@@ -81,7 +95,7 @@ class Blog {
       'comments': comments.map((c) => c.toJson()).toList(),
       'attachments': attachments.map((a) => a.toJson()).toList(),
       'viewers': viewers.map((v) => v.toJson()).toList(),
-      'reactions': attachments.map((r) => r.toJson()).toList(),
+      'reactions': reactions.map((r) => r.toJson()).toList(),
       'engagement': engagement.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

@@ -60,27 +60,29 @@ class _ChatForumViewState extends State<ChatForumView> {
         title: const Text('New Thread'),
         content: SizedBox(
           width: 520,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.next,
                 ),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Message',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Message',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 6,
                 ),
-                maxLines: 6,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -116,8 +118,10 @@ class _ChatForumViewState extends State<ChatForumView> {
         ],
       ),
     ).whenComplete(() {
-      titleController.dispose();
-      contentController.dispose();
+      Future.delayed(const Duration(milliseconds: 500), () {
+        titleController.dispose();
+        contentController.dispose();
+      });
     });
   }
 
@@ -132,27 +136,29 @@ class _ChatForumViewState extends State<ChatForumView> {
         title: const Text('Edit Thread'),
         content: SizedBox(
           width: 520,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.next,
                 ),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Message',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Message',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 6,
                 ),
-                maxLines: 6,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -188,8 +194,10 @@ class _ChatForumViewState extends State<ChatForumView> {
         ],
       ),
     ).whenComplete(() {
-      titleController.dispose();
-      contentController.dispose();
+      Future.delayed(const Duration(milliseconds: 500), () {
+        titleController.dispose();
+        contentController.dispose();
+      });
     });
   }
 

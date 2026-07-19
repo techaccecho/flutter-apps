@@ -7,7 +7,6 @@ import 'package:blog/modules/core/application.dart';
 import 'package:blog/resources/app_strings.dart';
 import 'package:blog/resources/resources.dart';
 import 'package:blog/modules/blog/view/view_posts/blog_post_card.dart';
-import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,7 +27,9 @@ class _PostListState extends State<PostList> {
   void initState() {
     super.initState();
     final blogState = context.read<BlogBloc>().state;
-    final initialQuery = blogState is BlogLoadedState ? (blogState.search ?? '') : '';
+    final initialQuery = blogState is BlogLoadedState
+        ? (blogState.search ?? '')
+        : '';
     _searchController = TextEditingController(text: initialQuery);
     _scrollController.addListener(_onScroll);
   }
@@ -92,7 +93,9 @@ class _PostListState extends State<PostList> {
       if (!blogState.isLoadingMore) {
         _loadMoreRequested = false;
       }
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadMoreIfNeeded(blogState));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _loadMoreIfNeeded(blogState),
+      );
     }
 
     return Column(
@@ -103,7 +106,10 @@ class _PostListState extends State<PostList> {
         BlogCreateNewButton(),
         // Search bar
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.sm,
+          ),
           child: TextField(
             controller: _searchController,
             decoration: const InputDecoration(
@@ -192,7 +198,10 @@ class _PostListState extends State<PostList> {
         );
       }
 
-      final showFooter = blogState.hasMore || blogState.isLoadingMore || blogState.hasLoadMoreError;
+      final showFooter =
+          blogState.hasMore ||
+          blogState.isLoadingMore ||
+          blogState.hasLoadMoreError;
 
       return ListView.builder(
         controller: _scrollController,
