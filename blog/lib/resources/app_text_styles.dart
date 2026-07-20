@@ -64,4 +64,22 @@ class AppTextStyles {
     decoration: TextDecoration.underline,
   );
 
+  static const inputText = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    color: AppColors.textPrimary,
+  );
+
+  static const inputHint = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    color: AppColors.textMuted,
+  );
+
+  static const inputLabel = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textSecondary,
+  );
 }

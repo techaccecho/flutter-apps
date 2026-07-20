@@ -66,15 +66,29 @@ class ChatForumThreadLoadingState extends ChatForumState {}
 class ChatForumThreadLoadedState extends ChatForumState {
   final Thread thread;
   final Author? currentAuthor;
+  final bool isSubmittingComment;
 
   const ChatForumThreadLoadedState({
     required this.thread,
-    this.currentAuthor
+    this.currentAuthor,
+    this.isSubmittingComment = false
   });
+
+  ChatForumThreadLoadedState copyWith({
+    Thread? thread,
+    bool? isSubmittingComment,
+    Author? currentAuthor,
+  }) {
+    return ChatForumThreadLoadedState(
+      thread: thread ?? this.thread,
+      currentAuthor: currentAuthor ?? this.currentAuthor,
+      isSubmittingComment: isSubmittingComment ?? this.isSubmittingComment,
+    );
+  }
 
 
   @override
-  List<Object?> get props => [thread];
+  List<Object?> get props => [thread, currentAuthor, isSubmittingComment];
 
   @override
   Map<String, dynamic> get properties => {};

@@ -8,6 +8,7 @@ import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/blog/bloc/blog_post_repository.dart';
 import 'package:blog/modules/blog/model/create_blog_post.dart';
 import 'package:blog/modules/blog/model/update_blog_post.dart';
+import 'package:blog/modules/blog/model/add_blog_post_comment.dart';
 import 'package:blog/modules/blog/util/blog_content.dart';
 
 class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
@@ -28,6 +29,7 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     on<UpdateBlogPostEvent>(_updateBlogPost);
     on<DeleteBlogPostEvent>(_deleteBlogPost);
     on<SoftDeleteBlogPostEvent>(_softDeleteBlogPost);
+    on<AddBlogPostCommentEvent>(_addBlogPostComment);
   }
 
   Future<void> _loadBlogPosts(
@@ -231,5 +233,33 @@ class BlogBloc extends AbstractBloc<BlogEvent, BlogState> {
     }
 
     return latestPost;
+  }
+
+  Future<void> _addBlogPostComment(
+    AddBlogPostCommentEvent event,
+    Emitter<BlogState> emit,
+  ) async {
+    if (state is! BlogPostLoadedState) return;
+
+    final currentState = state as BlogPostLoadedState;
+
+    emit(currentState.copyWith(isSubmittingComment: true));
+
+    try {
+      final request = AddBlogPostComment(
+        authorId: event.authorId,
+        content: event.message,
+      );
+
+      final response = await _repository.addBlogPostComment(
+        id: event.blogId,
+        request: request,
+      );
+
+      emit.logCall(BlogPostLoadedState(blogPost: response));
+    } catch (_) {
+      emit(currentState.copyWith(isSubmittingComment: false));
+      emit.logCall(BlogErrorState());
+    }
   }
 }

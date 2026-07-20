@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:blog/modules/chat_forum/view/chat_comment.dart';
-import 'package:blog/modules/chat_forum/view/chat_reply_box.dart';
 import 'package:blog/modules/chat_forum/view/chat_thread_header.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:blog/resources/app_strings.dart';
@@ -13,6 +12,7 @@ import 'package:blog/modules/chat_forum/bloc/chat_forum_state.dart';
 import 'package:blog/modules/chat_forum/model/thread.dart';
 import 'package:blog/modules/chat_forum/view/forum_item.dart';
 import 'package:blog/shared/models/author.dart';
+import 'package:blog/shared/view/reply_box.dart';
 
 class ChatForumView extends StatefulWidget {
   const ChatForumView({super.key});
@@ -29,7 +29,9 @@ class _ChatForumViewState extends State<ChatForumView> {
   void initState() {
     super.initState();
     final forumState = context.read<ChatForumBloc>().state;
-    final initialQuery = forumState is ChatForumContentLoadedState ? (forumState.search ?? '') : '';
+    final initialQuery = forumState is ChatForumContentLoadedState
+        ? (forumState.search ?? '')
+        : '';
     _searchController = TextEditingController(text: initialQuery);
   }
 
@@ -330,6 +332,25 @@ class _ChatForumViewState extends State<ChatForumView> {
     return confirmed == true ? selectedReason : null;
   }
 
+  Future<void> _addComment(
+    BuildContext context,
+    String message,
+    String authorId,
+    String threadId
+  ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    context.read<ChatForumBloc>().add(
+      ChatAddCommentEvent(
+        threadId: threadId,
+        authorId: authorId,
+        message: message,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ChatForumBloc, ChatForumState>(
@@ -347,6 +368,7 @@ class _ChatForumViewState extends State<ChatForumView> {
           final canDelete = isOwner || isAdmin;
           final canSoftDelete = isAdmin && !state.thread.isAdminRemoved;
           final canShowComments = !state.thread.isAdminRemoved || isAdmin;
+          final isLoading = state.isSubmittingComment;
 
           return Column(
             children: [
@@ -394,7 +416,11 @@ class _ChatForumViewState extends State<ChatForumView> {
               else
                 const Expanded(child: SizedBox.shrink()),
               if (author != null && !state.thread.isAdminRemoved) ...[
-                ChatReplyBox(threadId: state.thread.id, authorId: author.id),
+                ReplyBox(
+                      isLoading: isLoading,
+                      action: (String message) =>
+                          _addComment(context, message, author.id, state.thread.id),
+                    )
               ],
             ],
           );
@@ -453,11 +479,15 @@ class _ChatForumViewState extends State<ChatForumView> {
 
             // Search bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
               child: TextField(
                 controller: _searchController,
                 decoration: const InputDecoration(
-                  hintText: 'Search forum threads by title, content, or author...',
+                  hintText:
+                      'Search forum threads by title, content, or author...',
                   prefixIcon: Icon(Icons.search),
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(vertical: 0),
@@ -475,9 +505,7 @@ class _ChatForumViewState extends State<ChatForumView> {
               alignment: Alignment.centerLeft,
               child: Text(Strings.threadLatest, style: AppTextStyles.h2),
             ),
-            Expanded(
-              child: _buildListContent(context, state, currentUser),
-            ),
+            Expanded(child: _buildListContent(context, state, currentUser)),
           ],
         );
       },

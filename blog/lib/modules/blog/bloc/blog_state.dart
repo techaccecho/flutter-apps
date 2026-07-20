@@ -40,6 +40,7 @@ class BlogLoadedState extends BlogState {
     bool? isLoadingMore,
     bool? hasLoadMoreError,
     String? search,
+    bool? isSubmitting
   }) {
     return BlogLoadedState(
       posts ?? this.posts,
@@ -64,11 +65,22 @@ class BlogLoadedState extends BlogState {
 
 class BlogPostLoadedState extends BlogState {
   final BlogPost blogPost;
+  final bool isSubmittingComment;
 
-  const BlogPostLoadedState({required this.blogPost});
+  const BlogPostLoadedState({required this.blogPost, this.isSubmittingComment = false});
+
+  BlogPostLoadedState copyWith({
+    BlogPost? blogPost,
+    bool? isSubmittingComment,
+  }) {
+    return BlogPostLoadedState(
+      blogPost: blogPost ?? this.blogPost,
+      isSubmittingComment: isSubmittingComment ?? this.isSubmittingComment,
+    );
+  }
 
   @override
-  List<Object?> get props => [blogPost];
+  List<Object?> get props => [blogPost, isSubmittingComment];
 }
 
 class BlogPostCreateState extends BlogState {
