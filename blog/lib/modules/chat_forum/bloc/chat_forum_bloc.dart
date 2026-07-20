@@ -46,7 +46,9 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     bool fromCache, {
     String? search,
   }) async {
-    ThreadPaginatedResult threads = await _repository.getThreads(search: search);
+    ThreadPaginatedResult threads = await _repository.getThreads(
+      search: search,
+    );
     //List<ChatItem> chats = await _repository.get(fromCache);
     emit.logCall(ChatForumContentLoadedState(chat: threads, search: search));
   }
@@ -156,18 +158,28 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     ChatAddCommentEvent event,
     Emitter<ChatForumState> emit,
   ) async {
-    emit.logCall(ChatForumLoadingState());
+    if (state is! ChatForumThreadLoadedState) return;
 
-    final request = AddThreadComment(
-      authorId: event.authorId,
-      content: event.message,
-    );
-    final response = await _repository.addThreadComment(
-      id: event.threadId,
-      request: request,
-    );
+    final currentState = state as ChatForumThreadLoadedState;
 
-    emit.logCall(ChatForumThreadLoadedState(thread: response));
+    emit(currentState.copyWith(isSubmittingComment: true));
+
+    try {
+      final request = AddThreadComment(
+        authorId: event.authorId,
+        content: event.message,
+      );
+
+      final response = await _repository.addThreadComment(
+        id: event.threadId,
+        request: request,
+      );
+
+      emit.logCall(ChatForumThreadLoadedState(thread: response));
+    } catch (_) {
+      emit(currentState.copyWith(isSubmittingComment: false));
+      emit.logCall(const ChatForumErrorState(error: 'Unable to add comment'));
+    }
   }
 
   String? _validateThreadInput(String title, String content) {
