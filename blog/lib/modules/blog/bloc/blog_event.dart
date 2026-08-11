@@ -145,3 +145,25 @@ class SoftDeleteBlogPostEvent extends BlogEvent {
     'reason': reason,
   };
 }
+
+class AddBlogPostCommentEvent extends BlogEvent {
+  final String blogId;
+  final String authorId;
+  final String message;
+
+  const AddBlogPostCommentEvent({
+    required this.blogId,
+    required this.authorId,
+    required this.message,
+  });
+
+  @override
+  List<Object?> get props => [];
+
+  @override
+  Map<String, dynamic> get properties => {
+    'blogId': blogId,
+    'authorId': authorId,
+    'message': message
+  };
+}

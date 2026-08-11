@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:blog/modules/blog/model/blog_post.dart';
+import 'package:blog/modules/blog/model/add_blog_post_comment.dart';
 import 'package:blog/modules/blog/model/create_blog_post.dart';
 import 'package:blog/modules/blog/model/update_blog_post.dart';
 import 'package:blog/shared/providers/blog_api_provider.dart';
@@ -74,5 +75,16 @@ class BlogPostRepository {
       nextCursor: response.meta?.nextCursor,
       hasMore: response.meta?.hasMore ?? false,
     );
+  }
+
+  Future<BlogPost> addBlogPostComment({
+    required String id,
+    required AddBlogPostComment request,
+  }) async {
+    final response = await apiProvider.addComment(
+      blogId: id,
+      request: request.toAddComment(),
+    );
+    return BlogPost.fromBlog(response.data);
   }
 }

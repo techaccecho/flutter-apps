@@ -12,6 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:blog/shared/view/reply_box.dart';
+import 'package:blog/modules/blog/bloc/blog_state.dart';
 
 class BlogPostView extends StatelessWidget {
   final BlogPost post;
@@ -95,6 +97,19 @@ class BlogPostView extends StatelessWidget {
               ),
             ),
           ),
+          if (currentUser != null) ...[
+            BlocBuilder<BlogBloc, BlogState>(
+              builder: (context, state) {
+                final isLoading =
+                    state is BlogPostLoadedState && state.isSubmittingComment;
+                return ReplyBox(
+                  isLoading: isLoading,
+                  action: (String message) =>
+                      _addComment(context, message, currentUser.id),
+                );
+              },
+            )
+          ]
         ],
       ),
     );
@@ -227,6 +242,16 @@ class BlogPostView extends StatelessWidget {
     );
 
     return confirmed == true ? selectedReason : null;
+  }
+  
+  Future<void> _addComment(BuildContext context, String message, String authorId) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    context
+        .read<BlogBloc>()
+        .add(AddBlogPostCommentEvent(blogId: post.id, authorId: authorId, message: message));
   }
 }
 

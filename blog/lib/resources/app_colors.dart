@@ -19,7 +19,7 @@ class AppColors {
 
   // States
   static const link = Color(0xff0000ee); // classic web blue
-  static const visitedLink = Color(0xff551a8b);
+  static const visitedLink = Color.fromARGB(255, 199, 198, 201);
 
   // ARG / glitch accents (use sparingly)
   static const danger = Color(0xffcc0000);
