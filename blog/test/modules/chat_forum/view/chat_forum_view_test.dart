@@ -6,7 +6,8 @@ import 'package:blog/modules/chat_forum/bloc/chat_forum_state.dart';
 import 'package:blog/modules/chat_forum/bloc/chat_forum_repository.dart';
 import 'package:blog/modules/chat_forum/model/thread.dart';
 import 'package:blog/modules/chat_forum/view/chat_forum_view.dart';
-import 'package:blog/modules/chat_forum/view/chat_reply_box.dart';
+import 'package:blog/shared/view/reply_box.dart';
+import 'package:blog/shared/view/retro_icon_button.dart';
 import 'package:blog/modules/core/application.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/resources/app_strings.dart';
@@ -357,13 +358,13 @@ void main() {
 
         // Reply Box: try empty submission
         final replyField = find.descendant(
-          of: find.byType(ChatReplyBox),
+          of: find.byType(ReplyBox),
           matching: find.byType(TextField),
         );
         expect(replyField, findsOneWidget);
 
         await tester.enterText(replyField, '   ');
-        await tester.tap(find.text('Post'));
+        await tester.tap(find.byType(RetroIconButton));
         await tester.pumpAndSettle();
 
         expect(find.text('A message cannot be empty'), findsOneWidget);
@@ -373,7 +374,7 @@ void main() {
 
         // Dismiss the previous snackbar so it doesn't block the UI
         ScaffoldMessenger.of(
-          tester.element(find.byType(ChatReplyBox)),
+          tester.element(find.byType(ReplyBox)),
         ).clearSnackBars();
         await tester.pumpAndSettle();
 
@@ -384,7 +385,7 @@ void main() {
         FocusManager.instance.primaryFocus?.unfocus();
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text('Post'));
+        await tester.tap(find.byType(RetroIconButton));
         await tester.pumpAndSettle();
 
         verify(

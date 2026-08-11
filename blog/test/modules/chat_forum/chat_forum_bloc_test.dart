@@ -449,6 +449,7 @@ void main() {
     group('ChatAddCommentEvent', () {
       blocTest<ChatForumBloc, ChatForumState>(
         'sends thread/author ID and message, emits updated thread on success',
+        seed: () => ChatForumThreadLoadedState(thread: testThread),
         build: () {
           when(() => mockRepository.addThreadComment(
             id: 'thread_123',
@@ -462,9 +463,8 @@ void main() {
           message: 'Nice comment',
         )),
         expect: () => [
-          const ChatForumLoadingState(),
-          isA<ChatForumThreadLoadedState>()
-              .having((s) => s.thread.id, 'thread.id', 'thread_123'),
+          ChatForumThreadLoadedState(thread: testThread, isSubmittingComment: true),
+          ChatForumThreadLoadedState(thread: testThread, isSubmittingComment: false),
         ],
         verify: (_) {
           verify(() => mockRepository.addThreadComment(
@@ -481,6 +481,7 @@ void main() {
 
       blocTest<ChatForumBloc, ChatForumState>(
         'emits error state on failure',
+        seed: () => ChatForumThreadLoadedState(thread: testThread),
         build: () {
           when(() => mockRepository.addThreadComment(
             id: any(named: 'id'),
@@ -494,7 +495,8 @@ void main() {
           message: 'Nice comment',
         )),
         expect: () => [
-          const ChatForumLoadingState(),
+          ChatForumThreadLoadedState(thread: testThread, isSubmittingComment: true),
+          ChatForumThreadLoadedState(thread: testThread, isSubmittingComment: false),
           const ChatForumErrorState(error: 'Unable to add comment'),
         ],
       );
