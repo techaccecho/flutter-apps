@@ -20,10 +20,9 @@ class _FaqViewState extends State<FaqView> {
     _faqFuture = _loadFaq();
   }
 
-  Future<FaqContent> _loadFaq() {
-    return context.read<BlogApiProvider>().fetchRulesOfEngagementFaq().then(
-      (response) => response.data,
-    );
+  Future<FaqContent> _loadFaq() async {
+    final response = await context.read<BlogApiProvider>().fetchRulesOfEngagementFaq();
+    return response.data;
   }
 
   void _retryLoad() {

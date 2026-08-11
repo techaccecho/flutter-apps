@@ -30,7 +30,11 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     Emitter<ChatForumState> emit,
   ) async {
     emit.logCall(const ChatForumLoadingState());
-    await _fetchContent(emit, event.fromCache, search: event.search);
+    try {
+      await _fetchContent(emit, event.fromCache, search: event.search);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to load threads'));
+    }
   }
 
   Future<void> _onChatForumRefresh(
@@ -38,7 +42,11 @@ class ChatForumBloc extends AbstractBloc<ChatForumEvent, ChatForumState> {
     Emitter<ChatForumState> emit,
   ) async {
     emit.logCall(const ChatForumLoadingState());
-    await _fetchContent(emit, false);
+    try {
+      await _fetchContent(emit, false);
+    } catch (_) {
+      emit.logCall(const ChatForumErrorState(error: 'Unable to load threads'));
+    }
   }
 
   Future<void> _fetchContent(

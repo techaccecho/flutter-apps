@@ -278,7 +278,11 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
               color: AppColors.surface,
               border: Border(bottom: BorderSide(color: AppColors.border)),
             ),
-            child: Row(
+            child: Wrap(
+              alignment: WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
               children: [
                 Icon(Icons.calendar_today, size: 18, color: AppColors.primary),
                 const SizedBox(width: AppSpacing.xs),
@@ -316,7 +320,7 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
                   ),
                 ],
                 if (isOutOfOrder) ...[
-                  const Spacer(),
+                  const SizedBox(width: AppSpacing.lg),
                   const Icon(Icons.warning, color: Colors.orange, size: 18),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
