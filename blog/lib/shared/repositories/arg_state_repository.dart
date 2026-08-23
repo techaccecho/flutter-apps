@@ -41,6 +41,19 @@ class ArgStateRepository {
     return state;
   }
 
+  Future<ArgStateModel> claimGuestProgress({
+    required String guestUserId,
+    String? userId,
+  }) async {
+    final state = await apiProvider.claimGuestProgress(
+      guestUserId: guestUserId,
+      userId: userId,
+    );
+    _cachedState = state;
+    _stateController.add(state);
+    return state;
+  }
+
   void dispose() {
     _stateController.close();
   }

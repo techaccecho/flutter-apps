@@ -1,12 +1,22 @@
 import 'dart:async';
 import 'package:blog/shared/models/arg_state_model.dart';
 import 'package:blog/shared/repositories/arg_state_repository.dart';
+import 'package:blog/shared/services/storage_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Events
 abstract class ArgStateEvent {}
 
-class FetchArgStateEvent extends ArgStateEvent {}
+class FetchArgStateEvent extends ArgStateEvent {
+  final String? userId;
+  FetchArgStateEvent({this.userId});
+}
+
+class ClaimGuestArgProgressEvent extends ArgStateEvent {
+  final String guestUserId;
+  final String? userId;
+  ClaimGuestArgProgressEvent({required this.guestUserId, this.userId});
+}
 
 class CompleteArgStepEvent extends ArgStateEvent {
   final String stepId;
@@ -43,6 +53,7 @@ class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
 
   ArgStateBloc({required this.repository}) : super(ArgStateInitial()) {
     on<FetchArgStateEvent>(_onFetchArgState);
+    on<ClaimGuestArgProgressEvent>(_onClaimGuestArgProgress);
     on<CompleteArgStepEvent>(_onCompleteArgStep);
     on<FailArgStepEvent>(_onFailArgStep);
 
@@ -57,7 +68,41 @@ class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
   ) async {
     emit(ArgStateLoading());
     try {
+      final storedGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
+      if (storedGuestId != null &&
+          storedGuestId.isNotEmpty &&
+          event.userId != null &&
+          !event.userId!.startsWith('guest_')) {
+        try {
+          final model = await repository.claimGuestProgress(
+            guestUserId: storedGuestId,
+            userId: event.userId,
+          );
+          StorageHelper.setItem(StorageHelper.guestUserIdKey, '');
+          emit(ArgStateLoaded(model));
+          return;
+        } catch (_) {
+          // If claim encounters an error, proceed to standard fetch
+        }
+      }
+
       final model = await repository.fetchState();
+      emit(ArgStateLoaded(model));
+    } catch (e) {
+      emit(ArgStateError(e.toString()));
+    }
+  }
+
+  Future<void> _onClaimGuestArgProgress(
+    ClaimGuestArgProgressEvent event,
+    Emitter<ArgStateStatus> emit,
+  ) async {
+    try {
+      final model = await repository.claimGuestProgress(
+        guestUserId: event.guestUserId,
+        userId: event.userId,
+      );
+      StorageHelper.setItem(StorageHelper.guestUserIdKey, '');
       emit(ArgStateLoaded(model));
     } catch (e) {
       emit(ArgStateError(e.toString()));

@@ -378,6 +378,7 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
           if (targetUrl != null &&
               (targetUrl.contains('/shortUrl/') ||
                   targetUrl.contains('/game-hub') ||
+                  targetUrl.contains('project-echo-game') ||
                   targetUrl.contains('/download'))) {
             onCompleted?.call();
             StorageHelper.openInNewTab(targetUrl);
@@ -390,6 +391,7 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
             final urlString = url.toString();
             if (urlString.contains('/shortUrl/') ||
                 urlString.contains('/game-hub') ||
+                urlString.contains('project-echo-game') ||
                 urlString.contains('/download')) {
               onCompleted?.call();
               StorageHelper.openInNewTab(urlString);

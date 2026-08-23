@@ -38,21 +38,29 @@ class HomeView extends StatelessWidget {
                 ..add(ChatForumLoadEvent()),
         ),
       ],
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        drawer: const Sidebar(),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
+      child: BlocListener<ApplicationBloc, ApplicationState>(
+        listener: (context, state) {
+          if (state is ApplicationContentLoadedState && state.isLoggedIn) {
+            final userId = state.currentUser?.id ?? state.currentUser?.authId;
+            context.read<ArgStateBloc>().add(FetchArgStateEvent(userId: userId));
+          }
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          drawer: const Sidebar(),
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
 
-            if (width < AppBreakpoints.mobile) {
-              return const _MobileLayout();
-            } else if (width < AppBreakpoints.tablet) {
-              return const _TabletLayout();
-            } else {
-              return const _DesktopLayout();
-            }
-          },
+              if (width < AppBreakpoints.mobile) {
+                return const _MobileLayout();
+              } else if (width < AppBreakpoints.tablet) {
+                return const _TabletLayout();
+              } else {
+                return const _DesktopLayout();
+              }
+            },
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:blog/modules/core/arg_state_bloc.dart';
 import 'package:blog/shared/models/arg_state_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,6 +33,15 @@ void main() {
       expect(model.currentStepId, isNull);
       expect(model.isLockedOut, false);
       expect(model.passcodeAttempts, isEmpty);
+    });
+
+    test('verifies ClaimGuestArgProgressEvent carries guestUserId and userId', () {
+      final event = ClaimGuestArgProgressEvent(
+        guestUserId: 'guest_8b2deacb',
+        userId: 'auth0|123',
+      );
+      expect(event.guestUserId, 'guest_8b2deacb');
+      expect(event.userId, 'auth0|123');
     });
   });
 }

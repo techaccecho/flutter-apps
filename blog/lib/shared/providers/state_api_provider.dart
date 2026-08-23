@@ -44,4 +44,21 @@ class StateApiProvider {
     );
     return ArgStateModel.fromJson(response.data as Map<String, dynamic>);
   }
+
+  Future<ArgStateModel> claimGuestProgress({
+    required String guestUserId,
+    String? userId,
+  }) async {
+    final response = await dio.post(
+      '${AppConfig.stateApiBaseUrl}/player/claim-guest',
+      data: {
+        'guestUserId': guestUserId,
+        if (userId != null) 'userId': userId,
+      },
+      options: Options(
+        headers: {'x-api-key': AppConfig.apiKey},
+      ),
+    );
+    return ArgStateModel.fromJson(response.data as Map<String, dynamic>);
+  }
 }
