@@ -17,6 +17,14 @@ void setStorageItem(String key, String value) {
   }
 }
 
+void removeStorageItem(String key) {
+  try {
+    html.window.localStorage.remove(key);
+  } catch (_) {
+    // Ignore storage errors
+  }
+}
+
 void openInNewTab(String url) {
   try {
     html.window.open(url, '_blank');

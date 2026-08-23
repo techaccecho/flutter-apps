@@ -16,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:blog/shared/services/authentication_service.dart';
 import 'package:blog/shared/view/reply_box.dart';
 import 'package:blog/modules/blog/bloc/blog_state.dart';
 
@@ -26,103 +27,123 @@ class BlogPostView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = context.read<ApplicationBloc>().currentUser;
-    final isOwner = currentUser?.id == post.author.id;
-    final isAdmin = currentUser?.role == Strings.roleAdmin;
-    final isReadOnly = post.isAdminRemoved;
-    final canEdit = isOwner && !isReadOnly;
-    final canDelete = isOwner || isAdmin;
-    final canSoftDelete = isAdmin && !post.isAdminRemoved;
-    final canShowComments = !post.isAdminRemoved || isAdmin;
+    return BlocBuilder<ApplicationBloc, ApplicationState>(
+      builder: (context, appState) {
+        String? authSub;
+        try {
+          authSub = context.read<AuthenticationService>().authSub;
+        } catch (_) {}
+        final currentUser = appState is ApplicationContentLoadedState
+            ? appState.currentUser
+            : context.read<ApplicationBloc>().currentUser;
+        final authUserId = (currentUser?.id != null && currentUser!.id.isNotEmpty)
+            ? currentUser.id
+            : (currentUser?.authId != null && currentUser!.authId.isNotEmpty
+                ? currentUser.authId
+                : authSub);
+        final isOwner = currentUser?.id == post.author.id;
+        final isAdmin = currentUser?.role == Strings.roleAdmin;
+        final isReadOnly = post.isAdminRemoved;
+        final canEdit = isOwner && !isReadOnly;
+        final canDelete = isOwner || isAdmin;
+        final canSoftDelete = isAdmin && !post.isAdminRemoved;
+        final canShowComments = !post.isAdminRemoved || isAdmin;
 
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BlogPostHeader(
-            title: post.title,
-            author: post.author,
-            date: post.createdAt.toLocal().toString().split(" ").first,
-            isDraft: post.isDraft,
-            canEdit: canEdit,
-            canDelete: canDelete,
-            canSoftDelete: canSoftDelete,
-            onEdit: () {
-              context.read<BlogBloc>().add(EditBlogPostEvent(blogId: post.id));
-            },
-            onSoftDelete: () => _confirmSoftDelete(context),
-            onDelete: () => _confirmHardDelete(context, isAdmin: isAdmin),
-          ),
+        return Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BlogPostHeader(
+                title: post.title,
+                author: post.author,
+                date: post.createdAt.toLocal().toString().split(" ").first,
+                isDraft: post.isDraft,
+                canEdit: canEdit,
+                canDelete: canDelete,
+                canSoftDelete: canSoftDelete,
+                onEdit: () {
+                  context
+                      .read<BlogBloc>()
+                      .add(EditBlogPostEvent(blogId: post.id));
+                },
+                onSoftDelete: () => _confirmSoftDelete(context),
+                onDelete: () => _confirmHardDelete(context, isAdmin: isAdmin),
+              ),
 
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MarkdownBody(
-                    data: post.isAdminRemoved
-                        ? '*Content removed by administrator*'
-                        : sanitizeBlogContent(post.content),
-                    extensionSet: md.ExtensionSet.gitHubFlavored,
-                    blockSyntaxes: [UrlEmbedSyntax()],
-                    builders: {
-                      'urlembed': UrlEmbedBuilder(
-                        userId: currentUser?.id ?? currentUser?.authId,
-                        onCompleted: () {
-                          context.read<ArgStateBloc>().add(FetchArgStateEvent());
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MarkdownBody(
+                        key: ValueKey('markdown_${post.id}_${authUserId ?? "guest"}'),
+                        data: post.isAdminRemoved
+                            ? '*Content removed by administrator*'
+                            : sanitizeBlogContent(post.content),
+                        extensionSet: md.ExtensionSet.gitHubFlavored,
+                        blockSyntaxes: [UrlEmbedSyntax()],
+                        builders: {
+                          'urlembed': UrlEmbedBuilder(
+                            userId: authUserId,
+                            onCompleted: () {
+                              context
+                                  .read<ArgStateBloc>()
+                                  .add(FetchArgStateEvent(userId: authUserId));
+                            },
+                          ),
                         },
                       ),
-                    },
+                      if (post.isAdminRemoved) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Text(
+                            'This post has been removed by an admin because it broke site rules.',
+                            style: AppTextStyles.bodySmall,
+                          ),
+                        ),
+                      ],
+                      if (canShowComments) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        Text(
+                          'Comments (${post.comments.length})',
+                          style: AppTextStyles.h2,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        if (post.comments.isEmpty)
+                          Text('No comments yet.', style: AppTextStyles.bodySmall)
+                        else
+                          ...post.comments.map(
+                            (comment) => ChatComment(comment: comment),
+                          ),
+                      ],
+                    ],
                   ),
-                  if (post.isAdminRemoved) ...[
-                    const SizedBox(height: AppSpacing.lg),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Text(
-                        'This post has been removed by an admin because it broke site rules.',
-                        style: AppTextStyles.bodySmall,
-                      ),
-                    ),
-                  ],
-                  if (canShowComments) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    Text(
-                      'Comments (${post.comments.length})',
-                      style: AppTextStyles.h2,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    if (post.comments.isEmpty)
-                      Text('No comments yet.', style: AppTextStyles.bodySmall)
-                    else
-                      ...post.comments.map(
-                        (comment) => ChatComment(comment: comment),
-                      ),
-                  ],
-                ],
+                ),
               ),
-            ),
+              if (currentUser != null) ...[
+                BlocBuilder<BlogBloc, BlogState>(
+                  builder: (context, state) {
+                    final isLoading =
+                        state is BlogPostLoadedState && state.isSubmittingComment;
+                    return ReplyBox(
+                      isLoading: isLoading,
+                      action: (String message) =>
+                          _addComment(context, message, currentUser.id),
+                    );
+                  },
+                ),
+              ],
+            ],
           ),
-          if (currentUser != null) ...[
-            BlocBuilder<BlogBloc, BlogState>(
-              builder: (context, state) {
-                final isLoading =
-                    state is BlogPostLoadedState && state.isSubmittingComment;
-                return ReplyBox(
-                  isLoading: isLoading,
-                  action: (String message) =>
-                      _addComment(context, message, currentUser.id),
-                );
-              },
-            )
-          ]
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -303,13 +324,17 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
   }
 
   static String getEffectiveUserId(String? authenticatedUserId) {
-    if (authenticatedUserId != null && authenticatedUserId.isNotEmpty) {
-      return authenticatedUserId;
+    if (authenticatedUserId != null && authenticatedUserId.trim().isNotEmpty) {
+      final cleanAuthId = authenticatedUserId.trim();
+      StorageHelper.removeItem(StorageHelper.guestUserIdKey);
+      return cleanAuthId;
     }
 
     final storedGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
-    if (storedGuestId != null && storedGuestId.isNotEmpty) {
-      return storedGuestId;
+    if (storedGuestId != null &&
+        storedGuestId.trim().isNotEmpty &&
+        storedGuestId.trim().startsWith('guest_')) {
+      return storedGuestId.trim();
     }
 
     final newGuestId = 'guest_${_generateUuid()}';
@@ -322,8 +347,8 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
     var rawUrl = element.textContent.trim();
 
     // Only inject userId and resolve puzzle URL if this is specifically the wordsearch puzzle
-    final isWordSearch =
-        rawUrl.contains('/wordsearch') || rawUrl.contains('wordsearch.html');
+    final isWordSearch = rawUrl.toLowerCase().contains('wordsearch') ||
+        rawUrl.toLowerCase().contains('puzzle');
 
     if (isWordSearch) {
       if (rawUrl.startsWith('/')) {
@@ -332,15 +357,11 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
 
       final resolvedUserId = getEffectiveUserId(userId);
 
-      if (rawUrl.contains(RegExp(r'userId=[^&]+'))) {
-        rawUrl = rawUrl.replaceAll(
-          RegExp(r'userId=[^&]+'),
-          'userId=${Uri.encodeComponent(resolvedUserId)}',
-        );
-      } else {
-        final separator = rawUrl.contains('?') ? '&' : '?';
-        rawUrl =
-            '$rawUrl${separator}userId=${Uri.encodeComponent(resolvedUserId)}';
+      final parsedUri = Uri.tryParse(rawUrl);
+      if (parsedUri != null) {
+        final queryParams = Map<String, String>.from(parsedUri.queryParameters);
+        queryParams['userId'] = resolvedUserId;
+        rawUrl = parsedUri.replace(queryParameters: queryParams).toString();
       }
     }
 
@@ -358,6 +379,7 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
         borderRadius: BorderRadius.circular(4),
       ),
       child: InAppWebView(
+        key: ValueKey(rawUrl),
         initialUrlRequest: URLRequest(url: WebUri(rawUrl)),
         initialSettings: InAppWebViewSettings(
           javaScriptEnabled: true,

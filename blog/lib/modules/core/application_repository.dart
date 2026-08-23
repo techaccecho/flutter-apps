@@ -19,7 +19,24 @@ class ApplicationRepository {
 
   Future<void> initialiseAuth() async {
     final userResponse = await authenticationService.init();
-    _currentUser = userResponse;
+    if (userResponse != null) {
+      _currentUser = userResponse;
+    } else {
+      final authUserId = await authenticationService.getAuthUserId();
+      if (authUserId != null && authUserId.isNotEmpty) {
+        _currentUser = User(
+          id: authUserId,
+          authId: authUserId,
+          email: '',
+          role: 'User',
+          isLocked: false,
+          createdAt: DateTime.now(),
+          lastActivityAt: DateTime.now(),
+        );
+      } else {
+        _currentUser = null;
+      }
+    }
   }
 
   Future<bool> isLoggedIn() async {

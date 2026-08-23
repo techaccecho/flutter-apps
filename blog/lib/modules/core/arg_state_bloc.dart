@@ -78,7 +78,7 @@ class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
             guestUserId: storedGuestId,
             userId: event.userId,
           );
-          StorageHelper.setItem(StorageHelper.guestUserIdKey, '');
+          StorageHelper.removeItem(StorageHelper.guestUserIdKey);
           emit(ArgStateLoaded(model));
           return;
         } catch (_) {

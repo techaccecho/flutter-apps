@@ -10,5 +10,8 @@ class StorageHelper {
   static void setItem(String key, String value) =>
       storage_impl.setStorageItem(key, value);
 
+  static void removeItem(String key) =>
+      storage_impl.removeStorageItem(key);
+
   static void openInNewTab(String url) => storage_impl.openInNewTab(url);
 }

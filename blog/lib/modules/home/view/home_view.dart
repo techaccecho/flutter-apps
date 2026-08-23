@@ -7,6 +7,7 @@ import 'package:blog/modules/chat_forum/bloc/chat_forum_repository.dart';
 import 'package:blog/modules/blog/view/blog_post_landing.dart';
 import 'package:blog/modules/chat_forum/view/chat_forum_view.dart';
 import 'package:blog/modules/core/application.dart';
+import 'package:blog/modules/core/arg_state_bloc.dart';
 import 'package:blog/modules/faq/view/faq_view.dart';
 import 'package:blog/modules/home/model/home_view_state.dart';
 import 'package:blog/modules/profile/view/user_profile_view.dart';
@@ -42,7 +43,9 @@ class HomeView extends StatelessWidget {
         listener: (context, state) {
           if (state is ApplicationContentLoadedState && state.isLoggedIn) {
             final userId = state.currentUser?.id ?? state.currentUser?.authId;
-            context.read<ArgStateBloc>().add(FetchArgStateEvent(userId: userId));
+            try {
+              context.read<ArgStateBloc>().add(FetchArgStateEvent(userId: userId));
+            } catch (_) {}
           }
         },
         child: Scaffold(
