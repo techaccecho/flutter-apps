@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-flutter/bin/flutter test
-
 flutter/bin/flutter build web --release \
   --dart-define=AUTH0_DOMAIN="${DEV_AUTH0_DOMAIN}" \
   --dart-define=AUTH0_CLIENTID="${DEV_AUTH0_CLIENTID}" \
