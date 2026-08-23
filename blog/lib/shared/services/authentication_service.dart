@@ -11,6 +11,9 @@ import 'package:blog/shared/models/user.dart';
 class AuthenticationService extends ChangeNotifier {
   final Auth0Service auth0Service;
   final AuthRepository authRepository;
+  String? _authSub;
+
+  String? get authSub => _authSub;
 
   AuthenticationService({
     required this.authRepository,
@@ -25,7 +28,30 @@ class AuthenticationService extends ChangeNotifier {
       );
 
       if (credentials != null) {
-        return await authRepository.authenticate();
+        try {
+          _authSub = credentials.user.sub;
+        } catch (_) {}
+        notifyListeners();
+        try {
+          final user = await authRepository.authenticate();
+          return user;
+        } catch (authError) {
+          debugPrint(
+            "Failed to fetch backend user profile for auth0 user ($authError). Falling back to Auth0 credentials.",
+          );
+          return User(
+            id: credentials.user.sub,
+            authId: credentials.user.sub,
+            email: credentials.user.email ?? '',
+            alias: credentials.user.nickname ?? credentials.user.name,
+            firstName: credentials.user.givenName,
+            lastName: credentials.user.familyName,
+            role: 'User',
+            isLocked: false,
+            createdAt: DateTime.now(),
+            lastActivityAt: DateTime.now(),
+          );
+        }
       }
 
       return null;
@@ -50,6 +76,8 @@ class AuthenticationService extends ChangeNotifier {
 
   Future<void> logout() async {
     try {
+      _authSub = null;
+      notifyListeners();
       await auth0Service.auth0Web.logout(returnToUrl: AppConfig.redirectUrl);
     } catch (e) {
       debugPrint("Error initiating logout: $e");
@@ -58,7 +86,19 @@ class AuthenticationService extends ChangeNotifier {
 
   Future<bool> isLoggedIn() async {
     try {
-      return await auth0Service.auth0Web.hasValidCredentials();
+      final hasCreds = await auth0Service.auth0Web.hasValidCredentials();
+      if (hasCreds && (_authSub == null || _authSub!.isEmpty)) {
+        try {
+          final creds = await auth0Service.auth0Web.credentials(
+            audience: AppConfig.audience,
+          );
+          final sub = creds.user.sub;
+          if (sub.isNotEmpty) {
+            _authSub = sub;
+          }
+        } catch (_) {}
+      }
+      return hasCreds;
     } catch (e) {
       return false;
     }
@@ -66,11 +106,38 @@ class AuthenticationService extends ChangeNotifier {
 
   Future<String?> getAccessToken() async {
     try {
-      return (await auth0Service.auth0Web.credentials(
+      final creds = await auth0Service.auth0Web.credentials(
         audience: AppConfig.audience,
-      )).accessToken;
+      );
+      try {
+        final sub = creds.user.sub;
+        if (sub.isNotEmpty) {
+          _authSub = sub;
+        }
+      } catch (_) {}
+      return creds.accessToken;
     } catch (e) {
       debugPrint("Error fetching access token: $e");
+      return null;
+    }
+  }
+
+  Future<String?> getAuthUserId() async {
+    if (_authSub != null && _authSub!.isNotEmpty) {
+      return _authSub;
+    }
+    try {
+      final creds = await auth0Service.auth0Web.credentials(
+        audience: AppConfig.audience,
+      );
+      try {
+        final sub = creds.user.sub;
+        if (sub.isNotEmpty) {
+          _authSub = sub;
+        }
+      } catch (_) {}
+      return _authSub;
+    } catch (_) {
       return null;
     }
   }
