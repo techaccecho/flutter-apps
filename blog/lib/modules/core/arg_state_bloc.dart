@@ -1,0 +1,99 @@
+import 'dart:async';
+import 'package:blog/shared/models/arg_state_model.dart';
+import 'package:blog/shared/repositories/arg_state_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+// Events
+abstract class ArgStateEvent {}
+
+class FetchArgStateEvent extends ArgStateEvent {}
+
+class CompleteArgStepEvent extends ArgStateEvent {
+  final String stepId;
+  final String? passcode;
+  CompleteArgStepEvent({required this.stepId, this.passcode});
+}
+
+class FailArgStepEvent extends ArgStateEvent {
+  final String stepId;
+  FailArgStepEvent({required this.stepId});
+}
+
+// States
+abstract class ArgStateStatus {}
+
+class ArgStateInitial extends ArgStateStatus {}
+
+class ArgStateLoading extends ArgStateStatus {}
+
+class ArgStateLoaded extends ArgStateStatus {
+  final ArgStateModel model;
+  ArgStateLoaded(this.model);
+}
+
+class ArgStateError extends ArgStateStatus {
+  final String message;
+  ArgStateError(this.message);
+}
+
+// BLoC
+class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
+  final ArgStateRepository repository;
+  StreamSubscription<ArgStateModel>? _subscription;
+
+  ArgStateBloc({required this.repository}) : super(ArgStateInitial()) {
+    on<FetchArgStateEvent>(_onFetchArgState);
+    on<CompleteArgStepEvent>(_onCompleteArgStep);
+    on<FailArgStepEvent>(_onFailArgStep);
+
+    _subscription = repository.stateStream.listen((model) {
+      emit(ArgStateLoaded(model));
+    });
+  }
+
+  Future<void> _onFetchArgState(
+    FetchArgStateEvent event,
+    Emitter<ArgStateStatus> emit,
+  ) async {
+    emit(ArgStateLoading());
+    try {
+      final model = await repository.fetchState();
+      emit(ArgStateLoaded(model));
+    } catch (e) {
+      emit(ArgStateError(e.toString()));
+    }
+  }
+
+  Future<void> _onCompleteArgStep(
+    CompleteArgStepEvent event,
+    Emitter<ArgStateStatus> emit,
+  ) async {
+    try {
+      final model = await repository.completeStep(
+        stepId: event.stepId,
+        passcode: event.passcode,
+      );
+      emit(ArgStateLoaded(model));
+    } catch (e) {
+      emit(ArgStateError(e.toString()));
+    }
+  }
+
+  Future<void> _onFailArgStep(
+    FailArgStepEvent event,
+    Emitter<ArgStateStatus> emit,
+  ) async {
+    try {
+      final model = await repository.failStep(stepId: event.stepId);
+      emit(ArgStateLoaded(model));
+    } catch (e) {
+      emit(ArgStateError(e.toString()));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    return super.close();
+  }
+}

@@ -339,7 +339,14 @@ class _BlogPostHeaderCreateState extends State<BlogPostCreateView> {
                     data: sanitizeBlogContent(_controller.text),
                     extensionSet: md.ExtensionSet.gitHubFlavored,
                     blockSyntaxes: [UrlEmbedSyntax()],
-                    builders: {'urlembed': UrlEmbedBuilder()},
+                    builders: {
+                      'urlembed': UrlEmbedBuilder(
+                        userId: context
+                            .read<ApplicationBloc>()
+                            .currentUser
+                            ?.id,
+                      ),
+                    },
                   ),
                 ),
               )

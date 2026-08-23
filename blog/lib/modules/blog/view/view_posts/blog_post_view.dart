@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:blog/modules/blog/model/blog_post.dart';
 import 'package:blog/modules/blog/bloc/blog_bloc.dart';
 import 'package:blog/modules/blog/bloc/blog_event.dart';
@@ -5,8 +6,11 @@ import 'package:blog/modules/blog/view/view_posts/blog_post_header.dart';
 import 'package:blog/modules/blog/util/blog_content.dart';
 import 'package:blog/modules/chat_forum/view/chat_comment.dart';
 import 'package:blog/modules/core/application.dart';
+import 'package:blog/modules/core/arg_state_bloc.dart';
 import 'package:blog/resources/app_strings.dart';
 import 'package:blog/resources/resources.dart';
+import 'package:blog/shared/services/storage_helper.dart';
+import 'package:blog/shared/util/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -62,7 +66,14 @@ class BlogPostView extends StatelessWidget {
                         : sanitizeBlogContent(post.content),
                     extensionSet: md.ExtensionSet.gitHubFlavored,
                     blockSyntaxes: [UrlEmbedSyntax()],
-                    builders: {'urlembed': UrlEmbedBuilder()},
+                    builders: {
+                      'urlembed': UrlEmbedBuilder(
+                        userId: currentUser?.id ?? currentUser?.authId,
+                        onCompleted: () {
+                          context.read<ArgStateBloc>().add(FetchArgStateEvent());
+                        },
+                      ),
+                    },
                   ),
                   if (post.isAdminRemoved) ...[
                     const SizedBox(height: AppSpacing.lg),
@@ -256,10 +267,84 @@ class BlogPostView extends StatelessWidget {
 }
 
 class UrlEmbedBuilder extends MarkdownElementBuilder {
+  final String? userId;
+  final VoidCallback? onCompleted;
+  static String? _sessionGuestId;
+
+  UrlEmbedBuilder({this.userId, this.onCompleted});
+
+  static String _generateUuid() {
+    final random = Random();
+    final values = List<int>.generate(16, (i) => random.nextInt(256));
+    values[6] = (values[6] & 0x0f) | 0x40; // v4
+    values[8] = (values[8] & 0x3f) | 0x80; // variant
+    return [
+      values
+          .sublist(0, 4)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(),
+      values
+          .sublist(4, 6)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(),
+      values
+          .sublist(6, 8)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(),
+      values
+          .sublist(8, 10)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(),
+      values
+          .sublist(10, 16)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(),
+    ].join('-');
+  }
+
+  static String getEffectiveUserId(String? authenticatedUserId) {
+    if (authenticatedUserId != null && authenticatedUserId.isNotEmpty) {
+      return authenticatedUserId;
+    }
+
+    final storedGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
+    if (storedGuestId != null && storedGuestId.isNotEmpty) {
+      return storedGuestId;
+    }
+
+    final newGuestId = 'guest_${_generateUuid()}';
+    StorageHelper.setItem(StorageHelper.guestUserIdKey, newGuestId);
+    return newGuestId;
+  }
+
   @override
   Widget visitElementAfter(md.Element element, TextStyle? preferredStyle) {
-    final url = element.textContent.trim();
-    final uri = Uri.tryParse(url);
+    var rawUrl = element.textContent.trim();
+
+    // Only inject userId and resolve puzzle URL if this is specifically the wordsearch puzzle
+    final isWordSearch =
+        rawUrl.contains('/wordsearch') || rawUrl.contains('wordsearch.html');
+
+    if (isWordSearch) {
+      if (rawUrl.startsWith('/')) {
+        rawUrl = '${AppConfig.puzzleAppBaseUrl}$rawUrl';
+      }
+
+      final resolvedUserId = getEffectiveUserId(userId);
+
+      if (rawUrl.contains(RegExp(r'userId=[^&]+'))) {
+        rawUrl = rawUrl.replaceAll(
+          RegExp(r'userId=[^&]+'),
+          'userId=${Uri.encodeComponent(resolvedUserId)}',
+        );
+      } else {
+        final separator = rawUrl.contains('?') ? '&' : '?';
+        rawUrl =
+            '$rawUrl${separator}userId=${Uri.encodeComponent(resolvedUserId)}';
+      }
+    }
+
+    final uri = Uri.tryParse(rawUrl);
 
     if (uri == null || !(uri.isScheme('http') || uri.isScheme('https'))) {
       return const SizedBox();
@@ -268,12 +353,49 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
     return Container(
       height: 800,
       margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: InAppWebView(
-        initialUrlRequest: URLRequest(url: WebUri(url)),
+        initialUrlRequest: URLRequest(url: WebUri(rawUrl)),
         initialSettings: InAppWebViewSettings(
           javaScriptEnabled: true,
           mediaPlaybackRequiresUserGesture: false,
+          supportMultipleWindows: true,
+          javaScriptCanOpenWindowsAutomatically: true,
         ),
+        onCreateWindow: (controller, createWindowAction) async {
+          final targetUrl = createWindowAction.request.url?.toString();
+          if (targetUrl != null && targetUrl.isNotEmpty) {
+            onCompleted?.call();
+            StorageHelper.openInNewTab(targetUrl);
+          }
+          return true;
+        },
+        shouldOverrideUrlLoading: (controller, navigationAction) async {
+          final targetUrl = navigationAction.request.url?.toString();
+          if (targetUrl != null &&
+              (targetUrl.contains('/shortUrl/') ||
+                  targetUrl.contains('/game-hub') ||
+                  targetUrl.contains('/download'))) {
+            onCompleted?.call();
+            StorageHelper.openInNewTab(targetUrl);
+            return NavigationActionPolicy.CANCEL;
+          }
+          return NavigationActionPolicy.ALLOW;
+        },
+        onLoadStop: (controller, url) {
+          if (isWordSearch && url != null) {
+            final urlString = url.toString();
+            if (urlString.contains('/shortUrl/') ||
+                urlString.contains('/game-hub') ||
+                urlString.contains('/download')) {
+              onCompleted?.call();
+              StorageHelper.openInNewTab(urlString);
+            }
+          }
+        },
       ),
     );
   }
