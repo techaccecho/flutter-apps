@@ -564,12 +564,14 @@ class _UserProfileViewState extends State<UserProfileView> {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
         border: Border.all(color: AppColors.border),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(AppSpacing.md),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(4),
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(AppSpacing.md),
         leading: Icon(
           item.isPost ? Icons.book : Icons.forum,
           color: AppColors.primary,
@@ -622,6 +624,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             );
           }
         },
+      ),
       ),
     );
   }

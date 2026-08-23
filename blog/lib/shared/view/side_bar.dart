@@ -66,9 +66,12 @@ class _SidebarState extends State<Sidebar> {
                     children: [
                       Text(Strings.welcome, style: AppTextStyles.body),
                       const SizedBox(width: 12), // Native built-in spacing
-                      Text(
-                        state.currentUser?.displayName ?? '',
-                        style: AppTextStyles.link,
+                      Expanded(
+                        child: Text(
+                          state.currentUser?.displayName ?? '',
+                          style: AppTextStyles.link,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
