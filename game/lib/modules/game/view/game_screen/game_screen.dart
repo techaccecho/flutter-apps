@@ -5,24 +5,19 @@ import 'package:game/modules/game/view/embed_game/embed_game.dart';
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
 
-  final String godotBuildUrl = 'https://your-game-host.com/build/index.html';
+  // Bundled under web/godot-game/ so it ships with the Flutter web build.
+  final String godotBuildUrl = 'godot-game/index.html';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ARG Terminal Access')),
+      appBar: AppBar(title: const Text('Project Echo')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Classified Entry Point',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-
               Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 960),
@@ -41,10 +36,9 @@ class GameScreen extends StatelessWidget {
                   child: EmbedGame(gameUrl: godotBuildUrl),
                 ),
               ),
-
               const SizedBox(height: 24),
               const Text(
-                'Use arrow keys / WASD to control. Solve the cipher inside to proceed.',
+                'Use arrow keys / WASD to control.',
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ],

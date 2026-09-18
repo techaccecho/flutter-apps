@@ -1,0 +1,145 @@
+import 'package:dio/dio.dart';
+import 'package:game/shared/util/api/api_response.dart';
+import 'package:game/shared/util/user/user.dart';
+
+class AuthApiProvider {
+  final Dio _dio;
+
+  AuthApiProvider(this._dio);
+
+  Future<ApiResponse<User>> authenticate() async {
+    try {
+      final response = await _dio.get('/auth');
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<User>> getUser(String userId) async {
+    try {
+      final response = await _dio.get('/users/$userId');
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<List<User>>> getUsers({int? limit, String? cursor}) async {
+    try {
+      final response = await _dio.get(
+        '/users',
+        queryParameters: {'limit': ?limit, 'cursor': ?cursor},
+      );
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonList) =>
+            (jsonList as List).map((item) => User.fromJson(item)).toList(),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<List<User>>> getArchivedUsers({
+    int? limit,
+    String? cursor,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/users/archived',
+        queryParameters: {'limit': ?limit, 'cursor': ?cursor},
+      );
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonList) =>
+            (jsonList as List).map((item) => User.fromJson(item)).toList(),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<User>> getArchivedUser(String userId) async {
+    try {
+      final response = await _dio.get('/users/archived/$userId');
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<ApiResponse<User>> updateUser(
+    String userId,
+    Map<String, dynamic> updateData,
+  ) async {
+    try {
+      final response = await _dio.patch('/users/$userId', data: updateData);
+
+      return ApiResponse.fromJson(
+        response.data,
+        (jsonMap) => User.fromJson(jsonMap),
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Exception _handleDioError(DioException e) {
+    if (e.response != null) {
+      if (e.response!.statusCode == 500) {
+        return Exception('A server error occurred. Please try again later.');
+      }
+
+      if (e.response?.data is Map) {
+        final data = e.response!.data;
+
+        if (data['code'] == 'INTERNAL_SERVER_ERROR') {
+          return Exception('A server error occurred. Please try again later.');
+        }
+
+        if (data.containsKey('details') &&
+            data['details'] is List &&
+            (data['details'] as List).isNotEmpty) {
+          final details = data['details'] as List;
+          final messages = details
+              .map((detail) {
+                if (detail is Map && detail.containsKey('message')) {
+                  return detail['message'];
+                }
+                return null;
+              })
+              .where((msg) => msg != null)
+              .join(', ');
+          if (messages.isNotEmpty) {
+            return Exception(messages);
+          }
+        }
+
+        if (data.containsKey('code')) {
+          return Exception('[${data['code']}] ${data['message']}');
+        }
+
+        if (data.containsKey('message')) {
+          return Exception(data['message']);
+        }
+      }
+    }
+
+    return Exception('Network connectivity error occurred');
+  }
+}
