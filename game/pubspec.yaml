@@ -35,6 +35,15 @@ flutter:
 
   assets:
     - assets/images/gameplay_screenshot.png
+    - assets/images/world_hearth_hollow.png
+    - assets/images/world_cliffside_path.png
+    - assets/images/world_corrupted_grove.png
+    - assets/images/world_haven.png
+    - assets/images/cast_traveler.png
+    - assets/images/cast_blacksmith.png
+    - assets/images/cast_forester.png
+    - assets/images/cast_cedric.png
+    - assets/images/cast_guardian.png
 
   fonts:
     - family: DataType

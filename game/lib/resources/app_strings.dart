@@ -17,6 +17,7 @@ class Strings {
 
   // Landing page
   static const heroTitle = "Project Echo";
+  static const heroSectionHeading = "Enter Hearth Hollow";
   static const heroTagline =
       "Hearth Hollow is where the game still trusts you. The Haven is where it stops needing to.";
   static const btnPlayNow = "Play Now";
