@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:game/modules/game/view/game_screen/game_screen.dart';
 import 'package:game/resources/app_strings.dart';
 import 'package:game/resources/resources.dart';
@@ -236,97 +238,288 @@ class _TopHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: _ScallopedEdgeClipper(),
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xff3d2914), AppColors.primaryDark],
+          ),
+        ),
+        padding: const EdgeInsets.only(
+          top: AppSpacing.lg,
+          left: AppSpacing.lg,
+          right: AppSpacing.lg,
+          bottom: AppSpacing.xl,
+        ),
+        child: Column(
+          children: [
+            const _Crest(),
+            const SizedBox(height: AppSpacing.sm),
+            const _Wordmark(),
+            const SizedBox(height: AppSpacing.lg),
+            _NavBar(
+              onHomeTap: onHomeTap,
+              onWorldTap: onWorldTap,
+              onCastTap: onCastTap,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            const _PlayNowButton(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Hexagonal crest badge that anchors the wordmark, echoing Hearth Hollow's hearth-fire motif.
+class _Crest extends StatelessWidget {
+  const _Crest();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: CustomPaint(
+        painter: _CrestPainter(),
+        child: const Center(
+          child: Icon(
+            Icons.local_fire_department,
+            color: AppColors.primary,
+            size: 26,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CrestPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final path = Path();
+    for (var i = 0; i < 6; i++) {
+      final angle = (math.pi / 3) * i - math.pi / 2;
+      final point = Offset(
+        center.dx + radius * math.cos(angle),
+        center.dy + radius * math.sin(angle),
+      );
+      i == 0
+          ? path.moveTo(point.dx, point.dy)
+          : path.lineTo(point.dx, point.dy);
+    }
+    path.close();
+
+    canvas.drawPath(path, Paint()..color = AppColors.primaryDark);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = AppColors.primary
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
+    );
+    canvas.drawCircle(
+      center,
+      radius - 9,
+      Paint()
+        ..color = AppColors.primary.withValues(alpha: 0.45)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _Wordmark extends StatelessWidget {
+  const _Wordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const _Flourish(),
+        const SizedBox(width: AppSpacing.sm),
+        Text(
+          Strings.appName.toUpperCase(),
+          style: AppTextStyles.title.copyWith(
+            color: AppColors.background,
+            fontSize: 28,
+            letterSpacing: 5,
+            shadows: const [
+              Shadow(
+                color: Colors.black45,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        const _Flourish(flipped: true),
+      ],
+    );
+  }
+}
+
+/// Fading line + diamond ornament that flanks the wordmark like a banner scroll.
+class _Flourish extends StatelessWidget {
+  final bool flipped;
+  const _Flourish({this.flipped = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final line = Container(
+      width: 36,
+      height: 2,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary.withValues(alpha: 0), AppColors.primary],
+        ),
+      ),
+    );
+    final diamond = Transform.rotate(
+      angle: math.pi / 4,
+      child: Container(width: 6, height: 6, color: AppColors.primary),
+    );
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: flipped
+          ? [
+              diamond,
+              const SizedBox(width: 6),
+              Transform.flip(flipX: true, child: line),
+            ]
+          : [line, const SizedBox(width: 6), diamond],
+    );
+  }
+}
+
+class _NavBar extends StatelessWidget {
+  final VoidCallback onHomeTap;
+  final VoidCallback onWorldTap;
+  final VoidCallback onCastTap;
+
+  const _NavBar({
+    required this.onHomeTap,
+    required this.onWorldTap,
+    required this.onCastTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      color: AppColors.background,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: Column(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: AppColors.primary.withValues(alpha: 0.4)),
+          bottom: BorderSide(color: AppColors.primary.withValues(alpha: 0.4)),
+        ),
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
+          _NavLink(label: 'Home', onTap: onHomeTap),
+          const _NavDot(),
+          _NavLink(label: 'World', onTap: onWorldTap),
+          const _NavDot(),
+          _NavLink(label: 'Cast', onTap: onCastTap),
+          const SizedBox(width: AppSpacing.md),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.primaryDark,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.primary, width: 2),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.shield, color: AppColors.primary, size: 22),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  Strings.appName.toUpperCase(),
-                  style: AppTextStyles.title.copyWith(
-                    color: AppColors.background,
-                    fontSize: 22,
-                  ),
-                ),
-              ],
-            ),
+            width: 1,
+            height: 14,
+            color: AppColors.background.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: AppSpacing.md),
-          Container(
-            width: double.infinity,
-            color: AppColors.primaryDark,
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.sm,
-              horizontal: AppSpacing.md,
-            ),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                _NavPill(label: 'Home', onTap: onHomeTap),
-                _NavPill(label: 'World', onTap: onWorldTap),
-                _NavPill(label: 'Cast', onTap: onCastTap),
-                const SizedBox(width: AppSpacing.sm),
-                const _AuthAction(),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const _PlayNowButton(),
+          const SizedBox(width: AppSpacing.md),
+          const _AuthAction(),
         ],
       ),
     );
   }
 }
 
-class _NavPill extends StatelessWidget {
+class _NavDot extends StatelessWidget {
+  const _NavDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Transform.rotate(
+        angle: math.pi / 4,
+        child: Container(
+          width: 5,
+          height: 5,
+          color: AppColors.primary.withValues(alpha: 0.6),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavLink extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-  const _NavPill({required this.label, required this.onTap});
+  const _NavLink({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border, width: 1.5),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         child: Text(
           label.toUpperCase(),
           style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.background,
             fontWeight: FontWeight.bold,
+            letterSpacing: 2,
           ),
         ),
       ),
     );
   }
+}
+
+/// Cuts a scalloped, banner-like edge into the header's bottom so it reads as a
+/// carved sign rather than a flat rectangle.
+class _ScallopedEdgeClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    const scallopWidth = 26.0;
+    const scallopDepth = 10.0;
+    final path = Path()..lineTo(0, size.height - scallopDepth);
+    final count = (size.width / scallopWidth).ceil();
+    for (var i = 0; i < count; i++) {
+      final midX = i * scallopWidth + scallopWidth / 2;
+      final endX = (i + 1) * scallopWidth;
+      path.quadraticBezierTo(
+        midX,
+        size.height,
+        endX,
+        size.height - scallopDepth,
+      );
+    }
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 class _PlayNowButton extends StatelessWidget {
@@ -338,13 +531,15 @@ class _PlayNowButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textPrimary,
-        elevation: 3,
+        elevation: 8,
+        shadowColor: Colors.black45,
+        minimumSize: const Size(210, 58),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.primaryDark, width: 2),
+          borderRadius: BorderRadius.circular(26),
+          side: const BorderSide(color: AppColors.primaryDark, width: 3),
         ),
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl,
+          horizontal: AppSpacing.xl + AppSpacing.sm,
           vertical: AppSpacing.md,
         ),
       ),
@@ -353,12 +548,57 @@ class _PlayNowButton extends StatelessWidget {
           context,
         ).push(MaterialPageRoute(builder: (_) => const GameScreen()));
       },
-      child: Text(
-        Strings.btnPlayNow.toUpperCase(),
-        style: AppTextStyles.body.copyWith(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.play_arrow_rounded, size: 24),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            Strings.btnPlayNow.toUpperCase(),
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              letterSpacing: 1.8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CardSurface extends StatefulWidget {
+  final Widget child;
+  const _CardSurface({required this.child});
+
+  @override
+  State<_CardSurface> createState() => _CardSurfaceState();
+}
+
+class _CardSurfaceState extends State<_CardSurface> {
+  bool _hovered = false;
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = _pressed ? 0.988 : (_hovered ? 1.012 : 1.0);
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() {
+        _hovered = false;
+        _pressed = false;
+      }),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedScale(
+          scale: scale,
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOut,
+          child: widget.child,
         ),
       ),
     );
@@ -366,34 +606,31 @@ class _PlayNowButton extends StatelessWidget {
 }
 
 class _SectionBanner extends StatelessWidget {
+  final String eyebrow;
   final String title;
   final String subtitle;
-  const _SectionBanner({required this.title, required this.subtitle});
+  const _SectionBanner({
+    required this.eyebrow,
+    required this.title,
+    required this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.primaryDark,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            title.toUpperCase(),
-            style: AppTextStyles.h1.copyWith(
-              color: AppColors.background,
-              letterSpacing: 1,
-            ),
+        _Eyebrow(text: eyebrow),
+        const SizedBox(height: AppSpacing.sm),
+        Text(title, style: AppTextStyles.title.copyWith(fontSize: 34)),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          subtitle,
+          style: AppTextStyles.body.copyWith(
+            fontStyle: FontStyle.italic,
+            fontSize: 16,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(subtitle, style: AppTextStyles.body),
       ],
     );
   }
@@ -407,84 +644,226 @@ class _HeroSection extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isNarrow = constraints.maxWidth < AppBreakpoints.tablet;
-        final screenshot = Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border, width: 4),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 16,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Image.asset(
-            'assets/images/gameplay_screenshot.png',
-            fit: BoxFit.cover,
-          ),
-        );
-        final copy = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              Strings.heroSectionHeading,
-              style: AppTextStyles.title.copyWith(fontSize: 34),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              Strings.heroTagline,
-              style: AppTextStyles.body.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            for (final plate in _levelPlates)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.circle, size: 8, color: plate.accent),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        '${plate.title} — ${plate.mood.join(', ').toLowerCase()}',
-                        style: AppTextStyles.body,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: AppSpacing.lg),
-            const _PlayNowButton(),
-          ],
+        const screenshot = _FramedScreenshot();
+        const copy = _HeroCopy();
+        final sectionPadding = EdgeInsets.symmetric(
+          horizontal: isNarrow ? AppSpacing.md : AppSpacing.xl,
+          vertical: isNarrow ? AppSpacing.xl + AppSpacing.sm : AppSpacing.xl,
         );
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.xl),
+          padding: sectionPadding,
           child: isNarrow
-              ? Column(
+              ? const Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    screenshot,
-                    const SizedBox(height: AppSpacing.xl),
                     copy,
+                    SizedBox(height: AppSpacing.xl),
+                    Center(child: screenshot),
                   ],
                 )
-              : Row(
+              : const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: copy),
-                    const SizedBox(width: AppSpacing.xl),
-                    Expanded(child: screenshot),
+                    Expanded(flex: 3, child: copy),
+                    SizedBox(width: AppSpacing.xl),
+                    Expanded(flex: 2, child: screenshot),
                   ],
                 ),
         );
       },
+    );
+  }
+}
+
+class _HeroCopy extends StatelessWidget {
+  const _HeroCopy();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _Eyebrow(text: _levelPlates.first.order),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          Strings.heroSectionHeading,
+          style: AppTextStyles.title.copyWith(fontSize: 34),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          Strings.heroTagline,
+          style: AppTextStyles.body.copyWith(
+            fontStyle: FontStyle.italic,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: const [
+            _FeatureChip(icon: Icons.map, label: '4 Worlds to Explore'),
+            _FeatureChip(icon: Icons.groups, label: '5 Characters to Meet'),
+            _FeatureChip(
+              icon: Icons.warning_amber_rounded,
+              label: "A Story That's Hiding Something",
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        const _PlayNowButton(),
+      ],
+    );
+  }
+}
+
+/// Small uppercase label with a leading gold rule, echoing the header's flourish motif.
+class _Eyebrow extends StatelessWidget {
+  final String text;
+  const _Eyebrow({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 24, height: 2, color: AppColors.primaryDark),
+        const SizedBox(width: AppSpacing.xs),
+        Text(
+          text.toUpperCase(),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.primaryDark,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Short, punchy hook badge — a scannable selling point instead of a paragraph.
+class _FeatureChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _FeatureChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.primaryDark),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Size-capped screenshot with gold corner brackets and a museum-style caption,
+/// so the live gameplay art reads as a framed plate rather than a raw image dump.
+class _FramedScreenshot extends StatelessWidget {
+  const _FramedScreenshot();
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: AppColors.border, width: 3),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 16,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    'assets/images/gameplay_screenshot.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const _CornerBracket(alignment: Alignment.topLeft),
+                const _CornerBracket(alignment: Alignment.topRight),
+                const _CornerBracket(alignment: Alignment.bottomLeft),
+                const _CornerBracket(alignment: Alignment.bottomRight),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Fig. I — Hearth Hollow, live from the build',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodySmall.copyWith(
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CornerBracket extends StatelessWidget {
+  final Alignment alignment;
+  const _CornerBracket({required this.alignment});
+
+  @override
+  Widget build(BuildContext context) {
+    final isTop = alignment.y < 0;
+    final isLeft = alignment.x < 0;
+    const side = BorderSide(color: AppColors.primary, width: 3);
+    return Align(
+      alignment: alignment,
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            border: Border(
+              top: isTop ? side : BorderSide.none,
+              bottom: !isTop ? side : BorderSide.none,
+              left: isLeft ? side : BorderSide.none,
+              right: !isLeft ? side : BorderSide.none,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -494,116 +873,168 @@ class _WorldSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: AppColors.surface,
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.xl,
-        horizontal: AppSpacing.lg,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionBanner(
-            title: Strings.sectionWorldTitle,
-            subtitle: Strings.sectionWorldIntro,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < AppBreakpoints.tablet;
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border(
+              top: BorderSide(
+                color: AppColors.primaryDark.withValues(alpha: 0.25),
+              ),
+              bottom: BorderSide(
+                color: AppColors.primaryDark.withValues(alpha: 0.25),
+              ),
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Wrap(
-            spacing: AppSpacing.lg,
-            runSpacing: AppSpacing.lg,
+          padding: EdgeInsets.symmetric(
+            vertical: isNarrow ? AppSpacing.xl + AppSpacing.sm : AppSpacing.xl,
+            horizontal: isNarrow ? AppSpacing.md : AppSpacing.lg,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final plate in _levelPlates) _PlateCard(plate: plate),
+              _SectionBanner(
+                eyebrow: 'Part One',
+                title: Strings.sectionWorldTitle,
+                subtitle: Strings.sectionWorldIntro,
+              ),
+              SizedBox(height: isNarrow ? AppSpacing.lg : AppSpacing.xl),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: AppSpacing.lg,
+                runSpacing: AppSpacing.lg,
+                children: [
+                  for (final plate in _levelPlates)
+                    SizedBox(width: 240, child: _WorldPlaque(plate: plate)),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-class _PlateCard extends StatelessWidget {
+/// Codex-style select tile inspired by classic RPG world/character-select
+/// screens: a carved plaque frame, the art feathered so it fades into the
+/// frame instead of ending in a hard rectangle, and just a title + mood line.
+class _WorldPlaque extends StatefulWidget {
   final _LevelPlate plate;
-  const _PlateCard({required this.plate});
+  const _WorldPlaque({required this.plate});
+
+  @override
+  State<_WorldPlaque> createState() => _WorldPlaqueState();
+}
+
+class _WorldPlaqueState extends State<_WorldPlaque> {
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 320,
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: plate.accent, width: 2),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Image.asset(plate.imageAsset, fit: BoxFit.cover),
+    final plate = widget.plate;
+    final borderColor = _hovered ? AppColors.primaryDark : AppColors.border;
+    final plaqueShadow = _hovered
+        ? const [
+            BoxShadow(
+              color: Colors.black38,
+              blurRadius: 16,
+              offset: Offset(0, 8),
+            ),
+          ]
+        : const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 14,
+              offset: Offset(0, 6),
+            ),
+          ];
+    return _CardSurface(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: borderColor, width: 3),
+            boxShadow: plaqueShadow,
           ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  plate.order,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: plate.accent,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(plate.title, style: AppTextStyles.h2),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  plate.tagline,
-                  style: AppTextStyles.body.copyWith(
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Wrap(
-                  spacing: AppSpacing.xs,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    for (final tag in plate.mood)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: plate.accent.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          tag,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: plate.accent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: ShaderMask(
+                        blendMode: BlendMode.dstIn,
+                        shaderCallback: (rect) => const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white,
+                            Colors.white,
+                            Colors.transparent,
+                          ],
+                          stops: [0, 0.7, 1],
+                        ).createShader(rect),
+                        child: Image.asset(plate.imageAsset, fit: BoxFit.cover),
                       ),
+                    ),
+                    const _CornerBracket(alignment: Alignment.topLeft),
+                    const _CornerBracket(alignment: Alignment.topRight),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  '"${plate.quote}"',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    fontStyle: FontStyle.italic,
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.sm,
+                  horizontal: AppSpacing.xs,
                 ),
-              ],
-            ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Transform.rotate(
+                          angle: math.pi / 4,
+                          child: Container(
+                            width: 5,
+                            height: 5,
+                            color: plate.accent,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(plate.title, style: AppTextStyles.h3),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      plate.mood.join(' · ').toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -614,93 +1045,137 @@ class _CastSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: AppColors.background,
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.xl,
-        horizontal: AppSpacing.lg,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionBanner(
-            title: Strings.sectionCastTitle,
-            subtitle: Strings.sectionCastIntro,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < AppBreakpoints.tablet;
+        return Container(
+          width: double.infinity,
+          color: AppColors.background,
+          padding: EdgeInsets.symmetric(
+            vertical: isNarrow ? AppSpacing.xl + AppSpacing.sm : AppSpacing.xl,
+            horizontal: isNarrow ? AppSpacing.md : AppSpacing.lg,
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Wrap(
-            spacing: AppSpacing.lg,
-            runSpacing: AppSpacing.lg,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final member in _castMembers) _CastCard(member: member),
+              _SectionBanner(
+                eyebrow: 'Part Two',
+                title: Strings.sectionCastTitle,
+                subtitle: Strings.sectionCastIntro,
+              ),
+              SizedBox(height: isNarrow ? AppSpacing.md : AppSpacing.lg),
+              Wrap(
+                spacing: AppSpacing.lg,
+                runSpacing: AppSpacing.lg,
+                children: [
+                  for (final member in _castMembers) _CastCard(member: member),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-class _CastCard extends StatelessWidget {
+class _CastCard extends StatefulWidget {
   final _CastMember member;
   const _CastCard({required this.member});
 
   @override
+  State<_CastCard> createState() => _CastCardState();
+}
+
+class _CastCardState extends State<_CastCard> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 260,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AspectRatio(
-            aspectRatio: 4 / 5,
-            child: Image.asset(member.imageAsset, fit: BoxFit.cover),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 4,
-                  width: 48,
-                  decoration: BoxDecoration(
-                    color: member.accent,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  member.role,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: member.accent,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(member.name, style: AppTextStyles.h3),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  member.tagline,
-                  style: AppTextStyles.body.copyWith(
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(member.description, style: AppTextStyles.bodySmall),
-              ],
+    final member = widget.member;
+    final roleColor = Color.alphaBlend(
+      AppColors.primaryDark.withValues(alpha: 0.28),
+      member.accent,
+    );
+
+    return _CardSurface(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          width: 260,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _hovered ? AppColors.primaryDark : AppColors.border,
+              width: 1,
             ),
+            boxShadow: _hovered
+                ? const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 14,
+                      offset: Offset(0, 8),
+                    ),
+                  ]
+                : const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
           ),
-        ],
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AspectRatio(
+                aspectRatio: 4 / 5,
+                child: Image.asset(member.imageAsset, fit: BoxFit.cover),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 4,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: member.accent,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      member.role,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: roleColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(member.name, style: AppTextStyles.h3),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      member.tagline,
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textPrimary,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
