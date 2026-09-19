@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: Strings.appName,
-        theme: AppTheme.dark(),
+        theme: AppTheme.light(),
         home: const HomeView(),
       ),
     );

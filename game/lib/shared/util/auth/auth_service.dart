@@ -12,6 +12,20 @@ class AuthService extends ChangeNotifier {
   final Auth0Service auth0Service;
   final AuthRepository authRepository;
   String? _authSub;
+  bool _didLogAuthDisabled = false;
+
+  bool get _authEnabled =>
+      AppConfig.domain.isNotEmpty && AppConfig.clientId.isNotEmpty;
+
+  void _logAuthDisabledOnce() {
+    if (_didLogAuthDisabled) {
+      return;
+    }
+    _didLogAuthDisabled = true;
+    debugPrint(
+      'Auth0 disabled: AUTH0_DOMAIN/AUTH0_CLIENTID are not configured. Running in local preview mode.',
+    );
+  }
 
   String? get authSub => _authSub;
 
@@ -21,6 +35,11 @@ class AuthService extends ChangeNotifier {
   }) : auth0Service = auth0Service ?? Auth0Service();
 
   Future<User?> init() async {
+    if (!_authEnabled) {
+      _logAuthDisabledOnce();
+      return null;
+    }
+
     try {
       final Credentials? credentials = await auth0Service.auth0Web.onLoad(
         audience: AppConfig.audience,
@@ -64,6 +83,11 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> login() async {
+    if (!_authEnabled) {
+      _logAuthDisabledOnce();
+      return;
+    }
+
     try {
       await auth0Service.auth0Web.loginWithRedirect(
         redirectUrl: AppConfig.redirectUrl,
@@ -75,6 +99,13 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    if (!_authEnabled) {
+      _authSub = null;
+      notifyListeners();
+      _logAuthDisabledOnce();
+      return;
+    }
+
     try {
       _authSub = null;
       notifyListeners();
@@ -85,6 +116,10 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<bool> isLoggedIn() async {
+    if (!_authEnabled) {
+      return false;
+    }
+
     try {
       final hasCreds = await auth0Service.auth0Web.hasValidCredentials();
       if (hasCreds && (_authSub == null || _authSub!.isEmpty)) {
@@ -105,6 +140,10 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<String?> getAccessToken() async {
+    if (!_authEnabled) {
+      return null;
+    }
+
     try {
       final creds = await auth0Service.auth0Web.credentials(
         audience: AppConfig.audience,
@@ -123,6 +162,10 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<String?> getAuthUserId() async {
+    if (!_authEnabled) {
+      return null;
+    }
+
     if (_authSub != null && _authSub!.isNotEmpty) {
       return _authSub;
     }

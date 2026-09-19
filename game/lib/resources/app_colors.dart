@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Base (aged parchment, matches a weathered adventurer's map)
-  static const background = Color(0xfff3e6c8);
-  static const surface = Color(0xffe6d3a3);
+  static const background = Color(0xfff6efe0);
+  static const surface = Color(0xffebdcc3);
+  static const card = Color(0xfffffdf8);
 
   // Primary (carved-wood trim / golden-hour amber)
   static const primary = Color(0xffd79a3b);
-  static const primaryDark = Color(0xff5a3d20);
+  static const primaryDark = Color(0xff4a3016);
 
   // Text
-  static const textPrimary = Color(0xff3b2a17);
-  static const textSecondary = Color(0xff6b5540);
-  static const textMuted = Color(0xff8c7a63);
+  static const textPrimary = Color(0xff23160a);
+  static const textSecondary = Color(0xff57422f);
+  static const textMuted = Color(0xff7f6a54);
 
   // Borders / dividers
-  static const border = Color(0xff5a3d20);
+  static const border = Color(0xff4a3016);
 
   // States
   static const link = Color(0xff8b4a1f);
@@ -25,9 +26,17 @@ class AppColors {
   static const danger = Color(0xffb3261e);
   static const highlight = Color(0xff2f8f7a);
 
+  // Jungle & expedition theme accents
+  static const jungleDeep = Color(0xff183222);
+  static const jungleSurface = Color(0xffe2e9dd);
+  static const jungleBorder = Color(0xff2d4c38);
+  static const jungleLeaf = Color(0xff3d7049);
+  static const jungleMist = Color(0xff558b6e);
+  static const jungleGold = Color(0xffc98d36);
+
   // Per-level accent colors (World section plates)
   static const hearthHollow = Color(0xffbf7a1e);
-  static const cliffsidePath = Color(0xff3d6a80);
-  static const corruptedGrove = Color(0xff2f8f7a);
-  static const haven = Color(0xff6a4fa0);
+  static const cliffsidePath = Color(0xff2d667e);
+  static const corruptedGrove = Color(0xff287a67);
+  static const haven = Color(0xff614594);
 }

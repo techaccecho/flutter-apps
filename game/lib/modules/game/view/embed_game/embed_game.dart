@@ -11,20 +11,24 @@ class EmbedGame extends StatefulWidget {
 }
 
 class _EmbedGameState extends State<EmbedGame> {
-  final String viewType = 'godot-iframe-element';
+  static const String viewType = 'godot-iframe-element';
+  static bool _registered = false;
 
   @override
   void initState() {
     super.initState();
-    ui.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
-      final iframe = web.HTMLIFrameElement()
-        ..src = widget.gameUrl
-        ..style.border = 'none'
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..allow = 'autoplay; fullscreen';
-      return iframe;
-    });
+    if (!_registered) {
+      ui.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
+        final iframe = web.HTMLIFrameElement()
+          ..src = widget.gameUrl
+          ..style.border = 'none'
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..allow = 'autoplay; fullscreen';
+        return iframe;
+      });
+      _registered = true;
+    }
   }
 
   @override
