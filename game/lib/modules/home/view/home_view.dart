@@ -1224,119 +1224,36 @@ class _HeroSection extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
             isNarrow ? AppSpacing.md : AppSpacing.xl,
-            AppSpacing.lg,
-            isNarrow ? AppSpacing.md : AppSpacing.xl,
             AppSpacing.xl + AppSpacing.md,
+            isNarrow ? AppSpacing.md : AppSpacing.xl,
+            AppSpacing.xl + AppSpacing.lg,
           ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1120),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.border, width: 2),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
+              child: isNarrow
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _HeroCopy(onExploreTap: onExploreTap),
+                        const SizedBox(height: AppSpacing.xl),
+                        const Center(child: _FramedScreenshot()),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: _HeroCopy(onExploreTap: onExploreTap),
+                        ),
+                        const SizedBox(width: AppSpacing.xl),
+                        const Expanded(
+                          flex: 6,
+                          child: _FramedScreenshot(),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    // Expedition Board Top Trim
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: 7,
-                      ),
-                      color: const Color(0xff231509),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.explore_rounded,
-                                size: 14,
-                                color: AppColors.primary,
-                              ),
-                              const SizedBox(width: AppSpacing.xs),
-                              Text(
-                                'EXPEDITION DISPATCH 001 // SECTOR: HEARTH HOLLOW',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                  letterSpacing: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff4ade80),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                'CANOPY ENCOUNTER',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: const Color(0xff4ade80),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Main Content
-                    Padding(
-                      padding: EdgeInsets.all(
-                        isNarrow ? AppSpacing.md : AppSpacing.xl,
-                      ),
-                      child: isNarrow
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                _HeroCopy(onExploreTap: onExploreTap),
-                                const SizedBox(height: AppSpacing.xl),
-                                const Center(child: _FramedScreenshot()),
-                              ],
-                            )
-                          : Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 7,
-                                  child: _HeroCopy(onExploreTap: onExploreTap),
-                                ),
-                                const SizedBox(width: AppSpacing.xl),
-                                const Expanded(
-                                  flex: 6,
-                                  child: _FramedScreenshot(),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         );
@@ -1780,19 +1697,6 @@ class _WorldSectionState extends State<_WorldSection> {
 
         return Container(
           width: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.jungleSurface,
-            border: Border(
-              top: BorderSide(
-                color: AppColors.jungleBorder.withValues(alpha: 0.35),
-                width: 2,
-              ),
-              bottom: BorderSide(
-                color: AppColors.jungleBorder.withValues(alpha: 0.35),
-                width: 2,
-              ),
-            ),
-          ),
           padding: EdgeInsets.fromLTRB(
             isNarrow ? AppSpacing.md : AppSpacing.xl,
             AppSpacing.xl + AppSpacing.md,
@@ -1831,7 +1735,7 @@ class _WorldSectionState extends State<_WorldSection> {
   }
 }
 
-/// Horizontal interactive expedition route strip showing the 4 waypoints.
+/// Retro Arcade / World Map Stage Select Terminal
 class _JungleRouteStrip extends StatelessWidget {
   final int activeStage;
   final ValueChanged<int> onSelectStage;
@@ -1845,56 +1749,104 @@ class _JungleRouteStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs + 2,
-      ),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: AppColors.jungleBorder.withValues(alpha: 0.35),
-          width: 1.5,
-        ),
+        color: const Color(0xff1f1207),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppColors.border, width: 2),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            for (var i = 0; i < _levelPlates.length; i++) ...[
-              _RouteCheckpointButton(
-                plate: _levelPlates[i],
-                stepNumber: i + 1,
-                isSelected: activeStage == i,
-                onTap: () => onSelectStage(i),
-              ),
-              if (i < _levelPlates.length - 1)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 2,
-                        color: AppColors.jungleLeaf.withValues(alpha: 0.4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Top Retro Terminal Header
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: 6,
+            ),
+            color: const Color(0xff150a03),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.navigation_rounded,
+                      size: 13,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      'WORLD MAP // OVERLAND STAGE SELECT',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                        letterSpacing: 1.4,
                       ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 14,
-                        color: AppColors.jungleLeaf.withValues(alpha: 0.7),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+                Text(
+                  'FAST-TRAVEL LINK',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: const Color(0xff4ade80),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 9,
+                    letterSpacing: 1.0,
                   ),
                 ),
-            ],
-          ],
-        ),
+              ],
+            ),
+          ),
+
+          // Horizontal Stage Tiles
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var i = 0; i < _levelPlates.length; i++) ...[
+                    _RouteCheckpointButton(
+                      plate: _levelPlates[i],
+                      stepNumber: i + 1,
+                      isSelected: activeStage == i,
+                      onTap: () => onSelectStage(i),
+                    ),
+                    if (i < _levelPlates.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 1.5,
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                            ),
+                            Icon(
+                              Icons.arrow_right_rounded,
+                              size: 18,
+                              color: AppColors.primary.withValues(alpha: 0.75),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1924,53 +1876,70 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
   Widget build(BuildContext context) {
     final plate = widget.plate;
     final selected = widget.isSelected;
+    const romanNumerals = ['I', 'II', 'III', 'IV'];
+    final roman = widget.stepNumber <= 4
+        ? romanNumerals[widget.stepNumber - 1]
+        : '${widget.stepNumber}';
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: InkWell(
         onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(3),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 120),
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: 4,
+            horizontal: AppSpacing.sm + 2,
+            vertical: 6,
           ),
           decoration: BoxDecoration(
             color: selected
-                ? plate.accent.withValues(alpha: 0.18)
-                : (_hovered ? AppColors.surface : Colors.transparent),
-            borderRadius: BorderRadius.circular(4),
+                ? const Color(0xff351f0f)
+                : (_hovered
+                    ? const Color(0xff2a180b)
+                    : const Color(0xff1a0e05)),
+            borderRadius: BorderRadius.circular(3),
             border: Border.all(
               color: selected
-                  ? plate.accent
+                  ? AppColors.primaryGold
                   : (_hovered
-                        ? AppColors.jungleBorder.withValues(alpha: 0.4)
-                        : Colors.transparent),
-              width: 1.5,
+                      ? AppColors.primary.withValues(alpha: 0.6)
+                      : const Color(0xff3d2412)),
+              width: selected ? 1.8 : 1.2,
             ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Sharp retro stage badge
               Container(
-                width: 22,
-                height: 22,
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? plate.accent
-                      : plate.accent.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: plate.accent, width: 1.5),
+                  color: selected ? AppColors.primary : const Color(0xff261407),
+                  borderRadius: BorderRadius.circular(2),
+                  border: Border.all(
+                    color: selected
+                        ? AppColors.primaryDark
+                        : AppColors.primary.withValues(alpha: 0.4),
+                    width: 1,
+                  ),
                 ),
-                alignment: Alignment.center,
                 child: Text(
-                  '0${widget.stepNumber}',
+                  roman,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: selected
-                        ? AppColors.background
-                        : AppColors.primaryDark,
+                        ? AppColors.textPrimary
+                        : AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,
                   ),
@@ -1981,20 +1950,53 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    plate.title,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: selected ? FontWeight.bold : FontWeight.w600,
-                      fontSize: 11,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        plate.title.toUpperCase(),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: selected
+                              ? const Color(0xffffe8b5)
+                              : AppColors.background,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      if (selected) ...[
+                        const SizedBox(width: 4),
+                        const Text(
+                          '◀',
+                          style: TextStyle(
+                            color: AppColors.primaryGold,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  Text(
-                    '${plate.elevation} · ${plate.threatLevel.split(' // ').first}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textMuted,
-                      fontSize: 9,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        plate.elevation,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textMuted,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '· ${plate.threatLevel.split(' // ').first.replaceAll('THREAT: ', '')}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: plate.threatColor,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -2063,111 +2065,112 @@ class _JungleStationCardState extends State<_JungleStationCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: _hovered ? plate.accent : AppColors.border,
-            width: _hovered ? 2.5 : 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: _hovered ? 0.18 : 0.08),
-              blurRadius: _hovered ? 14 : 8,
-              offset: Offset(0, _hovered ? 5 : 3),
-            ),
-          ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: isNarrow ? AppSpacing.sm : AppSpacing.md,
         ),
-        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top Plaque Header
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: 6,
-              ),
-              color: const Color(0xff221408),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(plate.icon, size: 15, color: plate.accent),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        plate.waypoint,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: plate.accent.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: plate.accent, width: 1.5),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: plate.threatColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        plate.threatLevel,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: plate.threatColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ],
+                  child: Center(
+                    child: Icon(plate.icon, size: 18, color: plate.accent),
                   ),
-                ],
-              ),
-            ),
-
-            // Card Body (Visual + Explorer Log)
-            Padding(
-              padding: EdgeInsets.all(isNarrow ? AppSpacing.md : AppSpacing.lg),
-              child: isNarrow
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _StationVisualBlock(plate: plate),
-                        const SizedBox(height: AppSpacing.md),
-                        _StationLogBlock(plate: plate, isHovered: _hovered),
-                      ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: _StationVisualBlock(plate: plate),
-                        ),
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(
-                          flex: 6,
-                          child: _StationLogBlock(
-                            plate: plate,
-                            isHovered: _hovered,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            plate.waypoint,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: plate.accent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10.5,
+                              letterSpacing: 1.2,
+                            ),
                           ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: plate.threatColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            plate.threatLevel,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: plate.threatColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 9.5,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        plate.title,
+                        style: AppTextStyles.title.copyWith(
+                          fontSize: isNarrow ? 22 : 26,
+                          color: AppColors.primaryDark,
+                          letterSpacing: 0.5,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+            const SizedBox(height: AppSpacing.sm),
+            Divider(
+              color: plate.accent.withValues(alpha: 0.3),
+              thickness: 1,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            isNarrow
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _StationVisualBlock(plate: plate),
+                      const SizedBox(height: AppSpacing.md),
+                      _StationLogBlock(
+                        plate: plate,
+                        isHovered: _hovered,
+                      ),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: _StationVisualBlock(plate: plate),
+                      ),
+                      const SizedBox(width: AppSpacing.xl),
+                      Expanded(
+                        flex: 6,
+                        child: _StationLogBlock(
+                          plate: plate,
+                          isHovered: _hovered,
+                        ),
+                      ),
+                    ],
+                  ),
           ],
         ),
       ),
@@ -2519,18 +2522,18 @@ class _JungleTrailTransitionConnector extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
-              vertical: 4,
+              vertical: 5,
             ),
             decoration: BoxDecoration(
               color: const Color(0xff1f1207),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(3),
               border: Border.all(
-                color: AppColors.jungleLeaf.withValues(alpha: 0.6),
-                width: 1.2,
+                color: AppColors.primary.withValues(alpha: 0.65),
+                width: 1.5,
               ),
               boxShadow: const [
                 BoxShadow(
-                  color: Colors.black26,
+                  color: Colors.black38,
                   blurRadius: 4,
                   offset: Offset(0, 2),
                 ),
@@ -2539,15 +2542,19 @@ class _JungleTrailTransitionConnector extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.route_rounded, size: 13, color: AppColors.primary),
+                const Icon(
+                  Icons.arrow_downward_rounded,
+                  size: 13,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   plate.trailTransition,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: const Color(0xffffe8b5),
                     fontWeight: FontWeight.bold,
-                    fontSize: isNarrow ? 9 : 10,
-                    letterSpacing: 1.1,
+                    fontSize: isNarrow ? 9.5 : 10.5,
+                    letterSpacing: 1.2,
                   ),
                 ),
               ],
@@ -2593,7 +2600,6 @@ class _CastSectionState extends State<_CastSection> {
 
         return Container(
           width: double.infinity,
-          decoration: const BoxDecoration(color: AppColors.background),
           padding: EdgeInsets.fromLTRB(
             isNarrow ? AppSpacing.md : AppSpacing.xl,
             AppSpacing.xl + AppSpacing.md,
@@ -3102,86 +3108,60 @@ class _CastDossierCardState extends State<_CastDossierCard> {
           ],
         );
 
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border, width: 2),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              // Dossier Top Bar
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: 6,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.badge_rounded,
+                  size: 16,
+                  color: AppColors.primaryDark,
                 ),
-                color: const Color(0xff221408),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.badge_rounded,
-                          size: 14,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          'EXPEDITION DOSSIER // CLASSIFIED RECORD',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      member.stage,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: member.accent,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 9.5,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  'EXPEDITION DOSSIER // CLASSIFIED RECORD',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.primaryDark,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.4,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: isCompact
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Center(child: portrait),
-                          const SizedBox(height: AppSpacing.lg),
-                          details,
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          portrait,
-                          const SizedBox(width: AppSpacing.xl),
-                          Expanded(child: details),
-                        ],
-                      ),
-              ),
-            ],
-          ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  '· ${member.stage}',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: member.accent,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Divider(
+              color: member.accent.withValues(alpha: 0.35),
+              thickness: 1,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            isCompact
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(child: portrait),
+                      const SizedBox(height: AppSpacing.lg),
+                      details,
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      portrait,
+                      const SizedBox(width: AppSpacing.xl),
+                      Expanded(child: details),
+                    ],
+                  ),
+          ],
         );
       },
     );

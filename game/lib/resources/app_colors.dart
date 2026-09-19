@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Base (aged parchment, matches a weathered adventurer's map)
-  static const background = Color(0xfff6efe0);
+  // Main parchment background
+  static const background = Color(0xfff5ede0);
   static const surface = Color(0xffebdcc3);
   static const card = Color(0xfffffdf8);
+
+  // Deep Jungle & Cartridge Dark tones (unifying header, footer & dark elements)
+  static const darkHeader = Color(0xff221408);
+  static const darkSurface = Color(0xff180d05);
+  static const darkMolding = Color(0xff2a180b);
+  static const darkBorder = Color(0xff3f2512);
 
   // Primary (carved-wood trim / golden-hour amber)
   static const primary = Color(0xffd79a3b);
   static const primaryDark = Color(0xff4a3016);
+  static const primaryGold = Color(0xffe8a946);
 
   // Text
   static const textPrimary = Color(0xff23160a);
   static const textSecondary = Color(0xff57422f);
   static const textMuted = Color(0xff7f6a54);
+  static const textLight = Color(0xfff5ede0);
 
   // Borders / dividers
   static const border = Color(0xff4a3016);
