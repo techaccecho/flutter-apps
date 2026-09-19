@@ -146,7 +146,8 @@ const _levelPlates = [
     waypoint: 'STAGE 04 · ANCIENT HEART',
     elevation: 'ELV. 680M',
     terrain: 'Forgotten Stone Sanctuary & Sunken Shrine',
-    atmosphere: 'Absolute stillness, overgrown stone altars, and glowing relics.',
+    atmosphere:
+        'Absolute stillness, overgrown stone altars, and glowing relics.',
     nextLeg: 'Journey terminus · Uncover the origin of the glitch.',
     title: 'The Haven',
     tagline:
@@ -185,7 +186,8 @@ const _castMembers = [
     stage: 'STAGE 01 · HEARTH HOLLOW',
     tagline:
         "Warm, loud, and telling you exactly enough to be wrong about somebody.",
-    description: "The game's first voice, and its first unreliable one. Anchors the hearth fire and shapes the tools required to survive the journey ahead.",
+    description:
+        "The game's first voice, and its first unreliable one. Anchors the hearth fire and shapes the tools required to survive the journey ahead.",
     accent: AppColors.hearthHollow,
     imageAsset: 'assets/images/cast_blacksmith.png',
     archetype: 'CLASS: CRAFTSMAN',
@@ -281,7 +283,9 @@ class _HomeViewState extends State<HomeView> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          const Positioned.fill(child: IgnorePointer(child: _AmbientMotionOverlay())),
+          const Positioned.fill(
+            child: IgnorePointer(child: _AmbientMotionOverlay()),
+          ),
           SingleChildScrollView(
             controller: _scrollController,
             child: Column(
@@ -394,7 +398,10 @@ class _AuthAction extends StatelessWidget {
           },
           borderRadius: BorderRadius.circular(4),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: 3,
+            ),
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(3),
@@ -413,7 +420,8 @@ class _AuthAction extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  (isLoggedIn ? Strings.btnLogout : Strings.btnLogin).toUpperCase(),
+                  (isLoggedIn ? Strings.btnLogout : Strings.btnLogin)
+                      .toUpperCase(),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.background,
                     fontWeight: FontWeight.bold,
@@ -710,10 +718,7 @@ class _WordmarkState extends State<_Wordmark>
                 fontSize: 32,
                 letterSpacing: 6,
                 shadows: const [
-                  Shadow(
-                    color: Colors.black,
-                    offset: Offset(2, 2),
-                  ),
+                  Shadow(color: Colors.black, offset: Offset(2, 2)),
                 ],
               ),
             ),
@@ -753,11 +758,7 @@ class _Flourish extends StatelessWidget {
 
     final diamond = Transform.rotate(
       angle: (math.pi / 4) + (0.07 * wave),
-      child: Container(
-        width: 6,
-        height: 6,
-        color: AppColors.primary,
-      ),
+      child: Container(width: 6, height: 6, color: AppColors.primary),
     );
 
     final content = Row(
@@ -797,11 +798,7 @@ class _NavBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: AppColors.primaryDark, width: 2),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black38,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       padding: const EdgeInsets.symmetric(
@@ -875,7 +872,9 @@ class _NavLinkState extends State<_NavLink> {
               Text(
                 '❖',
                 style: TextStyle(
-                  color: _hovered ? AppColors.primary : AppColors.primary.withValues(alpha: 0.5),
+                  color: _hovered
+                      ? AppColors.primary
+                      : AppColors.primary.withValues(alpha: 0.5),
                   fontSize: 10,
                 ),
               ),
@@ -883,7 +882,9 @@ class _NavLinkState extends State<_NavLink> {
               Text(
                 '${widget.index}. ${widget.label}',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: _hovered ? const Color(0xffffe8b5) : AppColors.background,
+                  color: _hovered
+                      ? const Color(0xffffe8b5)
+                      : AppColors.background,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.4,
                   fontSize: 11,
@@ -914,9 +915,9 @@ class _NavLaunchButtonState extends State<_NavLaunchButton> {
       onExit: (_) => setState(() => _hovered = false),
       child: InkWell(
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const GameScreen()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const GameScreen()));
         },
         borderRadius: BorderRadius.circular(3),
         child: AnimatedContainer(
@@ -928,10 +929,7 @@ class _NavLaunchButtonState extends State<_NavLaunchButton> {
           decoration: BoxDecoration(
             color: _hovered ? const Color(0xffe8a946) : AppColors.primary,
             borderRadius: BorderRadius.circular(3),
-            border: Border.all(
-              color: AppColors.primaryDark,
-              width: 1.5,
-            ),
+            border: Border.all(color: AppColors.primaryDark, width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -974,9 +972,7 @@ class _RetroMoldingBar extends StatelessWidget {
           bottom: BorderSide(color: AppColors.primaryDark, width: 2),
         ),
       ),
-      child: CustomPaint(
-        painter: _DentilMoldingPainter(),
-      ),
+      child: CustomPaint(painter: _DentilMoldingPainter()),
     );
   }
 }
@@ -989,7 +985,8 @@ class _DentilMoldingPainter extends CustomPainter {
     final total = toothWidth + toothGap;
     final count = (size.width / total).ceil();
 
-    final toothPaint = Paint()..color = AppColors.primary.withValues(alpha: 0.35);
+    final toothPaint = Paint()
+      ..color = AppColors.primary.withValues(alpha: 0.35);
 
     for (var i = 0; i < count; i++) {
       final x = i * total;
@@ -1027,7 +1024,9 @@ class _PlayNowButtonState extends State<_PlayNowButton> {
         duration: const Duration(milliseconds: 100),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: _hovered ? const Color(0xffe8a946) : AppColors.primary,
+            backgroundColor: _hovered
+                ? const Color(0xffe8a946)
+                : AppColors.primary,
             foregroundColor: AppColors.textPrimary,
             elevation: 0,
             minimumSize: const Size(200, 52),
@@ -1111,10 +1110,7 @@ class _Eyebrow extends StatelessWidget {
   final String text;
   final _EyebrowMarker marker;
 
-  const _Eyebrow({
-    required this.text,
-    this.marker = _EyebrowMarker.diamond,
-  });
+  const _Eyebrow({required this.text, this.marker = _EyebrowMarker.diamond});
 
   @override
   Widget build(BuildContext context) {
@@ -1378,10 +1374,7 @@ class _HeroCopy extends StatelessWidget {
                 letterSpacing: 0.8,
                 height: 1.1,
                 shadows: const [
-                  Shadow(
-                    color: Colors.black26,
-                    offset: Offset(2, 2),
-                  ),
+                  Shadow(color: Colors.black26, offset: Offset(2, 2)),
                 ],
               ),
             ),
@@ -1410,10 +1403,7 @@ class _HeroCopy extends StatelessWidget {
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xs,
               children: const [
-                _RetroSpecChip(
-                  icon: Icons.forest_rounded,
-                  label: '04 BIOMES',
-                ),
+                _RetroSpecChip(icon: Icons.forest_rounded, label: '04 BIOMES'),
                 _RetroSpecChip(
                   icon: Icons.groups_rounded,
                   label: '05 DOSSIERS',
@@ -1422,10 +1412,7 @@ class _HeroCopy extends StatelessWidget {
                   icon: Icons.sports_esports_rounded,
                   label: 'WASD / ARROWS',
                 ),
-                _RetroSpecChip(
-                  icon: Icons.bolt_rounded,
-                  label: 'GODOT 4 WASM',
-                ),
+                _RetroSpecChip(icon: Icons.bolt_rounded, label: 'GODOT 4 WASM'),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -1550,9 +1537,9 @@ class _FramedScreenshotState extends State<_FramedScreenshot> {
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const GameScreen()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const GameScreen()));
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -1870,11 +1857,7 @@ class _JungleRouteStrip extends StatelessWidget {
           width: 1.5,
         ),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: SingleChildScrollView(
@@ -1890,7 +1873,9 @@ class _JungleRouteStrip extends StatelessWidget {
               ),
               if (i < _levelPlates.length - 1)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -1955,16 +1940,14 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
           decoration: BoxDecoration(
             color: selected
                 ? plate.accent.withValues(alpha: 0.18)
-                : (_hovered
-                    ? AppColors.surface
-                    : Colors.transparent),
+                : (_hovered ? AppColors.surface : Colors.transparent),
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
               color: selected
                   ? plate.accent
                   : (_hovered
-                      ? AppColors.jungleBorder.withValues(alpha: 0.4)
-                      : Colors.transparent),
+                        ? AppColors.jungleBorder.withValues(alpha: 0.4)
+                        : Colors.transparent),
               width: 1.5,
             ),
           ),
@@ -1975,7 +1958,9 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: selected ? plate.accent : plate.accent.withValues(alpha: 0.2),
+                  color: selected
+                      ? plate.accent
+                      : plate.accent.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                   border: Border.all(color: plate.accent, width: 1.5),
                 ),
@@ -1983,7 +1968,9 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
                 child: Text(
                   '0${widget.stepNumber}',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: selected ? AppColors.background : AppColors.primaryDark,
+                    color: selected
+                        ? AppColors.background
+                        : AppColors.primaryDark,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,
                   ),
@@ -2023,10 +2010,7 @@ class _JungleJourneyTrail extends StatelessWidget {
   final bool isNarrow;
   final List<GlobalKey> stageKeys;
 
-  const _JungleJourneyTrail({
-    required this.isNarrow,
-    required this.stageKeys,
-  });
+  const _JungleJourneyTrail({required this.isNarrow, required this.stageKeys});
 
   @override
   Widget build(BuildContext context) {
@@ -2114,11 +2098,7 @@ class _JungleStationCardState extends State<_JungleStationCard> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        plate.icon,
-                        size: 15,
-                        color: plate.accent,
-                      ),
+                      Icon(plate.icon, size: 15, color: plate.accent),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
                         plate.waypoint,
@@ -2180,7 +2160,10 @@ class _JungleStationCardState extends State<_JungleStationCard> {
                         const SizedBox(width: AppSpacing.lg),
                         Expanded(
                           flex: 6,
-                          child: _StationLogBlock(plate: plate, isHovered: _hovered),
+                          child: _StationLogBlock(
+                            plate: plate,
+                            isHovered: _hovered,
+                          ),
                         ),
                       ],
                     ),
@@ -2216,10 +2199,7 @@ class _StationVisualBlock extends StatelessWidget {
                   ),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: Image.asset(
-                  plate.imageAsset,
-                  fit: BoxFit.cover,
-                ),
+                child: Image.asset(plate.imageAsset, fit: BoxFit.cover),
               ),
               const _CornerBracket(alignment: Alignment.topLeft),
               const _CornerBracket(alignment: Alignment.topRight),
@@ -2303,10 +2283,7 @@ class _StationLogBlock extends StatelessWidget {
   final _LevelPlate plate;
   final bool isHovered;
 
-  const _StationLogBlock({
-    required this.plate,
-    required this.isHovered,
-  });
+  const _StationLogBlock({required this.plate, required this.isHovered});
 
   @override
   Widget build(BuildContext context) {
@@ -2374,9 +2351,7 @@ class _StationLogBlock extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.surface.withValues(alpha: 0.55),
             borderRadius: BorderRadius.circular(4),
-            border: Border(
-              left: BorderSide(color: plate.accent, width: 3),
-            ),
+            border: Border(left: BorderSide(color: plate.accent, width: 3)),
           ),
           child: Text(
             '"${plate.quote}"',
@@ -2442,9 +2417,9 @@ class _StationLogBlock extends StatelessWidget {
           children: [
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const GameScreen()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const GameScreen()));
               },
               icon: const Icon(Icons.explore_rounded, size: 15),
               label: Text(
@@ -2564,11 +2539,7 @@ class _JungleTrailTransitionConnector extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.route_rounded,
-                  size: 13,
-                  color: AppColors.primary,
-                ),
+                Icon(Icons.route_rounded, size: 13, color: AppColors.primary),
                 const SizedBox(width: 6),
                 Text(
                   plate.trailTransition,
@@ -2622,9 +2593,7 @@ class _CastSectionState extends State<_CastSection> {
 
         return Container(
           width: double.infinity,
-          decoration: const BoxDecoration(
-            color: AppColors.background,
-          ),
+          decoration: const BoxDecoration(color: AppColors.background),
           padding: EdgeInsets.fromLTRB(
             isNarrow ? AppSpacing.md : AppSpacing.xl,
             AppSpacing.xl + AppSpacing.md,
@@ -2650,7 +2619,8 @@ class _CastSectionState extends State<_CastSection> {
                           children: [
                             _CastMobileSelector(
                               selectedIndex: _selectedIndex,
-                              onSelect: (i) => setState(() => _selectedIndex = i),
+                              onSelect: (i) =>
+                                  setState(() => _selectedIndex = i),
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             _CastDossierCard(member: selected),
@@ -2663,13 +2633,12 @@ class _CastSectionState extends State<_CastSection> {
                               width: 360,
                               child: _CastRosterList(
                                 selectedIndex: _selectedIndex,
-                                onSelect: (i) => setState(() => _selectedIndex = i),
+                                onSelect: (i) =>
+                                    setState(() => _selectedIndex = i),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.xl),
-                            Expanded(
-                              child: _CastDossierCard(member: selected),
-                            ),
+                            Expanded(child: _CastDossierCard(member: selected)),
                           ],
                         ),
                 ],
@@ -2686,10 +2655,7 @@ class _CastRosterList extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelect;
 
-  const _CastRosterList({
-    required this.selectedIndex,
-    required this.onSelect,
-  });
+  const _CastRosterList({required this.selectedIndex, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -2699,11 +2665,7 @@ class _CastRosterList extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border, width: 2),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
         ],
       ),
       clipBehavior: Clip.antiAlias,
@@ -2799,7 +2761,9 @@ class _CastRosterEntry extends StatelessWidget {
               : AppColors.surface.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: selected ? member.accent : AppColors.border.withValues(alpha: 0.35),
+            color: selected
+                ? member.accent
+                : AppColors.border.withValues(alpha: 0.35),
             width: selected ? 2 : 1,
           ),
         ),
@@ -2864,11 +2828,7 @@ class _CastRosterEntry extends StatelessWidget {
               ),
             ),
             if (selected)
-              Icon(
-                Icons.play_arrow_rounded,
-                color: member.accent,
-                size: 20,
-              ),
+              Icon(Icons.play_arrow_rounded, color: member.accent, size: 20),
           ],
         ),
       ),
@@ -2982,22 +2942,23 @@ class _CastDossierCardState extends State<_CastDossierCard> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: _portraitHovered ? member.accent : AppColors.border,
+                        color: _portraitHovered
+                            ? member.accent
+                            : AppColors.border,
                         width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: _portraitHovered ? 0.35 : 0.2),
+                          color: Colors.black.withValues(
+                            alpha: _portraitHovered ? 0.35 : 0.2,
+                          ),
                           blurRadius: _portraitHovered ? 14 : 8,
                           offset: Offset(0, _portraitHovered ? 6 : 4),
                         ),
                       ],
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      member.imageAsset,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.asset(member.imageAsset, fit: BoxFit.cover),
                   ),
                   const _CornerBracket(alignment: Alignment.topLeft),
                   const _CornerBracket(alignment: Alignment.topRight),
@@ -3111,9 +3072,9 @@ class _CastDossierCardState extends State<_CastDossierCard> {
             const SizedBox(height: AppSpacing.lg),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const GameScreen()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const GameScreen()));
               },
               icon: const Icon(Icons.sports_esports_rounded, size: 18),
               label: Text(
@@ -3275,11 +3236,7 @@ class _Footer extends StatelessWidget {
   final VoidCallback? onWorldTap;
   final VoidCallback? onCastTap;
 
-  const _Footer({
-    this.onHomeTap,
-    this.onWorldTap,
-    this.onCastTap,
-  });
+  const _Footer({this.onHomeTap, this.onWorldTap, this.onCastTap});
 
   @override
   Widget build(BuildContext context) {
@@ -3312,7 +3269,8 @@ class _Footer extends StatelessWidget {
                   // Main 4-column layout on wide screens, stacked on narrow
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < AppBreakpoints.tablet;
+                      final isNarrow =
+                          constraints.maxWidth < AppBreakpoints.tablet;
                       final isMobile = constraints.maxWidth < 640;
 
                       if (isMobile) {
@@ -3341,11 +3299,15 @@ class _Footer extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child: _FooterIdentityBlock(onHomeTap: onHomeTap),
+                                  child: _FooterIdentityBlock(
+                                    onHomeTap: onHomeTap,
+                                  ),
                                 ),
                                 const SizedBox(width: AppSpacing.xl),
                                 Expanded(
-                                  child: _FooterWaypointsBlock(onWorldTap: onWorldTap),
+                                  child: _FooterWaypointsBlock(
+                                    onWorldTap: onWorldTap,
+                                  ),
                                 ),
                               ],
                             ),
@@ -3377,7 +3339,9 @@ class _Footer extends StatelessWidget {
                           const SizedBox(width: AppSpacing.lg),
                           Expanded(
                             flex: 3,
-                            child: _FooterWaypointsBlock(onWorldTap: onWorldTap),
+                            child: _FooterWaypointsBlock(
+                              onWorldTap: onWorldTap,
+                            ),
                           ),
                           const SizedBox(width: AppSpacing.lg),
                           const Expanded(
@@ -3409,7 +3373,9 @@ class _Footer extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                        ),
                         child: Text(
                           '❖',
                           style: TextStyle(
@@ -3449,7 +3415,10 @@ class _Footer extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(3),
@@ -3580,10 +3549,7 @@ class _FooterWaypointsBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _FooterSectionTitle(
-          title: 'OVERLAND ROUTE',
-          icon: Icons.map_rounded,
-        ),
+        _FooterSectionTitle(title: 'OVERLAND ROUTE', icon: Icons.map_rounded),
         const SizedBox(height: AppSpacing.sm),
         for (var i = 0; i < _levelPlates.length; i++) ...[
           InkWell(
@@ -3641,20 +3607,11 @@ class _FooterControlsBlock extends StatelessWidget {
           icon: Icons.keyboard_rounded,
         ),
         SizedBox(height: AppSpacing.sm),
-        _ControlRow(
-          keyLabel: 'WASD / ARROWS',
-          action: 'Navigate & Climb',
-        ),
+        _ControlRow(keyLabel: 'WASD / ARROWS', action: 'Navigate & Climb'),
         SizedBox(height: 5),
-        _ControlRow(
-          keyLabel: 'SPACE / CLICK',
-          action: 'Attack / Interact',
-        ),
+        _ControlRow(keyLabel: 'SPACE / CLICK', action: 'Attack / Interact'),
         SizedBox(height: 5),
-        _ControlRow(
-          keyLabel: 'ESC / TAB',
-          action: 'Codex / Pause',
-        ),
+        _ControlRow(keyLabel: 'ESC / TAB', action: 'Codex / Pause'),
       ],
     );
   }
@@ -3664,10 +3621,7 @@ class _ControlRow extends StatelessWidget {
   final String keyLabel;
   final String action;
 
-  const _ControlRow({
-    required this.keyLabel,
-    required this.action,
-  });
+  const _ControlRow({required this.keyLabel, required this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -3712,10 +3666,7 @@ class _FooterActionsBlock extends StatelessWidget {
   final VoidCallback? onHomeTap;
   final VoidCallback? onCastTap;
 
-  const _FooterActionsBlock({
-    this.onHomeTap,
-    this.onCastTap,
-  });
+  const _FooterActionsBlock({this.onHomeTap, this.onCastTap});
 
   @override
   Widget build(BuildContext context) {
@@ -3731,9 +3682,9 @@ class _FooterActionsBlock extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const GameScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const GameScreen()));
             },
             icon: const Icon(Icons.sports_esports_rounded, size: 16),
             label: const Text(
@@ -3750,7 +3701,10 @@ class _FooterActionsBlock extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
-                side: const BorderSide(color: AppColors.primaryDark, width: 1.5),
+                side: const BorderSide(
+                  color: AppColors.primaryDark,
+                  width: 1.5,
+                ),
               ),
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
@@ -3799,10 +3753,7 @@ class _FooterSectionTitle extends StatelessWidget {
   final String title;
   final IconData icon;
 
-  const _FooterSectionTitle({
-    required this.title,
-    required this.icon,
-  });
+  const _FooterSectionTitle({required this.title, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -3842,10 +3793,7 @@ class _FooterChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xff221408),
         borderRadius: BorderRadius.circular(3),
-        border: Border.all(
-          color: color.withValues(alpha: 0.35),
-          width: 1,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

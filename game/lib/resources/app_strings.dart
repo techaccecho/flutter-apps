@@ -22,9 +22,7 @@ class Strings {
       "Start in a quiet village, follow the trail, and uncover what changed this world.";
   static const btnPlayNow = "Play Now";
   static const sectionWorldTitle = "The World";
-  static const sectionWorldIntro =
-      "Choose a zone. Enter the run.";
+  static const sectionWorldIntro = "Choose a zone. Enter the run.";
   static const sectionCastTitle = "The Cast";
-  static const sectionCastIntro =
-      "Select a profile. Review the dossier.";
+  static const sectionCastIntro = "Select a profile. Review the dossier.";
 }

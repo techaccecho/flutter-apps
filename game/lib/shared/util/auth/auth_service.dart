@@ -29,10 +29,8 @@ class AuthService extends ChangeNotifier {
 
   String? get authSub => _authSub;
 
-  AuthService({
-    required this.authRepository,
-    Auth0Service? auth0Service,
-  }) : auth0Service = auth0Service ?? Auth0Service();
+  AuthService({required this.authRepository, Auth0Service? auth0Service})
+    : auth0Service = auth0Service ?? Auth0Service();
 
   Future<User?> init() async {
     if (!_authEnabled) {
