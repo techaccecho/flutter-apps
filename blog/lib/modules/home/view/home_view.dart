@@ -15,6 +15,7 @@ import 'package:blog/modules/profile/view/archived_users_list_view.dart';
 import 'package:blog/resources/app_strings.dart';
 import 'package:blog/shared/view/side_bar.dart';
 import 'package:blog/resources/resources.dart';
+import 'package:blog/shared/services/storage_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,12 +42,12 @@ class HomeView extends StatelessWidget {
       ],
       child: BlocListener<ApplicationBloc, ApplicationState>(
         listener: (context, state) {
-          if (state is ApplicationContentLoadedState && state.isLoggedIn) {
-            final userId = state.currentUser?.id ?? state.currentUser?.authId;
-            try {
-              context.read<ArgStateBloc>().add(FetchArgStateEvent(userId: userId));
-            } catch (_) {}
-          }
+          final userId = state is ApplicationContentLoadedState && state.isLoggedIn
+              ? (state.currentUser?.id ?? state.currentUser?.authId)
+              : StorageHelper.getItem(StorageHelper.guestUserIdKey);
+          try {
+            context.read<ArgStateBloc>().add(FetchArgStateEvent(userId: userId));
+          } catch (_) {}
         },
         child: Scaffold(
           backgroundColor: AppColors.background,

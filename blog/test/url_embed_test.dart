@@ -27,13 +27,25 @@ class TestUrlEmbedResolver {
   }
 
   static String getEffectiveUserId(String? authenticatedUserId) {
-    if (authenticatedUserId != null && authenticatedUserId.isNotEmpty) {
-      return authenticatedUserId;
+    if (authenticatedUserId != null &&
+        authenticatedUserId.trim().isNotEmpty &&
+        !authenticatedUserId.trim().startsWith('guest_')) {
+      return authenticatedUserId.trim();
     }
 
     final storedGuestId = MockStorage.getItem(guestUserIdKey);
-    if (storedGuestId != null && storedGuestId.isNotEmpty) {
-      return storedGuestId;
+    if (storedGuestId != null &&
+        storedGuestId.trim().isNotEmpty &&
+        storedGuestId.trim().startsWith('guest_')) {
+      return storedGuestId.trim();
+    }
+
+    if (authenticatedUserId != null &&
+        authenticatedUserId.trim().isNotEmpty &&
+        authenticatedUserId.trim().startsWith('guest_')) {
+      final guestId = authenticatedUserId.trim();
+      MockStorage.setItem(guestUserIdKey, guestId);
+      return guestId;
     }
 
     final newGuestId = 'guest_${_generateUuid()}';
@@ -43,27 +55,31 @@ class TestUrlEmbedResolver {
 
   static String resolveUrl(String rawUrl, {String? userId, String puzzleBaseUrl = 'http://localhost:3005'}) {
     var url = rawUrl.trim();
-    final isWordSearch = url.contains('/wordsearch') || url.contains('wordsearch.html');
+    final isPuzzle = url.toLowerCase().contains('wordsearch') ||
+        url.toLowerCase().contains('asciiart') ||
+        url.toLowerCase().contains('puzzle');
 
-    if (isWordSearch) {
+    if (isPuzzle) {
       if (url.startsWith('/')) {
         url = '$puzzleBaseUrl$url';
       }
 
       final effectiveUserId = getEffectiveUserId(userId);
 
-      if (url.contains(RegExp(r'userId=[^&]+'))) {
-        url = url.replaceAll(
-          RegExp(r'userId=[^&]+'),
-          'userId=${Uri.encodeComponent(effectiveUserId)}',
-        );
-      } else {
-        final separator = url.contains('?') ? '&' : '?';
-        url = '$url${separator}userId=${Uri.encodeComponent(effectiveUserId)}';
+      final parsedUri = Uri.tryParse(url);
+      if (parsedUri != null) {
+        final queryParams = Map<String, String>.from(parsedUri.queryParameters);
+        queryParams['userId'] = effectiveUserId;
+        url = parsedUri.replace(queryParameters: queryParams).toString();
       }
     }
 
     return url;
+  }
+
+  static bool shouldShowBrokenLink(String rawUrl, {bool? isWordsearchCompleted}) {
+    final isAsciiArt = rawUrl.toLowerCase().contains('asciiart');
+    return isAsciiArt && isWordsearchCompleted == false;
   }
 }
 
@@ -95,6 +111,20 @@ void main() {
       expect(resolved, 'https://puzzle-apps.vercel.app/wordsearch/puzzle?userId=${Uri.encodeComponent(storedValue)}');
     });
 
+    test('maintains identical guest userId across repeated page loads for the same browser', () {
+      final firstLoad = TestUrlEmbedResolver.resolveUrl('https://puzzle-apps.vercel.app/wordsearch/puzzle', userId: null);
+      final storedGuestId = MockStorage.getItem(TestUrlEmbedResolver.guestUserIdKey);
+      expect(storedGuestId, isNotNull);
+
+      // Simulate a subsequent render or page reload on the same browser
+      final secondLoad = TestUrlEmbedResolver.resolveUrl('https://puzzle-apps.vercel.app/wordsearch/puzzle', userId: null);
+      final thirdLoad = TestUrlEmbedResolver.resolveUrl('https://puzzle-apps.vercel.app/wordsearch/puzzle', userId: storedGuestId);
+
+      expect(secondLoad, firstLoad);
+      expect(thirdLoad, firstLoad);
+      expect(MockStorage.getItem(TestUrlEmbedResolver.guestUserIdKey), storedGuestId);
+    });
+
     test('prefers authenticated userId over local storage guest ID when user is logged in', () {
       MockStorage.setItem(TestUrlEmbedResolver.guestUserIdKey, 'guest_old_session');
 
@@ -104,10 +134,44 @@ void main() {
       expect(resolved, 'https://puzzle-apps.vercel.app/wordsearch/puzzle?userId=auth0%7Cplayer_main');
     });
 
-    test('does NOT append userId or interact with storage for non-wordsearch embeds', () {
+    test('appends userId to asciiart puzzle embeds and expands relative paths', () {
+      final inputRelative = '/asciiart/puzzle';
+      final resolvedRelative = TestUrlEmbedResolver.resolveUrl(inputRelative, userId: 'auth0|player_main');
+      expect(resolvedRelative, 'http://localhost:3005/asciiart/puzzle?userId=auth0%7Cplayer_main');
+
+      final inputAbsolute = 'https://puzzle-apps.vercel.app/asciiart/puzzle';
+      final resolvedAbsolute = TestUrlEmbedResolver.resolveUrl(inputAbsolute, userId: 'auth0|player_main');
+      expect(resolvedAbsolute, 'https://puzzle-apps.vercel.app/asciiart/puzzle?userId=auth0%7Cplayer_main');
+    });
+
+    test('does NOT append userId or interact with storage for non-puzzle embeds', () {
       final youtube = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
       expect(TestUrlEmbedResolver.resolveUrl(youtube, userId: null), youtube);
       expect(MockStorage.getItem(TestUrlEmbedResolver.guestUserIdKey), isNull);
+    });
+
+    test('flags broken link for asciiart puzzle if wordsearch is not completed', () {
+      const asciiArtUrl = 'https://puzzle-apps.vercel.app/asciiart/puzzle';
+      expect(
+        TestUrlEmbedResolver.shouldShowBrokenLink(asciiArtUrl, isWordsearchCompleted: false),
+        isTrue,
+      );
+      expect(
+        TestUrlEmbedResolver.shouldShowBrokenLink(asciiArtUrl, isWordsearchCompleted: true),
+        isFalse,
+      );
+      expect(
+        TestUrlEmbedResolver.shouldShowBrokenLink(asciiArtUrl, isWordsearchCompleted: null),
+        isFalse,
+      );
+    });
+
+    test('does not flag broken link for wordsearch regardless of completion status', () {
+      const wordsearchUrl = 'https://puzzle-apps.vercel.app/wordsearch/puzzle';
+      expect(
+        TestUrlEmbedResolver.shouldShowBrokenLink(wordsearchUrl, isWordsearchCompleted: false),
+        isFalse,
+      );
     });
   });
 }

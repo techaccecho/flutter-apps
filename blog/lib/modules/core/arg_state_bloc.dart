@@ -21,12 +21,14 @@ class ClaimGuestArgProgressEvent extends ArgStateEvent {
 class CompleteArgStepEvent extends ArgStateEvent {
   final String stepId;
   final String? passcode;
-  CompleteArgStepEvent({required this.stepId, this.passcode});
+  final String? userId;
+  CompleteArgStepEvent({required this.stepId, this.passcode, this.userId});
 }
 
 class FailArgStepEvent extends ArgStateEvent {
   final String stepId;
-  FailArgStepEvent({required this.stepId});
+  final String? userId;
+  FailArgStepEvent({required this.stepId, this.userId});
 }
 
 // States
@@ -86,7 +88,8 @@ class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
         }
       }
 
-      final model = await repository.fetchState();
+      final targetUserId = event.userId ?? storedGuestId;
+      final model = await repository.fetchState(userId: targetUserId);
       emit(ArgStateLoaded(model));
     } catch (e) {
       emit(ArgStateError(e.toString()));
@@ -114,9 +117,12 @@ class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
     Emitter<ArgStateStatus> emit,
   ) async {
     try {
+      final storedGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
+      final targetUserId = event.userId ?? storedGuestId;
       final model = await repository.completeStep(
         stepId: event.stepId,
         passcode: event.passcode,
+        userId: targetUserId,
       );
       emit(ArgStateLoaded(model));
     } catch (e) {
@@ -129,7 +135,12 @@ class ArgStateBloc extends Bloc<ArgStateEvent, ArgStateStatus> {
     Emitter<ArgStateStatus> emit,
   ) async {
     try {
-      final model = await repository.failStep(stepId: event.stepId);
+      final storedGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
+      final targetUserId = event.userId ?? storedGuestId;
+      final model = await repository.failStep(
+        stepId: event.stepId,
+        userId: targetUserId,
+      );
       emit(ArgStateLoaded(model));
     } catch (e) {
       emit(ArgStateError(e.toString()));
