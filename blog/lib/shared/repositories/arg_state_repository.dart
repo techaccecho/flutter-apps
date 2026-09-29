@@ -14,8 +14,8 @@ class ArgStateRepository {
   Stream<ArgStateModel> get stateStream => _stateController.stream;
   ArgStateModel? get cachedState => _cachedState;
 
-  Future<ArgStateModel> fetchState() async {
-    final state = await apiProvider.getPlayerState();
+  Future<ArgStateModel> fetchState({String? userId}) async {
+    final state = await apiProvider.getPlayerState(userId: userId);
     _cachedState = state;
     _stateController.add(state);
     return state;
@@ -24,18 +24,26 @@ class ArgStateRepository {
   Future<ArgStateModel> completeStep({
     required String stepId,
     String? passcode,
+    String? userId,
   }) async {
     final state = await apiProvider.completeStep(
       stepId: stepId,
       passcode: passcode,
+      userId: userId,
     );
     _cachedState = state;
     _stateController.add(state);
     return state;
   }
 
-  Future<ArgStateModel> failStep({required String stepId}) async {
-    final state = await apiProvider.failStep(stepId: stepId);
+  Future<ArgStateModel> failStep({
+    required String stepId,
+    String? userId,
+  }) async {
+    final state = await apiProvider.failStep(
+      stepId: stepId,
+      userId: userId,
+    );
     _cachedState = state;
     _stateController.add(state);
     return state;

@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:blog/shared/util/app_config.dart';
 import 'package:dio/dio.dart';
 import 'package:blog/shared/interceptors/auth_interceptor.dart';
+import 'package:blog/shared/services/storage_helper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,9 +61,10 @@ class MyApp extends StatelessWidget {
       ),
     );
 
+    final initialGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
     final ArgStateBloc argStateBloc = ArgStateBloc(
       repository: argStateRepository,
-    );
+    )..add(FetchArgStateEvent(userId: initialGuestId));
 
     return MultiProvider(
       providers: [

@@ -49,6 +49,24 @@ class BlogPostView extends StatelessWidget {
         final canSoftDelete = isAdmin && !post.isAdminRemoved;
         final canShowComments = !post.isAdminRemoved || isAdmin;
 
+        final effectiveUserId = UrlEmbedBuilder.getEffectiveUserId(authUserId);
+
+        bool? isWordsearchCompleted;
+        try {
+          final argBloc = context.watch<ArgStateBloc>();
+          final argState = argBloc.state;
+          if (argState is ArgStateLoaded) {
+            isWordsearchCompleted =
+                argState.model.isStepCompleted('step_02_wordsearch');
+          } else if (argState is ArgStateInitial) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                context.read<ArgStateBloc>().add(FetchArgStateEvent(userId: effectiveUserId));
+              }
+            });
+          }
+        } catch (_) {}
+
         return Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +95,7 @@ class BlogPostView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MarkdownBody(
-                        key: ValueKey('markdown_${post.id}_${authUserId ?? "guest"}'),
+                        key: ValueKey('markdown_${post.id}_${effectiveUserId}_${isWordsearchCompleted ?? false}'),
                         data: post.isAdminRemoved
                             ? '*Content removed by administrator*'
                             : sanitizeBlogContent(post.content),
@@ -85,11 +103,12 @@ class BlogPostView extends StatelessWidget {
                         blockSyntaxes: [UrlEmbedSyntax()],
                         builders: {
                           'urlembed': UrlEmbedBuilder(
-                            userId: authUserId,
+                            userId: effectiveUserId,
+                            isWordsearchCompleted: isWordsearchCompleted,
                             onCompleted: () {
                               context
                                   .read<ArgStateBloc>()
-                                  .add(FetchArgStateEvent(userId: authUserId));
+                                  .add(FetchArgStateEvent(userId: effectiveUserId));
                             },
                           ),
                         },
@@ -290,9 +309,13 @@ class BlogPostView extends StatelessWidget {
 class UrlEmbedBuilder extends MarkdownElementBuilder {
   final String? userId;
   final VoidCallback? onCompleted;
-  static String? _sessionGuestId;
+  final bool? isWordsearchCompleted;
 
-  UrlEmbedBuilder({this.userId, this.onCompleted});
+  UrlEmbedBuilder({
+    this.userId,
+    this.onCompleted,
+    this.isWordsearchCompleted,
+  });
 
   static String _generateUuid() {
     final random = Random();
@@ -324,10 +347,10 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
   }
 
   static String getEffectiveUserId(String? authenticatedUserId) {
-    if (authenticatedUserId != null && authenticatedUserId.trim().isNotEmpty) {
-      final cleanAuthId = authenticatedUserId.trim();
-      StorageHelper.removeItem(StorageHelper.guestUserIdKey);
-      return cleanAuthId;
+    if (authenticatedUserId != null &&
+        authenticatedUserId.trim().isNotEmpty &&
+        !authenticatedUserId.trim().startsWith('guest_')) {
+      return authenticatedUserId.trim();
     }
 
     final storedGuestId = StorageHelper.getItem(StorageHelper.guestUserIdKey);
@@ -335,6 +358,14 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
         storedGuestId.trim().isNotEmpty &&
         storedGuestId.trim().startsWith('guest_')) {
       return storedGuestId.trim();
+    }
+
+    if (authenticatedUserId != null &&
+        authenticatedUserId.trim().isNotEmpty &&
+        authenticatedUserId.trim().startsWith('guest_')) {
+      final guestId = authenticatedUserId.trim();
+      StorageHelper.setItem(StorageHelper.guestUserIdKey, guestId);
+      return guestId;
     }
 
     final newGuestId = 'guest_${_generateUuid()}';
@@ -346,16 +377,63 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
   Widget visitElementAfter(md.Element element, TextStyle? preferredStyle) {
     var rawUrl = element.textContent.trim();
 
-    // Only inject userId and resolve puzzle URL if this is specifically the wordsearch puzzle
-    final isWordSearch = rawUrl.toLowerCase().contains('wordsearch') ||
+    // Check if this embed points to the ASCII art puzzle
+    final isAsciiArt = rawUrl.toLowerCase().contains('asciiart');
+
+    // If wordsearch has not been completed, render a broken link widget with a vague narrative hint
+    if (isAsciiArt && isWordsearchCompleted != true) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.danger),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.link_off, color: AppColors.danger, size: 28),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '404 - BROKEN LINK // ARCHIVE RESOURCE UNAVAILABLE',
+                    style: AppTextStyles.h3.copyWith(
+                      color: AppColors.danger,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'The referenced archive file cannot be retrieved. A decryption key is missing from the record—perhaps an earlier grid of letters in the notes holds the pattern.',
+                    style: AppTextStyles.body.copyWith(color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Inject userId and resolve puzzle URL for interactive ARG puzzles (wordsearch, asciiart, etc.)
+    final isPuzzle = rawUrl.toLowerCase().contains('wordsearch') ||
+        rawUrl.toLowerCase().contains('asciiart') ||
         rawUrl.toLowerCase().contains('puzzle');
 
-    if (isWordSearch) {
+    if (isPuzzle) {
       if (rawUrl.startsWith('/')) {
         rawUrl = '${AppConfig.puzzleAppBaseUrl}$rawUrl';
       }
 
-      final resolvedUserId = getEffectiveUserId(userId);
+      final resolvedUserId = (userId != null && userId!.trim().isNotEmpty)
+          ? userId!.trim()
+          : getEffectiveUserId(null);
 
       final parsedUri = Uri.tryParse(rawUrl);
       if (parsedUri != null) {
@@ -409,7 +487,7 @@ class UrlEmbedBuilder extends MarkdownElementBuilder {
           return NavigationActionPolicy.ALLOW;
         },
         onLoadStop: (controller, url) {
-          if (isWordSearch && url != null) {
+          if (isPuzzle && url != null) {
             final urlString = url.toString();
             if (urlString.contains('/shortUrl/') ||
                 urlString.contains('/game-hub') ||
