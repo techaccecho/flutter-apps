@@ -46,7 +46,7 @@ flowchart TD
 | **State Service** | `backend-service/apps/state-service` | Fastify / TypeScript | New standalone microservice for ARG state, dynamic DAG step graph evaluation, and progress sync. |
 | **Game Service** | `backend-service/apps/game-service` | Fastify / Godot | Preserved for future non-ARG game features (3D physics telemetry, leaderboards, mini-games). |
 
-| **Puzzle Engine** | `puzzle-apps` | Express / TypeScript | Evaluates Wordsearch puzzles and processes passcode submissions (`NHW`). |
+| **Puzzle Engine** | `puzzle-apps` | Express / TypeScript | Evaluates Wordsearch puzzles and processes passcode submissions (`WHN`). |
 | **State Database** | `puzzle-apps/src/services/convex` | Convex DB | Persistent storage for `stepDefinitions` and `argPlayerStates` indexed by Auth0 `userId`. |
 | **Playable Game** | `project-echo-game` | Godot 4 (HTML5/WebGL) | Playable web levels 1–4, Auth0 sign-in bridge, and progress state HTTP syncing. |
 
@@ -112,7 +112,7 @@ flowchart TD
 ### Phase 5: Web Puzzle Engine & Passcode Controller (`puzzle-apps`)
 - [ ] Update [routes/api.ts](file:///C:/Users/crayton.mfune/Documents/projects/techacc/puzzle-apps/src/routes/api.ts) to require Auth0 token verification.
 - [ ] Refactor `/api/step/verify` endpoint:
-  - Validates passcode inputs (e.g. `NHW` for `step_07_passcode`).
+  - Validates passcode inputs (e.g. `WHN` for `step_07_passcode`).
   - Calls `ConvexService.completeStep(userId, stepId)` and returns updated `nextAvailableSteps` + `unlockPayload`.
   - Enforces Step 7 lockout policy (6 failed attempts -> locks passcode input -> requires re-solving Step 2 Wordsearch in [WordSearchService.ts](file:///C:/Users/crayton.mfune/Documents/projects/techacc/puzzle-apps/src/services/word-search/WordSearchService.ts) to clear).
 
