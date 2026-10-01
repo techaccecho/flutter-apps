@@ -17,7 +17,7 @@ flowchart TD
     P2 -->|Passcode Inputs| P2_Input["Step 7: Blog Input Passcode Block"]
     
     P2_Input -->|6 Incorrect Attempts| Lockout["Lockout Triggered: Re-solve Step 2 Wordsearch to Reset"]
-    P2_Input -->|Correct Code: NHW| Ext_Haven["Step 8: Redirect to Haven Website"]
+    P2_Input -->|Correct Code: WHN| Ext_Haven["Step 8: Redirect to Haven Website"]
     
     Ext_Haven -->|Directs to| L2["Step 9: Godot Level 2"]
     L2 -->|Discover Chest Log| Chat_Lead["Step 10: Lead to Chat Forum Logs"]
@@ -31,9 +31,9 @@ flowchart TD
     YT -->|Extract Link| Git_Repo["Step 14: GitHub Repository"]
     Git_Repo --> P5["Step 15: Git Commit Clues (echo_part2_0392)"]
     
-    P5 -->|Acquire Passcode Part 2| L4["Step 16: Godot Level 4"]
+    P5 -->|Acquire Passcode Part 3| L4["Step 16: Godot Level 4"]
     L4 --> L4_Portal["Step 17: Level 4 Portal"]
-    L4_Portal --> L4_Unlock["Step 18: Combine Passwords (NHW + echo_part2_0392)"]
+    L4_Portal --> L4_Unlock["Step 18: Combine Passwords (WHN + K33P + echo_part2_0392)"]
     L4_Unlock -->|Seal Portal & Complete| Final["Step 19: Unlock QR Code & .onion URL"]
 ```
 
@@ -51,15 +51,15 @@ This matrix maps recovered investigation items from `extracted_artifacts.md` dir
 | **Step 4** | **Godot Level 1** | *Catalogued Collection (2007-04-29)* & *Map Offsets (2003-05-02)* | NPC Blacksmith dialogue in [greet.dialogue](file:///C:/Users/crayton.mfune/Documents/projects/techacc/project-echo-game/dialogue/greet.dialogue) and player inventory in [player_josh.gd](file:///C:/Users/crayton.mfune/Documents/projects/techacc/project-echo-game/character/player_josh.gd) mirror archive spreadsheets. |
 | **Step 5** | **Discover ASCII Hints** | *Cedric's Route Recreation (2024-01-01)* | Level 1 monolith coordinates match offsets documented in Cedric's archive post. |
 | **Step 6** | **ASCII Art Post** | *Echo Missing Files (2003-06-20)* | Grim Reaper ASCII image presented as visual reconstruction of missing file `Screenshot_024.png`. |
-| **Step 7** | **Blog Input Passcode** | *Decoded Notebook URL (2026-05-01)* | Entering passcode `NHW` in [api.ts](file:///C:/Users/crayton.mfune/Documents/projects/techacc/puzzle-apps/src/routes/api.ts) decrypts the ROT13 lagoon URL. |
-| **Step 8** | **Haven Website Redirect** | *Map Offsets & Dialogue (2003-05-02)* | Decrypted URL redirects player to the unlisted 2003 Haven Lagoon website (`unlisted_lagoon.html`). |
+| **Step 7** | **Blog Input Passcode** | *Decoded Notebook URL (2026-05-01)* | Entering passcode `WHN` in [api.ts](file:///C:/Users/crayton.mfune/Documents/projects/techacc/puzzle-apps/src/routes/api.ts) decrypts the ROT13 lagoon URL. |
+| **Step 8** | **Haven Website Redirect** | *Map Offsets & Dialogue (2003-05-02)* | Decrypted URL redirects player to the unlisted 2003 Haven Lagoon website (`unlisted_lagoon.html`), revealing Passcode Part 2 (`K33P`). |
 | **Step 9** | **Godot Level 2** | *Investigation Update (2003-08-08)* | Level 2 bridges and water currents replicate map file `HAVEN_MAP_03.png`. |
 | **Step 10** | **Lead to Chat Forum** | *Dialogue Logs (2003-05-02)* | Chest in Level 2 contains chat log records between Cedric and Haven's owner. |
 | **Step 11** | **Godot Level 3** | *Patterns In The World (2003-05-16)* | Generator breaker switches require coordinate patterns documented in Cedric's notes. |
 | **Step 12** | **Base64 Decryption** | *Indexing Cedric's Archive (2023-07-01)* | Level 3 mainframe terminal outputs corrupted Base64 index string. |
-| **Step 15** | **Git Commit Clue** | *Investigation Timeline (2026-07-06)* | Git commit history walk yields passcode part 2 (`echo_part2_0392`). |
+| **Step 15** | **Git Commit Clue** | *Investigation Timeline (2026-07-06)* | Git commit history walk yields passcode part 3 (`echo_part2_0392`). |
 | **Step 16 & 17** | **Level 4 & Portal** | *Preparing Final Route (2003-07-18)* | Level 4 platforming path and combined console match Cedric's final route sketches. |
-| **Step 18** | **Combine Passcodes** | *Combined Code Mechanics* | Terminal console combines ASCII code (`NHW`) and Git commit code (`echo_part2_0392`). |
+| **Step 18** | **Combine Passcodes** | *Combined Code Mechanics* | Terminal console combines ASCII code Part 1 (`WHN`), Lagoon clue Part 2 (`K33P`), and Git commit code Part 3 (`echo_part2_0392`) into `WHN_K33P_echo_part2_0392`. |
 | **Step 19** | **QR & Onion Link** | *Community Tracker (2026-08-01)* | Sealing portal triggers completion in [ConvexService.ts](file:///C:/Users/crayton.mfune/Documents/projects/techacc/puzzle-apps/src/services/convex/ConvexService.ts), logging token to the community database. |
 
 ---
