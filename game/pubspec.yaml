@@ -1,0 +1,53 @@
+name: game
+description: "Game Site"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+  
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  equatable: ^2.0.8
+  flutter_bloc: ^9.1.1
+  provider: ^6.0.5
+  auth0_flutter: ^2.0.0
+  flutter_markdown_plus: ^1.0.7
+  markdown: ^7.3.1
+  flutter_inappwebview: ^6.1.5
+  dio: ^5.9.2
+  intl: ^0.20.2
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/gameplay_screenshot.png
+    - assets/images/world_hearth_hollow.png
+    - assets/images/world_cliffside_path.png
+    - assets/images/world_corrupted_grove.png
+    - assets/images/world_haven.png
+    - assets/images/cast_traveler.png
+    - assets/images/cast_blacksmith.png
+    - assets/images/cast_forester.png
+    - assets/images/cast_cedric.png
+    - assets/images/cast_guardian.png
+
+  fonts:
+    - family: DataType
+      fonts:
+        - asset: assets/fonts/Datatype-Regular.ttf
+        - asset: assets/fonts/Datatype-Bold.ttf
+          weight: 700
