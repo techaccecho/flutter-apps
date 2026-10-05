@@ -453,328 +453,97 @@ class _TopHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Top status ticker
-        Container(
-          width: double.infinity,
-          color: const Color(0xff180d05),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: 6,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: Color(0xff4ade80),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    'EXPEDITION READY // GODOT 4 WASM',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-              const _AuthAction(),
-            ],
-          ),
-        ),
-
-        // Main retro title marquee
+        // Main Header Container matching the footer background and borders
         Container(
           width: double.infinity,
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xff2a180b), Color(0xff3f2512)],
-            ),
+            color: Color(0xff180d05),
             border: Border(
-              top: BorderSide(color: Color(0xff5a381b), width: 1.5),
+              bottom: BorderSide(color: Color(0xff3f2512), width: 1.5),
             ),
           ),
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,
-            AppSpacing.xl,
+            AppSpacing.md,
             AppSpacing.lg,
-            AppSpacing.lg,
+            AppSpacing.md,
           ),
-          child: Column(
-            children: [
-              const _Crest(),
-              const SizedBox(height: AppSpacing.sm),
-              const _Wordmark(),
-              const SizedBox(height: 6),
-              Text(
-                '❖  AN ACTION-ADVENTURE IN A SHIFTING JUNGLE REALM  ❖',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.primary.withValues(alpha: 0.85),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2.2,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _NavBar(
-                onHomeTap: onHomeTap,
-                onWorldTap: onWorldTap,
-                onCastTap: onCastTap,
-              ),
-            ],
-          ),
-        ),
-
-        // Retro dentil molding trim
-        const _RetroMoldingBar(),
-      ],
-    );
-  }
-}
-
-/// Hexagonal crest badge that anchors the wordmark, echoing Hearth Hollow's hearth-fire motif.
-class _Crest extends StatefulWidget {
-  const _Crest();
-
-  @override
-  State<_Crest> createState() => _CrestState();
-}
-
-class _CrestState extends State<_Crest> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1700),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        final t = _controller.value;
-        final pulse = 0.72 + (0.28 * math.sin(t * math.pi * 2));
-        final flicker = 0.78 + (0.22 * math.sin((t * math.pi * 2 * 3.1) + 0.5));
-        final glow = (pulse * flicker).clamp(0.55, 1.0);
-
-        return SizedBox(
-          width: 58,
-          height: 58,
-          child: Stack(
-            children: [
-              Center(
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        AppColors.primary.withValues(alpha: 0.2 * glow),
-                        Colors.transparent,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120),
+              child: Row(
+                children: [
+                  // Circular Emblem identical to the footer emblem
+                  InkWell(
+                    onTap: onHomeTap,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.primaryDark,
+                            border: Border.all(color: AppColors.primary, width: 1.5),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.local_fire_department,
+                              color: AppColors.primary,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              Strings.appName.toUpperCase(),
+                              style: AppTextStyles.title.copyWith(
+                                color: AppColors.background,
+                                fontSize: 20,
+                                letterSpacing: 3,
+                              ),
+                            ),
+                            Text(
+                              'AN ACTION-ADVENTURE IN A SHIFTING REALM',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textMuted,
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ),
-              CustomPaint(
-                painter: _CrestPainter(glow: glow),
-                child: Center(
-                  child: Icon(
-                    Icons.local_fire_department,
-                    color: Color.lerp(
-                      AppColors.primary,
-                      const Color(0xffffd08a),
-                      0.35 * glow,
-                    ),
-                    size: 24,
-                    shadows: [
-                      Shadow(
-                        color: AppColors.primary.withValues(alpha: 0.45 * glow),
-                        blurRadius: 8,
-                      ),
-                    ],
+
+                  const Spacer(),
+
+                  // Navigation links inline on desktop
+                  _NavBar(
+                    onHomeTap: onHomeTap,
+                    onWorldTap: onWorldTap,
+                    onCastTap: onCastTap,
                   ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
 
-class _CrestPainter extends CustomPainter {
-  final double glow;
+                  const SizedBox(width: AppSpacing.md),
 
-  _CrestPainter({this.glow = 1});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-    final path = Path();
-    for (var i = 0; i < 6; i++) {
-      final angle = (math.pi / 3) * i - math.pi / 2;
-      final point = Offset(
-        center.dx + radius * math.cos(angle),
-        center.dy + radius * math.sin(angle),
-      );
-      i == 0
-          ? path.moveTo(point.dx, point.dy)
-          : path.lineTo(point.dx, point.dy);
-    }
-    path.close();
-
-    canvas.drawPath(path, Paint()..color = AppColors.primaryDark);
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = AppColors.primary.withValues(alpha: 0.85 + (0.15 * glow))
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2 + (0.6 * glow),
-    );
-    canvas.drawCircle(
-      center,
-      radius - 9,
-      Paint()
-        ..color = AppColors.primary.withValues(alpha: 0.34 + (0.22 * glow))
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _CrestPainter oldDelegate) {
-    return oldDelegate.glow != glow;
-  }
-}
-
-class _Wordmark extends StatefulWidget {
-  const _Wordmark();
-
-  @override
-  State<_Wordmark> createState() => _WordmarkState();
-}
-
-class _WordmarkState extends State<_Wordmark>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2400),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        final t = _controller.value;
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _Flourish(phase: t),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              Strings.appName.toUpperCase(),
-              style: AppTextStyles.title.copyWith(
-                color: AppColors.background,
-                fontSize: 32,
-                letterSpacing: 6,
-                shadows: const [
-                  Shadow(color: Colors.black, offset: Offset(2, 2)),
+                  const _AuthAction(),
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            _Flourish(flipped: true, phase: t + 0.45),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _Flourish extends StatelessWidget {
-  final bool flipped;
-  final double phase;
-
-  const _Flourish({this.flipped = false, this.phase = 0});
-
-  @override
-  Widget build(BuildContext context) {
-    final wave = math.sin(phase * math.pi * 2);
-    final glow = 0.55 + ((wave + 1) * 0.2);
-    final drift = 1.2 * wave;
-
-    final line = Container(
-      width: 36,
-      height: 2,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0),
-            AppColors.primary.withValues(alpha: glow),
-          ],
+          ),
         ),
-      ),
-    );
 
-    final diamond = Transform.rotate(
-      angle: (math.pi / 4) + (0.07 * wave),
-      child: Container(width: 6, height: 6, color: AppColors.primary),
-    );
-
-    final content = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: flipped
-          ? [
-              diamond,
-              const SizedBox(width: 6),
-              Transform.flip(flipX: true, child: line),
-            ]
-          : [line, const SizedBox(width: 6), diamond],
-    );
-
-    return Transform.translate(
-      offset: Offset(flipped ? -drift : drift, 0),
-      child: content,
+        // Dentil molding bar directly under header matching footer
+        const _RetroMoldingBar(),
+      ],
     );
   }
 }
@@ -1248,10 +1017,7 @@ class _HeroSection extends StatelessWidget {
                           child: _HeroCopy(onExploreTap: onExploreTap),
                         ),
                         const SizedBox(width: AppSpacing.xl),
-                        const Expanded(
-                          flex: 6,
-                          child: _FramedScreenshot(),
-                        ),
+                        const Expanded(flex: 6, child: _FramedScreenshot()),
                       ],
                     ),
             ),
@@ -1699,7 +1465,7 @@ class _WorldSectionState extends State<_WorldSection> {
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
             isNarrow ? AppSpacing.md : AppSpacing.xl,
-            AppSpacing.xl + AppSpacing.md,
+            AppSpacing.xl + AppSpacing.sm,
             isNarrow ? AppSpacing.md : AppSpacing.xl,
             AppSpacing.xl + AppSpacing.lg,
           ),
@@ -1710,10 +1476,10 @@ class _WorldSectionState extends State<_WorldSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const _SectionBanner(
-                    eyebrow: 'Chapter I · Jungle Expedition',
+                    eyebrow: 'Chapter I · Overland Expedition',
                     title: 'The Overland Journey',
                     subtitle:
-                        'From the timber outpost of Hearth Hollow, up the windward cliffs, through the tangled corrupted canopy, and deep toward the ancient haven.',
+                        'Follow the path from the timber outpost of Hearth Hollow, up the windward cliffs, into the tangled canopy, and toward the lost haven.',
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _JungleRouteStrip(
@@ -1721,10 +1487,57 @@ class _WorldSectionState extends State<_WorldSection> {
                     onSelectStage: _scrollToStage,
                   ),
                   const SizedBox(height: AppSpacing.xl),
-                  _JungleJourneyTrail(
-                    isNarrow: isNarrow,
-                    stageKeys: _stageKeys,
-                  ),
+                  for (var i = 0; i < _levelPlates.length; i++) ...[
+                    _JungleStationCard(
+                      key: _stageKeys[i],
+                      plate: _levelPlates[i],
+                      stepIndex: i,
+                      isNarrow: isNarrow,
+                    ),
+                    if (i < _levelPlates.length - 1) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 2,
+                              height: 24,
+                              color: _levelPlates[i].accent.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text(
+                                  '❖',
+                                  style: TextStyle(
+                                    color: _levelPlates[i].accent,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    _levelPlates[i].trailTransition,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                      letterSpacing: 1.1,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
+                  ],
                 ],
               ),
             ),
@@ -1754,11 +1567,7 @@ class _JungleRouteStrip extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: AppColors.border, width: 2),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
         ],
       ),
       clipBehavior: Clip.antiAlias,
@@ -1921,7 +1730,6 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Sharp retro stage badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
@@ -1989,7 +1797,7 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '· ${plate.threatLevel.split(' // ').first.replaceAll('THREAT: ', '')}',
+                        '· ${plate.threatLevel.split(" // ").first.replaceAll("THREAT: ", "")}',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: plate.threatColor,
                           fontSize: 8.5,
@@ -2008,36 +1816,6 @@ class _RouteCheckpointButtonState extends State<_RouteCheckpointButton> {
   }
 }
 
-class _JungleJourneyTrail extends StatelessWidget {
-  final bool isNarrow;
-  final List<GlobalKey> stageKeys;
-
-  const _JungleJourneyTrail({required this.isNarrow, required this.stageKeys});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        for (var i = 0; i < _levelPlates.length; i++) ...[
-          _JungleStationCard(
-            key: stageKeys[i],
-            plate: _levelPlates[i],
-            stepIndex: i,
-            isNarrow: isNarrow,
-          ),
-          if (i < _levelPlates.length - 1)
-            _JungleTrailTransitionConnector(
-              plate: _levelPlates[i],
-              nextPlate: _levelPlates[i + 1],
-              isNarrow: isNarrow,
-            ),
-        ],
-      ],
-    );
-  }
-}
-
-/// Comprehensive Expedition Field Plate with CRT bezel and explorer logbook.
 class _JungleStationCard extends StatefulWidget {
   final _LevelPlate plate;
   final int stepIndex;
@@ -2137,10 +1915,7 @@ class _JungleStationCardState extends State<_JungleStationCard> {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            Divider(
-              color: plate.accent.withValues(alpha: 0.3),
-              thickness: 1,
-            ),
+            Divider(color: plate.accent.withValues(alpha: 0.3), thickness: 1),
             const SizedBox(height: AppSpacing.sm),
             isNarrow
                 ? Column(
@@ -2148,10 +1923,7 @@ class _JungleStationCardState extends State<_JungleStationCard> {
                     children: [
                       _StationVisualBlock(plate: plate),
                       const SizedBox(height: AppSpacing.md),
-                      _StationLogBlock(
-                        plate: plate,
-                        isHovered: _hovered,
-                      ),
+                      _StationLogBlock(plate: plate, isHovered: _hovered),
                     ],
                   )
                 : Row(
@@ -2485,102 +2257,6 @@ class _StationLogBlock extends StatelessWidget {
   }
 }
 
-/// Organic jungle trail connector between stations.
-class _JungleTrailTransitionConnector extends StatelessWidget {
-  final _LevelPlate plate;
-  final _LevelPlate nextPlate;
-  final bool isNarrow;
-
-  const _JungleTrailTransitionConnector({
-    required this.plate,
-    required this.nextPlate,
-    required this.isNarrow,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-      child: Column(
-        children: [
-          // Upper connecting vine line
-          Container(
-            width: 2,
-            height: 20,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  plate.accent.withValues(alpha: 0.7),
-                  AppColors.jungleLeaf.withValues(alpha: 0.5),
-                ],
-              ),
-            ),
-          ),
-          // Trail badge pill
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: 5,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xff1f1207),
-              borderRadius: BorderRadius.circular(3),
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.65),
-                width: 1.5,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.arrow_downward_rounded,
-                  size: 13,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  plate.trailTransition,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: const Color(0xffffe8b5),
-                    fontWeight: FontWeight.bold,
-                    fontSize: isNarrow ? 9.5 : 10.5,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Lower connecting vine line
-          Container(
-            width: 2,
-            height: 20,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.jungleLeaf.withValues(alpha: 0.5),
-                  nextPlate.accent.withValues(alpha: 0.7),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _CastSection extends StatefulWidget {
   const _CastSection({super.key});
 
@@ -2602,7 +2278,7 @@ class _CastSectionState extends State<_CastSection> {
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
             isNarrow ? AppSpacing.md : AppSpacing.xl,
-            AppSpacing.xl + AppSpacing.md,
+            AppSpacing.xl + AppSpacing.sm,
             isNarrow ? AppSpacing.md : AppSpacing.xl,
             AppSpacing.xl + AppSpacing.lg,
           ),
@@ -2618,35 +2294,13 @@ class _CastSectionState extends State<_CastSection> {
                     subtitle:
                         'Inspect the wanderers, guides, and ancient guardians encountered along the overland expedition.',
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _CastRosterStrip(
+                    selectedIndex: _selectedIndex,
+                    onSelectMember: (i) => setState(() => _selectedIndex = i),
+                  ),
                   const SizedBox(height: AppSpacing.xl),
-                  isNarrow
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _CastMobileSelector(
-                              selectedIndex: _selectedIndex,
-                              onSelect: (i) =>
-                                  setState(() => _selectedIndex = i),
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-                            _CastDossierCard(member: selected),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 360,
-                              child: _CastRosterList(
-                                selectedIndex: _selectedIndex,
-                                onSelect: (i) =>
-                                    setState(() => _selectedIndex = i),
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.xl),
-                            Expanded(child: _CastDossierCard(member: selected)),
-                          ],
-                        ),
+                  _CastDossierCard(member: selected),
                 ],
               ),
             ),
@@ -2657,34 +2311,38 @@ class _CastSectionState extends State<_CastSection> {
   }
 }
 
-class _CastRosterList extends StatelessWidget {
+/// Retro Party Select Strip matching the Overland Route Strip
+class _CastRosterStrip extends StatelessWidget {
   final int selectedIndex;
-  final ValueChanged<int> onSelect;
+  final ValueChanged<int> onSelectMember;
 
-  const _CastRosterList({required this.selectedIndex, required this.onSelect});
+  const _CastRosterStrip({
+    required this.selectedIndex,
+    required this.onSelectMember,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(8),
+        color: const Color(0xff1f1207),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(color: AppColors.border, width: 2),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
         ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Roster Header Strip
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
-              vertical: 7,
+              vertical: 6,
             ),
-            color: const Color(0xff221408),
+            color: const Color(0xff150a03),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -2693,7 +2351,7 @@ class _CastRosterList extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.groups_rounded,
-                      size: 15,
+                      size: 13,
                       color: AppColors.primary,
                     ),
                     const SizedBox(width: AppSpacing.xs),
@@ -2709,31 +2367,52 @@ class _CastRosterList extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  'ACTIVE',
+                  'ACTIVE EXPEDITION',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: const Color(0xff4ade80),
                     fontWeight: FontWeight.bold,
                     fontSize: 9,
-                    letterSpacing: 1,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              children: [
-                for (var i = 0; i < _castMembers.length; i++) ...[
-                  _CastRosterEntry(
-                    member: _castMembers[i],
-                    selected: i == selectedIndex,
-                    onTap: () => onSelect(i),
-                  ),
-                  if (i < _castMembers.length - 1)
-                    const SizedBox(height: AppSpacing.xs + 2),
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var i = 0; i < _castMembers.length; i++) ...[
+                    _CastRosterButton(
+                      member: _castMembers[i],
+                      index: i + 1,
+                      isSelected: selectedIndex == i,
+                      onTap: () => onSelectMember(i),
+                    ),
+                    if (i < _castMembers.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 1.5,
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                            ),
+                            Icon(
+                              Icons.arrow_right_rounded,
+                              size: 18,
+                              color: AppColors.primary.withValues(alpha: 0.75),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],
@@ -2742,170 +2421,128 @@ class _CastRosterList extends StatelessWidget {
   }
 }
 
-class _CastRosterEntry extends StatelessWidget {
+class _CastRosterButton extends StatefulWidget {
   final _CastMember member;
-  final bool selected;
+  final int index;
+  final bool isSelected;
   final VoidCallback onTap;
 
-  const _CastRosterEntry({
+  const _CastRosterButton({
     required this.member,
-    required this.selected,
+    required this.index,
+    required this.isSelected,
     required this.onTap,
   });
 
   @override
+  State<_CastRosterButton> createState() => _CastRosterButtonState();
+}
+
+class _CastRosterButtonState extends State<_CastRosterButton> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: selected
-              ? member.accent.withValues(alpha: 0.16)
-              : AppColors.surface.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: selected
-                ? member.accent
-                : AppColors.border.withValues(alpha: 0.35),
-            width: selected ? 2 : 1,
+    final member = widget.member;
+    final selected = widget.isSelected;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(3),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm + 2,
+            vertical: 6,
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: selected
-                      ? member.accent
-                      : AppColors.border.withValues(alpha: 0.5),
-                  width: 1.5,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.asset(member.imageAsset, fit: BoxFit.cover),
+          decoration: BoxDecoration(
+            color: selected
+                ? const Color(0xff351f0f)
+                : (_hovered
+                    ? const Color(0xff2a180b)
+                    : const Color(0xff1a0e05)),
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(
+              color: selected
+                  ? member.accent
+                  : (_hovered
+                      ? member.accent.withValues(alpha: 0.6)
+                      : const Color(0xff3d2412)),
+              width: selected ? 1.8 : 1.2,
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: member.accent.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3),
+                  border: Border.all(
+                    color: selected ? member.accent : AppColors.border.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(member.imageAsset, fit: BoxFit.cover),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: member.accent,
-                          shape: BoxShape.circle,
+                      Text(
+                        member.name.toUpperCase(),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: selected
+                              ? const Color(0xffffe8b5)
+                              : AppColors.background,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          letterSpacing: 1.0,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          member.stage.toUpperCase(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodySmall.copyWith(
+                      if (selected) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '◀',
+                          style: TextStyle(
                             color: member.accent,
-                            fontWeight: FontWeight.bold,
                             fontSize: 9,
-                            letterSpacing: 0.8,
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 2),
                   Text(
-                    member.name,
-                    style: AppTextStyles.h3.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: selected ? FontWeight.bold : FontWeight.w600,
-                      fontSize: 16,
+                    member.stage.toUpperCase(),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textMuted,
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-            ),
-            if (selected)
-              Icon(Icons.play_arrow_rounded, color: member.accent, size: 20),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _CastMobileSelector extends StatelessWidget {
-  final int selectedIndex;
-  final ValueChanged<int> onSelect;
-
-  const _CastMobileSelector({
-    required this.selectedIndex,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (var i = 0; i < _castMembers.length; i++) ...[
-            InkWell(
-              onTap: () => onSelect(i),
-              borderRadius: BorderRadius.circular(6),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: i == selectedIndex
-                      ? _castMembers[i].accent.withValues(alpha: 0.22)
-                      : AppColors.card,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: i == selectedIndex
-                        ? _castMembers[i].accent
-                        : AppColors.border.withValues(alpha: 0.3),
-                    width: i == selectedIndex ? 2 : 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Image.asset(
-                        _castMembers[i].imageAsset,
-                        width: 28,
-                        height: 28,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(
-                      _castMembers[i].name,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (i < _castMembers.length - 1)
-              const SizedBox(width: AppSpacing.xs),
-          ],
-        ],
       ),
     );
   }
@@ -3139,10 +2776,7 @@ class _CastDossierCardState extends State<_CastDossierCard> {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            Divider(
-              color: member.accent.withValues(alpha: 0.35),
-              thickness: 1,
-            ),
+            Divider(color: member.accent.withValues(alpha: 0.35), thickness: 1),
             const SizedBox(height: AppSpacing.md),
             isCompact
                 ? Column(
